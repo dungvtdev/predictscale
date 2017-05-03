@@ -10,14 +10,11 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from django.utils.translation import ugettext_lazy as _
+from django.conf.urls import url
 
-import horizon
-from openstack_dashboard.dashboards.monitoring import dashboard
-
-class Configpanel(horizon.Panel):
-    name = _("Configpanel")
-    slug = "configpanel"
+from openstack_dashboard.dashboards.monitoring.scalepanel import views
 
 
-dashboard.Monitoring.register(Configpanel)
+urlpatterns = [
+    url(r'^$', views.IndexView.as_view(), name='index'),
+]

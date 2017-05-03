@@ -10,13 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from horizon import views
+from horizon.test import helpers as test
 
 
-class IndexView(views.APIView):
-    # A very simple class-based view...
-    template_name = 'monitoring/configpanel/index.html'
-
-    def get_data(self, request, context, *args, **kwargs):
-        # Add data to the context here...
-        return context
+class ConfigpanelTests(test.TestCase):
+    # Unit tests for configpanel.
+    def test_me(self):
+        self.assertTrue(1 + 1 == 2)

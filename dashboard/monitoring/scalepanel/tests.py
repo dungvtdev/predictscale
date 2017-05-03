@@ -10,11 +10,10 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-from django.conf.urls import url
-
-from openstack_dashboard.dashboards.monitoring.configpanel import views
+from horizon.test import helpers as test
 
 
-urlpatterns = [
-    url(r'^$', views.IndexView.as_view(), name='index'),
-]
+class ConfigpanelTests(test.TestCase):
+    # Unit tests for configpanel.
+    def test_me(self):
+        self.assertTrue(1 + 1 == 2)

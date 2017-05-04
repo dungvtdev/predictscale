@@ -21,7 +21,11 @@ def apply_config(key, config):
         return
 
     global CONF
-    base_config = getattr(CONF, key, None)
+    if not isinstance(config, dict):
+        CONF[key] = config
+        return
+
+    base_config = CONF.get(key, None)
     if not base_config:
         CONF[key] = {}
         base_config = CONF[key]

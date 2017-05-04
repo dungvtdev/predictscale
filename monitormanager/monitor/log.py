@@ -1,11 +1,10 @@
 import os
 import logging
-import configtool
 
 
 def init(config_module):
     global def_config
-    def_config = configtool.get_config('LOG')
+    def_config = config_module.get_config('LOG')
 
 
 def get_params(config):
@@ -14,7 +13,7 @@ def get_params(config):
 
     if not file or not level_s:
         raise ValueError('file, level of log must be defined \
-        (file: %s, level: %s' % (file, level_s))
+        file: %s, level: %s' % (file, level_s))
 
     level = getattr(logging, level_s)
 

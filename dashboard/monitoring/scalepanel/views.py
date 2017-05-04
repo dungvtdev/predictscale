@@ -9,14 +9,20 @@
 # WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
 # License for the specific language governing permissions and limitations
 # under the License.
+from django.utils.translation import ugettext_lazy as _
 
-from horizon import views
+from horizon import tables
+from horizon import tabs
+from openstack_dashboard.dashboards.monitoring.scalepanel \
+    import tabs as scale_tabs
 
 
-class IndexView(views.APIView):
-    # A very simple class-based view...
+class IndexView(tabs.TabbedTableView):
+    tab_group_class = scale_tabs.ScaleRulesSettingTabs
     template_name = 'monitoring/scalepanel/index.html'
+    page_title = _('Scale Rules')
 
-    def get_data(self, request, context, *args, **kwargs):
-        # Add data to the context here...
+    def get_context_data(self, **kwargs):
+        context = super(IndexView, self).get_context_data(**kwargs)
+
         return context

@@ -20,6 +20,8 @@ class GroupResourceId(object):
         pass
 
 
-def setup_api(api):
-    api.add_route('/groups', GroupResource())
-    api.add_route('/groups/{group_id}', GroupResourceId())
+routes = [
+    ('/groups', GroupResource()),
+    ('/groups/{group_id}', GroupResourceId())
+]
+

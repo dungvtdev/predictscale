@@ -23,13 +23,13 @@ class App(object):
 
     def _get_endpoints(self):
         return [
-            ('v1', v1.endpoint)
+            ('/v1', v1.endpoint)
         ]
 
     def _get_middlewares(self):
         return [
-            middlewares.DeserializeMiddleware(),
-            middlewares.SerializeMiddleware()
+            middlewares.RequireJSON(),
+            middlewares.JSONTranslator(),
         ]
 
     def _error_handler(self, exc, request, response, params):
@@ -47,7 +47,7 @@ class App(object):
 
         host = server_conf['address']
         port = server_conf['port']
-        msgtmpl = (u'Serving on host %(host)s:%(port)s')
+        msgtmpl = u'Serving on host %(host)s:%(port)s'
         self._logger.info(msgtmpl, {'host': host, 'port': port})
 
         httpd = simple_server.make_server(host, port, self.app)

@@ -1,11 +1,11 @@
 import falcon
-
+from . import backend
 
 class GroupResource(object):
-    def on_get(self, req, resp):
+    def on_get(self, req, resp, user_id):
         pass
 
-    def on_post(self, req, resp):
+    def on_post(self, req, resp, user_id):
         pass
 
 
@@ -21,7 +21,7 @@ class GroupResourceId(object):
 
 
 routes = [
-    ('/groups', GroupResource()),
-    ('/groups/{group_id}', GroupResourceId())
+    ('/user/{user_id}/groups', GroupResource()),
+    ('/user/{user_id}/groups/{group_id}', GroupResourceId())
 ]
 

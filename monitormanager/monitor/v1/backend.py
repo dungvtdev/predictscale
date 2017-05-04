@@ -47,9 +47,9 @@ class DBBackend(object):
 
         self._close_localsession()
 
-    def drop_group(self, id=None):
-        if id is None:
-            raise ValueError('group id must is not None')
+    def drop_group(self, user_id, group_id):
+        if user_id is None or group_id is None:
+            raise ValueError('Delete group get invalid value')
         ss = self._get_localsession()
         group = ss.query(models.Group).filter(models.Group.id == id).first()
         if group is not None:
@@ -57,3 +57,9 @@ class DBBackend(object):
             ss.commit()
 
         self._close_localsession()
+
+    def get_groups(self, user_id):
+        ss = self._get_localsession()
+        groups = ss.query(models.Group).filter(models.Group.user_id == user_id).all()
+        self._close_localsession()
+        return groups

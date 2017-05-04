@@ -10,11 +10,12 @@ class Group(Base):
     __tablename__ = 'group'
 
     id = Column(Integer, primary_key=True)
+    user_id = Column(String(250), nullable=False)
     name = Column(String(250), nullable=False, unique=True)
     desc = Column(String(250), nullable=True)
     image_id = Column(String(250))
-    instances = relationship(Instance, backref='group', lazy='dynamic')
-    rules = relationship(Rule, backref='group', lazy='dynamic')
+    instances = relationship(Instance, backref='group')
+    rules = relationship(Rule, backref='group')
     # script_file
 
     def __repr__(self):
@@ -40,6 +41,7 @@ class Rule(Base):
     __tablename__ = 'rule'
 
     id = Column(Integer, primary_key=True)
+    user_id = Column(String(250), nullable=False)
     metric = Column(String(50), nullable=False)
     threshold_upper = Column(Integer, nullable=False)
     threshold_lower = Column(Integer, nullable=False)

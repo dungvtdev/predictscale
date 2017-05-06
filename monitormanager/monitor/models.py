@@ -13,14 +13,23 @@ class Group(Base):
     user_id = Column(String(250), nullable=False)
     name = Column(String(250), nullable=False, unique=True)
     desc = Column(String(250), nullable=True)
-    image_id = Column(String(250))
-    instances = relationship(Instance, backref='group')
-    rules = relationship(Rule, backref='group')
-    # script_file
+    image = Column(String(250))
+    flavor = Column(String(250))
+    instances = relationship("Instance", backref='group')
 
     def __repr__(self):
-        return "<User(name='%s', desc='%s', image_id='%s')>" \
-            % (self.name, self.desc, self.image_id)
+        return "<User(name='%s')>" \
+            % (self.name)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'desc': self.desc,
+            'image': self.image,
+            'flavor': self.flavor,
+            'instances': [i.instance_id for i in self.instances],
+        }
 
 
 class Instance(Base):
@@ -30,26 +39,8 @@ class Instance(Base):
     user_id = Column(String(250), nullable=False)
     instance_id = Column(String(250), nullable=False, unique=True)
     group_id = Column(Integer, ForeignKey('group.id'))
-    group = relationship(Group)
 
     def __repr__(self):
         return "<Instance(user_id='%s', instance_id='%s', group_id='%s')>" \
             % (self.user_id, self.instance_id, self.group_id)
 
-
-class Rule(Base):
-    __tablename__ = 'rule'
-
-    id = Column(Integer, primary_key=True)
-    user_id = Column(String(250), nullable=False)
-    metric = Column(String(50), nullable=False)
-    threshold_upper = Column(Integer, nullable=False)
-    threshold_lower = Column(Integer, nullable=False)
-    node_change = Column(Integer)
-    status = Column(Boolean)
-    group_id = Column(Integer, ForeignKey('group.id'))
-    group = relationship(Group)
-
-    def __repr__(self):
-        return "<Rule(metric='%s', group_id='%s', status='%s')>" \
-            % (self.metric, self.group_id, self.status)

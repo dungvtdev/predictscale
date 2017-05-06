@@ -3,11 +3,11 @@ LOG = {
 }
 
 SERVER = {
-    'address': '127.0.0.1',
+    'address': '0.0.0.0',
     'port': 8008
 }
 
 DB = {
-    'engine': 'sqlite://db.sqlite',
+    'engine': 'sqlite:///db.sqlite',
     'debug': True,
 }

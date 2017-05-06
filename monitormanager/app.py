@@ -49,6 +49,7 @@ class App(object):
         port = server_conf['port']
         msgtmpl = u'Serving on host %(host)s:%(port)s'
         self._logger.info(msgtmpl, {'host': host, 'port': port})
+        print(msgtmpl % {'host': host, 'port': port})
 
         httpd = simple_server.make_server(host, port, self.app)
         httpd.serve_forever()

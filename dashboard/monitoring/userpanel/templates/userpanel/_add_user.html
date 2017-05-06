@@ -1,0 +1,11 @@
+{% extends "horizon/common/_modal_form.html" %}
+{% load i18n %}
+
+{% block ng_controller %}ImageFormController as ctrl{% endblock %}
+{% block form_attrs %}enctype="multipart/form-data"{% endblock %}
+
+
+{% block modal-body-right %}
+    <h3>{% trans "Description:" %}</h3>
+    <p> Add new user to notify when instances is scale</p>
+{% endblock %}

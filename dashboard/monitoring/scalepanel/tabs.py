@@ -1,6 +1,6 @@
 from django.utils.translation import ugettext_lazy as _
 from horizon import tabs
-from openstack_dashboard.dashboards.monitoring.scalegroup \
+from openstack_dashboard.dashboards.monitoring.scalepanel \
     import tables as scalegroup_tables
 
 from openstack_dashboard.api import nova
@@ -12,7 +12,7 @@ class ScaleGroupTab(tabs.TableTab):
     slug = 'scalegroup'
     template_name = "horizon/common/_detail_table.html"
 
-    def get_scalegroups_tab(self):
+    def get_scalegroups_data(self):
         pass
 
 
@@ -22,7 +22,7 @@ class ScaleRuleTab(tabs.TableTab):
     slug = 'scalerule'
     template_name = "horizon/common/_detail_table.html"
 
-    def get_scale_rule_tab(self):
+    def get_scale_rule_data(self):
         pass
 
 

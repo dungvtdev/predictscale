@@ -10,19 +10,50 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 from django.utils.translation import ugettext_lazy as _
-
+from django.core.urlresolvers import reverse_lazy
 from horizon import tables
-from horizon import tabs
+from horizon import forms
+from horizon import workflows
 from openstack_dashboard.dashboards.monitoring.scalepanel \
-    import tabs as scale_tabs
+    import tables as scale_tables
+from openstack_dashboard.dashboards.monitoring.scalepanel \
+    import workflows as scale_workflows
 
 
-class IndexView(tabs.TabbedTableView):
-    tab_group_class = scale_tabs.ScaleRulesSettingTabs
+class GroupData:
+    def __init__(self, id, name, desc, instances, image, flavor, enable):
+        self.id = id
+        self.group_name = name
+        self.group_desc = desc
+        self.instances = instances
+        self.image = image
+        self.flavor = flavor
+        self.enable = enable
+
+
+class AddView(workflows.WorkflowView):
+    workflow_class = scale_workflows.AddGroup
+    # dung lai template mac dinh
+    template_name = 'admin/flavors/create.html'
+    page_title = _("Add Group")
+
+
+class UpdateView(workflows.WorkflowView):
+    workflow_class = scale_workflows.UpdateGroup
+    template_name = 'admin/flavors/create.html'
+    page_title = _("Update Group")
+
+
+class IndexView(tables.DataTableView):
+    table_class = scale_tables.ScaleGroupTable
     template_name = 'monitoring/scalepanel/index.html'
-    page_title = _('Scale Rules')
+    page_title = _('Scale')
+
+    def get_data(self):
+        return [
+            GroupData(11, 'test', 'test', 'test', 'test', 'test', 'Enable')
+        ]
 
     def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)
-
         return context

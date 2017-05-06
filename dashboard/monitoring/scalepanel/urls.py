@@ -17,4 +17,6 @@ from openstack_dashboard.dashboards.monitoring.scalepanel import views
 
 urlpatterns = [
     url(r'^$', views.IndexView.as_view(), name='index'),
+    url(r'^add_group', views.AddView.as_view(), name='add_group'),
+    url(r'^(?P<id>[^/]+)/update/$', views.UpdateView.as_view(), name='update'),
 ]

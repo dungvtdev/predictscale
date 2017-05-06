@@ -1,6 +1,46 @@
-from django.utils.translation import ugettext_lazy as _
-
 from horizon import tables
+from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ungettext_lazy
+
+
+class DeleteGroup(tables.DeleteAction):
+    @staticmethod
+    def action_present(count):
+        return ungettext_lazy(
+            u"Delete Group",
+            u"Delete Groups",
+            count
+        )
+
+    @staticmethod
+    def action_past(count):
+        return ungettext_lazy(
+            u"Deleted Group",
+            u"Deleted Groups",
+            count
+        )
+
+    def delete(self, request, obj_id):
+        pass
+
+
+class AddGroup(tables.LinkAction):
+    name = 'add_group'
+    verbose_name = _('Add Group')
+    url = 'horizon:monitoring:scalepanel:add_group'
+    classes = ('ajax-modal', )
+    icon = 'plus'
+
+    def allowed(self, request, datum=None):
+        return True
+
+
+class UpdateGroup(tables.LinkAction):
+    name = "update"
+    verbose_name = _("Edit Group")
+    url = "horizon:monitoring:scalepanel:update"
+    classes = ("ajax-modal",)
+    icon = "pencil"
 
 
 class ScaleGroupTable(tables.DataTable):
@@ -13,12 +53,15 @@ class ScaleGroupTable(tables.DataTable):
     instances = tables.Column("instances",
                               verbose_name=_("Instances"))
 
-    rules_appling = tables.Column("rules_appling",
-                                  verbose_name=_("Rules (Appling)"))
-
-    rules_queueing = tables.Column("rules_queueing",
-                                   verbose_name=_('Rules (Queueing)'))
+    image = tables.Column("image",
+                          verbose_name=_("Image"))
+    flavor = tables.Column("flavor",
+                           verbose_name=_("Flavor"))
+    enable = tables.Column("enable",
+                           verbose_name=_("Enable"))
 
     class Meta(object):
         name = 'scalegroups'
         verbose_name = _("ScaleGroups")
+        table_actions = (AddGroup, DeleteGroup, )
+        row_actions = (UpdateGroup, )

@@ -17,7 +17,7 @@ from openstack_dashboard.dashboards.monitoring import dashboard
 
 
 class ScalePanel(horizon.Panel):
-    name = _("Scale Rules")
+    name = _("Scale Panel")
     slug = "scalepanel"
 
 

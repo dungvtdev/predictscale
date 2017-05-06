@@ -1,6 +1,7 @@
 from horizon import forms
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
+from horizon import messages
 
 
 class AddUserForm(forms.SelfHandlingForm):
@@ -17,6 +18,10 @@ class AddUserForm(forms.SelfHandlingForm):
         name = data['name']
         email = data['email']
         enable = data['enable']
+
+        message = (_('Successfully updated aggregate: "%s."')
+                   % name)
+        messages.success(request, message)
         return True
 
     def get_success_url(self):

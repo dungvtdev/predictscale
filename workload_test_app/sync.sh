@@ -1,0 +1,1 @@
+scp $(pwd)/* dungvt@testing:~/

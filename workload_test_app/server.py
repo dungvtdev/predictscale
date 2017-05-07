@@ -118,8 +118,9 @@ db = StorageEngine()
 things = ThingsResource(db)
 app.add_route('/{user_id}/things', things)
 
+
 def rand_factor(num):
-    amount = int(0.3 * num)
+    amount = int(0.15 * num)
     rnd = random.randint(-amount, amount)
     return num + rnd
 

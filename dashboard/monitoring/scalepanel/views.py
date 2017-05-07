@@ -19,16 +19,33 @@ from openstack_dashboard.dashboards.monitoring.scalepanel \
 from openstack_dashboard.dashboards.monitoring.scalepanel \
     import workflows as scale_workflows
 
+from openstack_dashboard.dashboards.monitoring.backend.monitorclient \
+    import MonitorClient
+
 
 class GroupData:
-    def __init__(self, id, name, desc, instances, image, flavor, enable):
+    def __init__(self, id=None, name=None, desc=None, instances=None,
+                 image=None, flavor=None, enable=None):
         self.id = id
-        self.group_name = name
-        self.group_desc = desc
-        self.instances = instances
-        self.image = image
-        self.flavor = flavor
-        self.enable = enable
+        self.group_name = name or ''
+        self.group_desc = desc or ''
+        self.instances = instances or ''
+        self.image = image or ''
+        self.flavor = flavor or ''
+        self.enable = 'True'
+
+    @classmethod
+    def create(cls, group_dict):
+        g = group_dict
+        instances = g['instances']
+        instances_str = '\n'.join(instances)
+
+        return GroupData(id=g['id'],
+                         name=g['name'],
+                         desc=g['desc'],
+                         instances=instances_str,
+                         image=g['image'],
+                         flavor=g['flavor'])
 
 
 class AddView(workflows.WorkflowView):
@@ -50,9 +67,8 @@ class IndexView(tables.DataTableView):
     page_title = _('Scale')
 
     def get_data(self):
-        return [
-            GroupData(11, 'test', 'test', 'test', 'test', 'test', 'Enable')
-        ]
+        group_dicts = MonitorClient.default().get_groups(self.request)
+        return [GroupData.create(g) for g in group_dicts]
 
     def get_context_data(self, **kwargs):
         context = super(IndexView, self).get_context_data(**kwargs)

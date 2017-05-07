@@ -39,7 +39,7 @@ class AuthAgent(object):
 class UserTokenAuth(AuthAgent):
     user_id = None
 
-    def __init__(self, user_id, **kwargs):
+    def __init__(self, user_id=None, **kwargs):
         super(UserTokenAuth, self).__init__(**kwargs)
         self.user_id = user_id
 

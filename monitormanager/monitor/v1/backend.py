@@ -67,7 +67,7 @@ class DBBackend(object):
                         instance.group_id = group.id
                     else:
                         instance = models.Instance(user_id=user_id,
-                                                   group_id=group_id,
+                                                   group_id=group.id,
                                                    instance_id=inst_id)
                         session.add(instance)
 

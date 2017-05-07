@@ -1,6 +1,8 @@
 from django.utils.translation import ugettext_lazy as _
 from horizon import workflows
 from horizon import forms
+from openstack_dashboard import api
+from horizon import exceptions
 
 
 class AddGroupInfoAction(workflows.Action):
@@ -17,10 +19,23 @@ class AddGroupInfoAction(workflows.Action):
     flavor = forms.ChoiceField(label='Flavor')
 
     def populate_image_choices(self, request, context):
-        return [(1, 'test')]
+        try:
+            images, _, _ = \
+                api.glance.image_list_detailed(self.request)
+        except Exception:
+            images = []
+            exceptions.handle(self.request, _("Unable to retrieve images."))
+        return [(img.id, '%s {%s}' % (img.name, img.id)) for img in images]
 
     def populate_flavor_choices(self, request, context):
-        return [(1, 'test')]
+        try:
+            flavors, _, _ = api.nova.flavor_list_paged(request)
+            print(flavors)
+        except Exception:
+            flavors = []
+            exceptions.handle(request,
+                              _('Unable to retrieve flavor list.'))
+        return [(f.id, '%s{%s}' % (f.name, f.id))for f in flavors]
 
     class Meta(object):
         name = _("Group Information")
@@ -40,13 +55,57 @@ class AddGroupInfo(workflows.Step):
 
 class UpdateGroupInstancesAction(workflows.MembershipAction):
     def __init__(self, request, *args, **kwargs):
-        super(UpdateGroupInstances, self).__init__(request,
-                                                   *args, **kwargs)
+        super(UpdateGroupInstancesAction, self).__init__(request,
+                                                         *args,
+                                                         **kwargs)
+        err_msg = _('Unable to retrieve instances list. '
+                    'Please try again later.')
         context = args[0]
+
+        default_role_field_name = self.get_default_role_field_name()
+        self.fields[default_role_field_name] = forms.CharField(required=False)
+        self.fields[default_role_field_name].initial = 'member'
+
+        field_name = self.get_member_field_name('member')
+        self.fields[field_name] = forms.MultipleChoiceField(required=False)
+
+        # Get list of available projects.
+        all_instances = []
+        try:
+            all_instances, hasmore = api.nova.server_list(self.request)
+        except Exception:
+            exceptions.handle(request, err_msg)
+
+        instances_list = [(inst.id, inst.name)
+                          for inst in all_instances]
+
+        self.fields[field_name].choices = instances_list
+
+        # If we have a POST from the CreateFlavor workflow, the flavor id
+        # isn't an existing flavor. For the UpdateFlavor case, we don't care
+        # about the access list for the current flavor anymore as we're about
+        # to replace it.
+        if request.method == 'POST':
+            return
+
+        # Get list of flavor projects if the flavor is not public.
+        # group_id = context.get('group_id')
+        # group_instance = []
+        # try:
+        #     if group_id:
+        #         flavor = api.nova.flavor_get(request, flavor_id)
+        #         if not flavor.is_public:
+        #             flavor_access = [project.tenant_id for project in
+        #                              api.nova.flavor_access_list(request,
+        #                                                          flavor_id)]
+        # except Exception:
+        #     exceptions.handle(request, err_msg)
+
+        # self.fields[field_name].initial = flavor_access
 
     class Meta(object):
         name = _("Group Instances")
-        slug = "update_group_instances"
+        slug = "update_group_instance"
 
 
 class UpdateGroupInstances(workflows.UpdateMembersStep):

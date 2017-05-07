@@ -1,0 +1,1 @@
+SELECT DERIVATIVE(value, 1s) / 1000000000 FROM cpu_usage_total WHERE time > now() - 10m GROUP BY container_name

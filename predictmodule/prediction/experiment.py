@@ -2,6 +2,11 @@ from core.predictor import base
 from datafetch import datacsv
 from datafeeder import experiment_feeder as ef
 
+from sklearn.metrics import mean_squared_error
+from utils.GraphUtil import *
+from math import sqrt
+
+
 if __name__ == '__main__':
     n_input = 4
     n_periodic = 1
@@ -20,3 +25,11 @@ if __name__ == '__main__':
                                period=period)
     feeder = ef.ExperimentFeeder(csv_reader)
     predictor.train(feeder)
+
+    test_feeder = ef.ExperimentTestFeeder(csv_reader)
+    o_pred, o = predictor.predict_test(test_feeder)
+    o_pred = test_feeder.postprocess_data(o_pred)
+    o = test_feeder.postprocess_data(o)
+    print("done")
+    print(sqrt(mean_squared_error(o_pred, o)))
+    plot_figure(o_pred, o)

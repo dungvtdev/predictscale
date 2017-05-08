@@ -3,6 +3,7 @@ from ..estimators.NeuralFlow import NeuralFlowRegressor
 
 
 class Predictor():
+    neural = None
 
     def __init__(self, n_input=0, n_periodic=0, period=0, n_neural_hidden=0,
                  cross_rate=0.6, mutation_rate=0.04, pop_size=50):
@@ -32,3 +33,10 @@ class Predictor():
         neuralNet = NeuralFlowRegressor()
         neuralNet.fit(in_train, out_train, **fit_param)
         self.neural = neuralNet
+
+    def predict_test(self, dataFeeder):
+        in_test, out_test = dataFeeder.fetch_training(
+            self._n_input, self._n_periodic, self.period)
+
+        out_pred = self.neural.predict(in_test)
+        return out_pred, out_test

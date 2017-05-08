@@ -18,7 +18,7 @@ class DataMinuteMixin():
         return self.get_current_data_minute(utc, 60)
 
 
-class CPUTotalFeeder(DataMinuteMixin, driver.DataBatchGet):
+class CPUTotalFetch(DataMinuteMixin, driver.DataBatchGet):
     # batch_size seconds
     # endpoint: ip:port
 

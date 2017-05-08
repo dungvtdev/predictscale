@@ -1,4 +1,6 @@
 from . import base
+import pandas as pd
+import numpy as np
 
 
 class ExperimentFeeder(base.BaseFeeder):
@@ -31,4 +33,42 @@ class ExperimentTestFeeder(base.BaseFeeder):
                    period=period)
         data = self.data_fetch.fetch_series()
         range_train = (46, 48)
+        return self.generate(data, range_train)
+
+
+class ExperimentFeeder2(ExperimentFeeder):
+
+    def preprocess_data(self, data):
+        data = base.clamp_01(data)
+        return ExperimentFeeder.preprocess_data(self, data)
+
+    def fetch_training(self, n_input=None, n_periodic=None, period=None):
+        period = 480
+        self.setup(n_input=n_input,
+                   n_periodic=n_periodic,
+                   period=period)
+        data = self.data_fetch.fetch_series()
+        range_train = (1, 4.5)
+        gdata_x, gdata_y = self.generate(data, range_train)
+        # cdata = pd.Series(data=gdata_y)
+        # cdata.to_csv('gdata_y', index=False, header=False)
+        return gdata_x, gdata_y
+
+
+class ExperimentTestFeeder2(ExperimentTestFeeder):
+
+    def preprocess_data(self, data):
+        data = base.clamp_01(data)
+        return ExperimentTestFeeder.preprocess_data(self, data)
+
+    def postprocess_data(self, data):
+        return ExperimentTestFeeder.postprocess_data(self, data)
+
+    def fetch_training(self, n_input=None, n_periodic=None, period=None):
+        period = 480
+        self.setup(n_input=n_input,
+                   n_periodic=n_periodic,
+                   period=period)
+        data = self.data_fetch.fetch_series()
+        range_train = (4.5, 5)
         return self.generate(data, range_train)

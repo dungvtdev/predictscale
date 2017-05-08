@@ -15,7 +15,11 @@ def unnormalize(data, min_val, max_val):
 
 def clamp_01(data):
     data[(data > 1) | (data < 0)] = np.nan
-    data.interpolate()
+    data = data.interpolate()
+    i = 0
+    while(np.isnan(data[i])):
+        data[i] = 0
+        i = i + 1
     return data
 
 
@@ -41,7 +45,8 @@ class BaseFeeder():
     def generate(self, data, range_data):
         data = self.preprocess_data(data)
         period = self.period
-        output_train = data[period * range_data[0]:period * range_data[1]]
+        output_train = data[int(period * range_data[0]):
+                            int(period * range_data[1])]
         input_train = self.get_train_data(output_train, data)
         return np.asarray(input_train), np.asarray(output_train)
 

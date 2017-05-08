@@ -44,6 +44,16 @@ class Series(object):
         last = d_min.index[-1].value / 1000000000
         self.append(d_min, last)
 
+    def shift(self, n):
+        pop = self.data[:n]
+        df = pd.DataFrame(self.data)[n:]
+        self.data = df.set_index(pd.Series(range(df.shape[0])))[0]
+        return pop
+
+    def get_values(self, indices):
+        rl = [self.data.iloc(i) for i in indices]
+        return rl
+
 
 class SeriesMinute(Series):
     def get_last_max_seconds(self):

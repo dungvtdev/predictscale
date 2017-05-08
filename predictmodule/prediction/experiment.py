@@ -1,6 +1,6 @@
 from core.predictor import base
-from datafetch import datacsv
-from datafeeder import experiment_feeder as ef
+from data.datafetch import datacsv
+from data.datafeeder import experiment_feeder as ef
 
 from sklearn.metrics import mean_squared_error
 from utils.GraphUtil import *

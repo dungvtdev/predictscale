@@ -2,6 +2,7 @@ import json
 from . import influxdbdriver as driver
 from . import base
 import time
+import pandas as pd
 
 
 def container_filter(serie, name):
@@ -46,12 +47,23 @@ class CPUFetch(base.FetchMixin, DataMinuteMixin, driver.DataBatchGet):
 
     def extract_data(self, data):
         jdata = json.loads(data)
-        if not jdata.get("results", None):
+        if jdata.get("results", None) is None \
+                or not jdata["results"][0]:
             print("Get Empty data")
             return
         series = jdata["results"][0]["series"]
         values = next(s["values"] for s in series if self.filter(s))
         return values
+
+    def extend_data(self, current, new):
+        if current is None:
+            rl = pd.DataFrame(new)
+            del new
+        else:
+            rl = current.append(new)
+            del new
+            del current
+        return rl
 
 
 class DiscoverLastTime(CPUFetch):
@@ -60,6 +72,9 @@ class DiscoverLastTime(CPUFetch):
         q_tmpl = 'select * from {metric} where time > now() - 1{epoch} group by * order by desc limit 1'
         q = q_tmpl.format(metric=self._metric, epoch=self._epoch)
         return q
+
+    def extend_data(self, current, new):
+        return driver.DataBatchGet.extend_data(self, current, new)
 
     def __call__(self):
         rl = self.get_data()

@@ -4,6 +4,15 @@ from .. import exceptions as ex
 import re
 
 
+def batch_size_by_time_dv(batch_size, dv):
+    arr = {
+        's': 1,
+        'm': 42,
+    }
+    value = batch_size / arr[dv]
+    return value
+
+
 class QueryData():
     def_port = 8086
 
@@ -49,32 +58,55 @@ class DataBatchGet():
                 return self._get_simple_data(**kwargs)
         except ex.DataFetchError as e:
             print(e.message)
-        except Exception as exc:
-            print(exc.message)
+        # except Exception as exc:
+        #     print(exc.message)
 
     def _get_data_chunk(self, utc_begin, utc_end, **kwargs):
+        print('Get data from %s to %s' % (utc_begin, utc_end))
+
         begin = utc_begin
         last = utc_begin
         result = None
-        while last < utc_end:
-            begin = last
-            last = last + self.batch_size
-            last = utc_end if last > utc_end else last
+        batch_size = batch_size_by_time_dv(self.batch_size, self._epoch)
+        count = 0
+
+        def batch_data(result, begin, last):
             q = self.get_query(begin, last, **kwargs)
             rl = self.query_service.query_data(q)
             exdata = self.extract_data(rl)
-            if not result:
-                result = exdata
-            else:
-                result.extend(exdata)
-        print('Get Success')
+            print('%s %s %s' % (begin, last,
+                                len(exdata) if exdata is not None else 0))
+            if not exdata:
+                return result, False
+            result = self.extend_data(result, exdata)
+            return result, True
+
+        while last < utc_end:
+            begin = last
+            last = last + batch_size
+            last = utc_end if last > utc_end else last
+            result, has_new = batch_data(result, begin, last)
+            if not has_new:
+                break
+            count = count + 1
+        if last < utc_end:
+            last = utc_end
+            result, _ = batch_data(result, begin, last)
+        print('Get Success %s' % count)
         return result
 
     def _get_simple_data(self, **kwargs):
         q = self.get_query(0, 0, **kwargs)
         rl = self.query_service.query_data(q)
         exdata = self.extract_data(rl)
-        return exdata
+        return self.extend_data(None, exdata)
+
+    def extend_data(self, current, new):
+        if current is None:
+            return new
+        current.extend(new)
+        del new
+        return current
 
     def get_query(self, utc_begin=None, utc_end=None, **kwargs):
         raise NotImplementedError('get_query must be implement')

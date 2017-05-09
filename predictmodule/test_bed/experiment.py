@@ -1,5 +1,5 @@
 import startup
-from prediction.core.predictor import base
+from prediction.algorithm.predictor import base
 from prediction.data.datafetch import datacsv
 from prediction.data.datafeeder import experiment_feeder as ef
 

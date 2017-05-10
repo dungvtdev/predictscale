@@ -34,6 +34,14 @@ class DataMeta:
         self.last_time = kwargs.get('last_time', None)
 
 
+class ContainerState:
+    Initialize,
+    PendingData,
+    PendingUser,
+    Pushing,
+    Running,
+
+
 class InstanceMonitorContainer(object):
     def __init__(self, backend, **kwargs):
         self.instance_id = kwargs.get('instance_id', None)

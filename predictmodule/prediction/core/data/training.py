@@ -27,8 +27,10 @@ def get_available_dataframes(instance_meta, fetch_class):
     dataframes = []
 
     size = lookback_time + frame_minute
+    begin = last_time - size
 
-    data = fetch.get_data(last_time - size, last_time)
+    begin = influxdb.DiscoverDataChunkStart(**instance_meta)(begin)
+    data = fetch.get_data(begin, last_time)
     series = utils.time_series_to_pandas_series_minute(data, 'm')
     print(len(series))
 

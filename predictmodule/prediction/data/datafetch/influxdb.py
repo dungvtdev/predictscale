@@ -80,3 +80,21 @@ class DiscoverLastTime(CPUFetch):
         rl = self.get_data()
         if rl:
             return rl[0][0]
+
+
+class DiscoverDataChunkStart(DiscoverLastTime):
+    def get_query(self, utc_begin, utc_end):
+        epoch = self._epoch if self._epoch != 's' else 'm'
+        q_tmpl = 'select * from {metric} where time > {utc_begin}{epoch} group by * order by asc limit 1'
+        q = q_tmpl.format(metric=self._metric,
+                          epoch=self._epoch, utc_begin=utc_begin)
+        return q
+
+    def __call__(self, begin):
+        q = self.get_query(begin, 0)
+        rl = self.query_service.query_data(q)
+        exdata = self.extract_data(rl)
+        rl = self.extend_data(None, exdata)
+        if rl:
+            return rl[0][0]
+

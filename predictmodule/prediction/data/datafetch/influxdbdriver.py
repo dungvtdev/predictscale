@@ -113,3 +113,11 @@ class DataBatchGet():
 
     def extract_data(self, data):
         raise NotImplementedError('extract_data must be implement')
+
+
+class DataForeachChunkReverse():
+    def get(self, begin, end, func):
+        
+
+    def get_query(self, **kwargs):
+        pass

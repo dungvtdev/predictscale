@@ -1,5 +1,5 @@
 import startup
-from prediction.data.datafetch import influxdb
+from prediction.core.datafetch import influxdb
 
 params = {
     "batch_size": 1000,

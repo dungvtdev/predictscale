@@ -1,10 +1,10 @@
 import startup
 from prediction.algorithm.predictor import base
-from prediction.data.datafetch import datacsv
-from prediction.data.datafeeder import experiment_feeder as ef
+from prediction.core.datafetch import datacsv
+from prediction.algorithm.datafeeder import experiment_feeder as ef
 
 from sklearn.metrics import mean_squared_error
-from prediction.utils.GraphUtil import *
+from prediction.algorithm.utils.GraphUtil import *
 from math import sqrt
 
 

@@ -1,6 +1,6 @@
 import startup
-from prediction.core.data import training
 from prediction.data.datafetch import influxdb
+from prediction.data import utils
 
 instance_meta = {
     'instance_id': 1,
@@ -14,13 +14,16 @@ instance_meta = {
     'db_name': 'cadvisor',
     'train_params': None,
     'metric': 'cpu_usage_total',
-    'epoch': 'm'
 }
+
+instance_meta['epoch'] = 'm'
 
 # fetch data to train
 print('start')
-fetch_cls = influxdb.CPUFetchLazy
-chunks = training.get_available_dataframes(instance_meta, fetch_cls)
+last = influxdb.DiscoverLastTimeMinute(**instance_meta)()
+print(last)
+# fetch_cls = influxdb.CPUFetchLazy
+# chunks = training.get_available_dataframes(instance_meta, fetch_cls)
 # train data
 
 # thread loop get data and predict

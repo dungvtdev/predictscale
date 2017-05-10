@@ -1,1 +1,0 @@
-SECRET = 'very secret token'

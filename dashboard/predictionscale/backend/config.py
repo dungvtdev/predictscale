@@ -1,0 +1,1 @@
+SECRET = 'very_secret_key'

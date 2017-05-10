@@ -17,7 +17,7 @@ base_path = os.path.dirname(os.path.abspath(__file__))
 def deploy():
     dashboard_dir = os.path.join(remote_horizon_dir,
                                  'openstack_dashboard/dashboards')
-    dashboard_local_name = 'monitoring'
+    dashboard_local_name = 'predictionscale'
     dashboard_local = os.path.join(base_path, dashboard_local_name)
 
     is_dir_exists = exists(dashboard_dir, use_sudo=False)
@@ -26,7 +26,7 @@ def deploy():
     rsync_project(local_dir=dashboard_local,
                   remote_dir=dashboard_dir, exclude='.git')
 
-    enabled_file_name = '_50_monitoring.py'
+    enabled_file_name = '_50_predictionscale.py'
     dashboard_enabled_remote = os.path.join(remote_horizon_dir,
                                             'openstack_dashboard/enabled/%s' %
                                             enabled_file_name)

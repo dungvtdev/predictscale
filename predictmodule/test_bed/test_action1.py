@@ -17,8 +17,21 @@ instance_meta = {
     },
     'endpoint': '192.168.122.124',
     'db_name': 'cadvisor',
-    'train_params': None,
+    'train_params': {
+        'n_neural_hidden': 15,
+        'n_input': 4,
+        'n_periodic': 1,
+    },
     'metric': 'cpu_usage_total',
+}
+config = {
+    'n_input': 4,
+    'n_periodic': 1,
+    'period': 0,
+    'n_neural_hidden': 15,
+    'cross_rate': 0.6,
+    'mutation_rate': 0.04,
+    'pop_size': 50
 }
 
 instance_meta['epoch'] = 'm'
@@ -74,3 +87,5 @@ predictor = Predictor(n_input=n_input,
 mem_fetch = MemoryFetch(data)
 feeder = SimpleFeeder(mem_fetch)
 predictor.train(feeder)
+
+# get data and train window

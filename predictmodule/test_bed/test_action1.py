@@ -19,9 +19,7 @@ instance_meta = {
 
 # fetch data to train
 print('start')
-last = training.get_instance_metric_last_time(instance_meta)
-print(last)
-fetch_cls = influxdb.CPUFetch
+fetch_cls = influxdb.CPUFetchLazy
 chunks = training.get_available_dataframes(instance_meta, fetch_cls)
 # train data
 

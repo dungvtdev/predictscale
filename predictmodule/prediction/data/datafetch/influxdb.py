@@ -24,20 +24,9 @@ class DataMinuteMixin():
         return self.get_current_data_minute(utc, 60)
 
 
-class CPUFetch(base.FetchMixin, DataMinuteMixin, driver.DataBatchGet):
-    # batch_size seconds
-    # endpoint: ip:port
-
-    def __init__(self, **kwargs):
-        base.FetchMixin.__init__(self, **kwargs)
-
-        query_service = driver.QueryData()
-        query_service.setup(**kwargs)
-
-        driver.DataBatchGet.__init__(self, query_service, self._batch_size)
-
+class CPUMixin():
     def get_query(self, utc_begin, utc_end):
-        q = 'SELECT derivative("value", 1s)/1000000000 FROM {metric} WHERE time > {utc_begin}{epoch} AND time < {utc_end}{epoch} GROUP BY "container_name" fill(null)'
+        q = 'SELECT derivative("value", 1s)/1000000000 FROM {metric} WHERE time >= {utc_begin}{epoch} AND time <= {utc_end}{epoch} GROUP BY "container_name" fill(null)'
         q = q.format(utc_begin=utc_begin, utc_end=utc_end,
                      epoch=self._epoch, metric=self._metric)
         return q
@@ -55,21 +44,34 @@ class CPUFetch(base.FetchMixin, DataMinuteMixin, driver.DataBatchGet):
         values = next(s["values"] for s in series if self.filter(s))
         return values
 
-    def extend_data(self, current, new):
-        if current is None:
-            rl = pd.DataFrame(new)
-            del new
-        else:
-            rl = current.append(new)
-            del new
-            del current
-        return rl
+
+class CPUFetch(CPUMixin, driver.DataBatchGet):
+    # batch_size seconds
+    # endpoint: ip:port
+
+    def __init__(self, **kwargs):
+        base.populate_params(self, **kwargs)
+
+        query_service = driver.QueryData()
+        query_service.setup(**kwargs)
+
+        driver.DataBatchGet.__init__(self, query_service, self._batch_size)
+
+
+class CPUFetchLazy(CPUMixin, driver.DataBatchGetLazy):
+    def __init__(self, **kwargs):
+        base.populate_params(self, **kwargs)
+
+        query_service = driver.QueryData()
+        query_service.setup(**kwargs)
+
+        driver.DataBatchGetLazy.__init__(self, query_service, self._batch_size)
 
 
 class DiscoverLastTime(CPUFetch):
     def get_query(self, utc_begin, utc_end):
         epoch = self._epoch if self._epoch != 's' else 'm'
-        q_tmpl = 'select * from {metric} where time > now() - 1{epoch} group by * order by desc limit 1'
+        q_tmpl = 'select * from {metric} where time > now() - 2{epoch} group by * order by desc limit 1'
         q = q_tmpl.format(metric=self._metric, epoch=self._epoch)
         return q
 
@@ -85,7 +87,7 @@ class DiscoverLastTime(CPUFetch):
 class DiscoverDataChunkStart(DiscoverLastTime):
     def get_query(self, utc_begin, utc_end):
         epoch = self._epoch if self._epoch != 's' else 'm'
-        q_tmpl = 'select * from {metric} where time > {utc_begin}{epoch} group by * order by asc limit 1'
+        q_tmpl = 'select * from {metric} where time >= {utc_begin}{epoch} group by * order by asc limit 1'
         q = q_tmpl.format(metric=self._metric,
                           epoch=self._epoch, utc_begin=utc_begin)
         return q
@@ -97,4 +99,3 @@ class DiscoverDataChunkStart(DiscoverLastTime):
         rl = self.extend_data(None, exdata)
         if rl:
             return rl[0][0]
-

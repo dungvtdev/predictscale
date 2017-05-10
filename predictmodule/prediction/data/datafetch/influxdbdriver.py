@@ -1,6 +1,6 @@
 import requests
 import json
-from .. import exceptions as ex
+from ... import exceptions as ex
 import re
 
 
@@ -42,12 +42,25 @@ class QueryData():
             raise ex.DataFetchError('Request code is not 200 OK')
 
 
-class DataBatchGet():
-
+class DataBatchGetBase():
     def __init__(self, query_service, batch_size):
         self.query_service = query_service
         self.batch_size = batch_size
 
+    def get_query(self, utc_begin=None, utc_end=None, **kwargs):
+        raise NotImplementedError('get_query must be implement')
+
+    def extract_data(self, data):
+        raise NotImplementedError('extract_data must be implement')
+
+    def extend_data(self, current, new):
+        raise NotImplementedError('extend data must be implement')
+
+    def get_data(self, utc_begin=None, utc_end=None, **kwargs):
+        raise NotImplementedError('get_data must be implement')
+
+
+class DataBatchGet(DataBatchGetBase):
     def get_data(self, utc_begin=None, utc_end=None, **kwargs):
         try:
             utc_begin = int(utc_begin) if utc_begin is not None else None
@@ -58,8 +71,8 @@ class DataBatchGet():
                 return self._get_simple_data(**kwargs)
         except ex.DataFetchError as e:
             print(e.message)
-        # except Exception as exc:
-        #     print(exc.message)
+        except requests.ConnectionError as exc:
+            raise ex.EndpointConnectionRefuse()
 
     def _get_data_chunk(self, utc_begin, utc_end, **kwargs):
         print('Get data from %s to %s' % (utc_begin, utc_end))
@@ -99,7 +112,7 @@ class DataBatchGet():
         q = self.get_query(0, 0, **kwargs)
         rl = self.query_service.query_data(q)
         exdata = self.extract_data(rl)
-        return self.extend_data(None, exdata)
+        return exdata
 
     def extend_data(self, current, new):
         if current is None:
@@ -108,16 +121,50 @@ class DataBatchGet():
         del new
         return current
 
-    def get_query(self, utc_begin=None, utc_end=None, **kwargs):
-        raise NotImplementedError('get_query must be implement')
 
-    def extract_data(self, data):
-        raise NotImplementedError('extract_data must be implement')
+class DataBatchGetLazy(DataBatchGetBase):
+    def get_data(self, begin, end, filter=None, **kwargs):
+        print('Get data from %s to %s' % (begin, end))
 
+        _begin = end
+        _end = end
+        result = None
+        batch_size = batch_size_by_time_dv(self.batch_size, self._epoch)
+        count = 0
 
-class DataForeachChunkReverse():
-    def get(self, begin, end, func):
-        
+        def batch_data(result, begin, last):
+            q = self.get_query(begin, last, **kwargs)
+            rl = self.query_service.query_data(q)
+            exdata = self.extract_data(rl)
+            print('%s %s %s' % (begin, last,
+                                len(exdata) if exdata is not None else 0))
+            if not exdata:
+                return result, False, False
+            finish = False
+            if filter:
+                fdata, finish = filter(exdata)
+                result = self.extend_data(result, fdata)
+            return result, finish, True
 
-    def get_query(self, **kwargs):
-        pass
+        while _begin > begin:
+            _end = _begin
+            _begin = _end - batch_size
+            if _begin < begin:
+                _begin = begin
+            result, finish, has_more = batch_data(result, _begin, _end)
+            if finish:
+                break
+            if not has_more:
+                batch_size = batch_size * 2
+                _begin = _end
+            count = count + 1
+        print('Get Success %s' % count)
+        return result
+
+    def extend_data(self, current, new):
+        if current is None:
+            return new
+        if new is not None:
+            new.extend(current)
+            del current
+            return new

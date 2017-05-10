@@ -47,20 +47,17 @@ class DataGetBase():
     def __init__(self, query_service, **kwargs):
         self.query_service = query_service
 
-    def get_query(self, **kwargs):
-        raise NotImplementedError('get_query must be implement')
-
-    def get_data(self, **kwargs):
-        raise NotImplementedError('get_data must be implement')
-
-    def extract_data(self, data):
-        raise NotImplementedError('extract_data must be implement')
-
 
 class DataBatchGet(DataGetBase):
     def __init__(self, query_service, batch_size, **kwargs):
-        DataGetBase.__init__(self, query_service, **kwargs)
+        self.query_service = query_service
         self.batch_size = batch_size
+
+    def get_query(self, **kwargs):
+        raise NotImplementedError('get_query must be implement')
+
+    def extract_data(self, data):
+        raise NotImplementedError('extract_data must be implement')
 
     def extend_data(self, current, new):
         raise NotImplementedError('extend_data must be implement')
@@ -82,12 +79,12 @@ class DataBatchGet(DataGetBase):
             if _begin < begin:
                 _begin = begin
 
-            q = self.get_query(begin=begin, last=last, **kwargs)
+            q = self.get_query(begin=_begin, end=_end, **kwargs)
             rl = self.query_service.query_data(q)
             exdata = self.extract_data(rl)
-            print('%s %s %s' % (begin, last,
+            print('%s %s %s' % (_begin, _end,
                                 len(exdata) if exdata is not None else 0))
-            if not exdata:
+            if exdata is not None:
                 if _end - begin < batch_size:
                     # truong hop nay du tang batch size nua thi cung khong lay dc data,
                     # vi vong lap nay da qua begin roi

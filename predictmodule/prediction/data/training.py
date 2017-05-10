@@ -1,7 +1,7 @@
 import pandas as pd
-from prediction.data.datafetch import influxdb
+from .datafetch import influxdb
 from . import utils
-from ... import exceptions as ex
+from .. import exceptions as ex
 CONF = {
     'batch_size': 4000,
     'dataframe_size_bias': 0.1,
@@ -10,11 +10,12 @@ CONF = {
 
 def filter(exdata):
     print('filter')
+    print(exdata)
     if pd.isnull(exdata).any():
         isnull = pd.isnull(exdata)
-        idx = isnull[isnull == True].tail().index.get_values()[0]
+        idx = isnull[isnull == True].index.get_values()[-1]
         print('filter %s %s' % (idx, True))
-        return exdata[idx:], True
+        return exdata[idx + 1:], True
     return exdata, False
 
 
@@ -34,17 +35,22 @@ def get_available_dataframes(instance_meta, fetch_class):
 
     last_time = get_instance_metric_last_time(instance_meta)
     if not last_time:
-        raise ex.EndpointNotAvailable(str(instance_meta))
-
-    dataframes = []
+        raise ex.EndpointNotAvailable(
+            'Cant get last time %s' % str(instance_meta))
 
     begin = last_time - frame_minute
-    begin = influxdb.DiscoverDataChunkStart(**instance_meta)(begin)
-
+    begin = get_instance_metric_begin_time(instance_meta, begin)
+    if not begin:
+        raise ex.EndpointNotAvailable(
+            'Cant get begin time %s' % str(instance_meta))
     data = fetch.get_data(begin, last_time, filter=filter)
-    series = utils.time_series_to_pandas_series_minute(data, 'm')
-    print(len(series))
+
+    return data
 
 
 def get_instance_metric_last_time(instance_meta):
-    return influxdb.DiscoverLastTime(**instance_meta)()
+    return influxdb.DiscoverLastTimeMinute(**instance_meta)()
+
+
+def get_instance_metric_begin_time(instance_meta, begin):
+    return influxdb.DiscoverBeginTimeMinute(**instance_meta)(begin)

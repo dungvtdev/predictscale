@@ -1,6 +1,8 @@
 import startup
 from prediction.data.datafetch import influxdb
 from prediction.data import utils
+import pandas as pd
+from prediction.data import training
 
 instance_meta = {
     'instance_id': 1,
@@ -19,11 +21,33 @@ instance_meta = {
 instance_meta['epoch'] = 'm'
 
 # fetch data to train
-print('start')
-last = influxdb.DiscoverLastTimeMinute(**instance_meta)()
-print(last)
-# fetch_cls = influxdb.CPUFetchLazy
-# chunks = training.get_available_dataframes(instance_meta, fetch_cls)
-# train data
 
-# thread loop get data and predict
+# print('start')
+# last = influxdb.DiscoverLastTimeMinute(**instance_meta)()
+# print(last)
+# begin = influxdb.DiscoverBeginTimeMinute(**instance_meta)(last - 2000)
+# print(begin)
+
+# params = instance_meta
+# params['batch_size'] = 4000
+# cpu_fetch = influxdb.CpuFetch(**instance_meta)
+
+
+# def filter(exdata):
+#     print('filter')
+#     print(exdata)
+#     if pd.isnull(exdata).any():
+#         isnull = pd.isnull(exdata)
+#         idx = isnull[isnull == True].index.get_values()[-1]
+#         print('filter %s %s' % (idx, True))
+#         return exdata[idx + 1:], True
+#     return exdata, False
+
+
+# data = cpu_fetch.get_data(begin, last, filter=filter)
+# print(data)
+# print(len(data))
+
+fetch_cls = influxdb.CpuFetch
+data = training.get_available_dataframes(instance_meta, fetch_cls)
+print(data)

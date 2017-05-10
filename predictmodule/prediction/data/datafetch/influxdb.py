@@ -24,28 +24,43 @@ def convert_data_minute_to_pandas(data):
     return utils.time_series_to_pandas_series_minute(data)
 
 
-# class CPURootMixin(RootMixin):
-#     def filter(self, serie):
-#         return container_filter(serie, "/")
+class CpuRootMixin():
+    def filter(self, serie):
+        return container_filter(serie, "/")
 
-#     def get_query(self, utc_begin, utc_end):
-#         q = 'SELECT derivative("value", 1s)/1000000000 FROM {metric} WHERE time >= {utc_begin}{epoch} AND time <= {utc_end}{epoch} GROUP BY "container_name" fill(null)'
-#         q = q.format(utc_begin=utc_begin, utc_end=utc_end,
-#                      epoch=self._epoch, metric=self._metric)
-#         return q
+    def get_query(self, begin, end):
+        q = 'SELECT derivative("value", 1s)/1000000000 FROM {metric} WHERE time >= {utc_begin}{epoch} AND time <= {utc_end}{epoch} GROUP BY "container_name" fill(null)'
+        q = q.format(utc_begin=begin, utc_end=end,
+                     epoch=self._epoch, metric=self._metric)
+        return q
 
 
-# class CPUFetch(CPUMixin, driver.DataBatchGet):
-    def __init__(self, convert_data, **kwargs):
+class BaseMetricFetch(driver.DataBatchGet):
+    def __init__(self, **kwargs):
         base.populate_params(self, **kwargs)
-
-        self._convert_data = convert_data
 
         query_service = driver.QueryData()
         query_service.setup(**kwargs)
 
         driver.DataBatchGet.__init__(
-            self, query_service, self._batch_size, **kwargs)
+            self, query_service, **kwargs)
+
+    def extract_data(self, data):
+        filter = self.filter or (lambda d: True)
+        d = extract_data(data, filter)
+        return convert_data_minute_to_pandas(d)
+
+    def extend_data(self, current, new):
+        if current is None:
+            return new
+        if new is not None:
+            new.append(current)
+            del current
+        return new
+
+
+class CpuFetch(CpuRootMixin, BaseMetricFetch):
+    pass
 
 
 class DiscoverLastTimeMinute():
@@ -64,7 +79,7 @@ class DiscoverLastTimeMinute():
     def filter(self, serie):
         return container_filter(serie, "/")
 
-    def __call__(self):
+    def __call__(self, *args):
         q = self.get_query()
         pydata = self.query_service.query_data(q)
         data = extract_data(pydata, self.filter)
@@ -72,18 +87,14 @@ class DiscoverLastTimeMinute():
             return data[0][0]
 
 
-# class DiscoverDataChunkStart(DiscoverLastTime):
-#     def get_query(self, utc_begin, utc_end):
-#         epoch = self._epoch if self._epoch != 's' else 'm'
-#         q_tmpl = 'select * from {metric} where time >= {utc_begin}{epoch} group by * order by asc limit 1'
-#         q = q_tmpl.format(metric=self._metric,
-#                           epoch=self._epoch, utc_begin=utc_begin)
-#         return q
+class DiscoverBeginTimeMinute(DiscoverLastTimeMinute):
+    def get_query(self):
+        epoch = self._epoch if self._epoch != 's' else 'm'
+        q_tmpl = 'select * from {metric} where time >= {utc_begin}{epoch} group by * order by asc limit 1'
+        q = q_tmpl.format(metric=self._metric,
+                          epoch=self._epoch, utc_begin=self._begin)
+        return q
 
-#     def __call__(self, begin):
-#         q = self.get_query(begin, 0)
-#         rl = self.query_service.query_data(q)
-#         exdata = self.extract_data(rl)
-#         rl = self.extend_data(None, exdata)
-#         if rl:
-#             return rl[0][0]
+    def __call__(self, begin):
+        self._begin = begin
+        return DiscoverLastTimeMinute.__call__(self, begin)

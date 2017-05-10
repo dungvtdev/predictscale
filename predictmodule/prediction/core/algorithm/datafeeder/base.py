@@ -45,8 +45,7 @@ class BaseFeeder():
     def generate(self, data, range_data):
         data = self.preprocess_data(data)
         period = self.period
-        output_train = data[int(period * range_data[0]):
-                            int(period * range_data[1])]
+        output_train = data[range_data[0]:range_data[1]]
         input_train = self.get_train_data(output_train, data)
         return np.asarray(input_train), np.asarray(output_train)
 
@@ -63,6 +62,7 @@ class BaseFeeder():
         return training
 
     def fetch_training(self, n_input=None, n_periodic=None, period=None):
-        self.setup(n_input=n_input, n_periodic=n_periodic, period=period)
-        data = self.data_fetch.fetch_series()
-        max_periodic = int(len(data) / period)
+        pass
+        # self.setup(n_input=n_input, n_periodic=n_periodic, period=period)
+        # data = self.data_fetch.fetch_series()
+        # max_periodic = int(len(data) / period)

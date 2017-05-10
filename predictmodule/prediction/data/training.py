@@ -9,8 +9,6 @@ CONF = {
 
 
 def filter(exdata):
-    print('filter')
-    print(exdata)
     if pd.isnull(exdata).any():
         isnull = pd.isnull(exdata)
         idx = isnull[isnull == True].index.get_values()[-1]

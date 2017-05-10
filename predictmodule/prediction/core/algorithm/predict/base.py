@@ -1,5 +1,6 @@
 from ..estimators.GAEstimator import GAEstimator
 from ..estimators.NeuralFlow import NeuralFlowRegressor
+import pandas as pd
 
 
 class Predictor():

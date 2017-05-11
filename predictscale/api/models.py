@@ -10,11 +10,13 @@ class Group(Base):
     __tablename__ = 'group'
 
     id = Column(Integer, primary_key=True)
+    group_id = Column(String(250), nullable=False, unique=True)
     user_id = Column(String(250), nullable=False)
-    name = Column(String(250), nullable=False, unique=True)
+    name = Column(String(250), nullable=False)
     desc = Column(String(250), nullable=True)
     image = Column(String(250))
     flavor = Column(String(250))
+    enable = Column(Boolean, default=False)
     instances = relationship("Instance", backref='group')
 
     def __repr__(self):
@@ -24,11 +26,13 @@ class Group(Base):
     def to_dict(self):
         return {
             'id': self.id,
+            'group_id': self.group_id,
             'name': self.name,
             'desc': self.desc,
             'image': self.image,
             'flavor': self.flavor,
             'instances': [i.instance_id for i in self.instances],
+            'enable': self.enable
         }
 
 
@@ -43,4 +47,3 @@ class Instance(Base):
     def __repr__(self):
         return "<Instance(user_id='%s', instance_id='%s', group_id='%s')>" \
             % (self.user_id, self.instance_id, self.group_id)
-

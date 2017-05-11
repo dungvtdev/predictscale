@@ -7,5 +7,5 @@ class Ping(object):
 
 
 routes = [
-    ('/user/{user_id}/pings', Ping()),
+    ('/users/{user_id}/pings', Ping()),
 ]

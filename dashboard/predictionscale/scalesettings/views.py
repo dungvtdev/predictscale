@@ -21,33 +21,9 @@ from openstack_dashboard.dashboards.predictionscale.scalesettings \
 
 from openstack_dashboard.dashboards.predictionscale.backend \
     import client
+from openstack_dashboard.dashboards.predictionscale.backend.models import GroupData
 from horizon import views
-
-
-class GroupData:
-    def __init__(self, id=None, name=None, desc=None, instances=None,
-                 image=None, flavor=None, enable=False):
-        self.id = id
-        self.group_name = name or ''
-        self.group_desc = desc or ''
-        self.instances = instances or ''
-        self.image = image or ''
-        self.flavor = flavor or ''
-        self.enable = enable
-
-    @classmethod
-    def create(cls, group_dict):
-        g = group_dict
-        instances = g['instances']
-        instances_str = '\n'.join(instances)
-
-        return GroupData(id=g['id'],
-                         name=g['name'],
-                         desc=g['desc'],
-                         instances=instances_str,
-                         image=g['image'],
-                         flavor=g['flavor'],
-                         enable=g['group_dict'])
+from horizon import exceptions
 
 
 class AddView(workflows.WorkflowView):
@@ -69,12 +45,13 @@ class IndexView(tables.DataTableView):
     page_title = _('Settings')
 
     def get_data(self):
-        t = client(self.request).pings()
-        print(t)
-        return []
-        # group_dicts = client.get_groups(self.request)
-        # return [GroupData.create(g) for g in group_dicts]
+        try:
+            groups = client(self.request).get_groups()
+            return groups
+        except Exception:
+            err_msg = _('Can\'t retrieve group list')
+            exceptions.handle(self.request, err_msg)
 
-    def get_context_data(self, **kwargs):
-        context = super(IndexView, self).get_context_data(**kwargs)
-        return context
+    # def get_context_data(self, **kwargs):
+    #     context = super(IndexView, self).get_context_data(**kwargs)
+    #     return context

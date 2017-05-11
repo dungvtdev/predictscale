@@ -28,7 +28,7 @@ class App(object):
 
     def _get_middlewares(self):
         return [
-            middlewares.JwtAuth(),
+            # middlewares.JwtAuth(),
             middlewares.RequireJSON(),
             middlewares.JSONTranslator(),
         ]

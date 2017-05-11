@@ -4,16 +4,32 @@ from horizon import forms
 from openstack_dashboard import api
 from horizon import exceptions
 
+from .utils import create_group
+from openstack_dashboard.dashboards.predictionscale.backend.models \
+    import GroupData
+
 
 class AddGroupInfoAction(workflows.Action):
+    _group_id_regex = (r'^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-'
+                       r'[0-9a-fA-F]{4}-[0-9a-fA-F]{12}|[0-9]+|auto$')
+    _group_id_help_text = _("Group ID should be UUID4 or integer. "
+                            "Leave this field blank or use 'auto' to set "
+                            "a random UUID4.")
+
     name = forms.RegexField(
         label=_("Name"),
         max_length=255,
         regex=r'^[\w\.\- ]+$',
         error_messages={'invalid': _('Name may only contain letters, numbers, '
                                      'underscores, periods and hyphens.')})
+    group_id = forms.RegexField(label=_("ID"),
+                                regex=_group_id_regex,
+                                required=False,
+                                initial='auto',
+                                help_text=_group_id_help_text)
     desc = forms.CharField(max_length=512,
-                           label=_("Desc"))
+                           label=_("Desc"),
+                           required=False)
 
     image = forms.ChoiceField(label='Image')
     flavor = forms.ChoiceField(label='Flavor')
@@ -41,13 +57,21 @@ class AddGroupInfoAction(workflows.Action):
         name = _("Group Information")
         help_text = _("Group define name, description, image, flavor")
 
+    def clean_name(self):
+        name = self.cleaned_data.get('name').strip()
+        if not name:
+            msg = _('Group name cannot be empty.')
+            self._errors['name'] = self.error_class([msg])
+        return name
+
     def clean(self):
         pass
 
 
 class AddGroupInfo(workflows.Step):
     action_class = AddGroupInfoAction
-    contributes = ("name",
+    contributes = ("group_id",
+                   "name",
                    "desc",
                    "image",
                    "flavor")
@@ -102,6 +126,7 @@ class UpdateGroupInstancesAction(workflows.MembershipAction):
         #     exceptions.handle(request, err_msg)
 
         # self.fields[field_name].initial = flavor_access
+        # self.fields[field_name].initial = [(1, 2)]
 
     class Meta(object):
         name = _("Group Instances")
@@ -116,8 +141,14 @@ class UpdateGroupInstances(workflows.UpdateMembersStep):
     no_available_text = _("No instances found.")
     no_members_text = _("No instances selected. ")
     show_roles = False
-    # depends_on = ("flavor_id",)
-    # contributes = ("flavor_access",)
+    depends_on = ("group_id",)
+    contributes = ("instances",)
+
+    def contribute(self, data, context):
+        if data:
+            member_field_name = self.get_member_field_name('member')
+            context['instances'] = data.get(member_field_name, [])
+        return context
 
 
 class AddGroup(workflows.Workflow):
@@ -133,7 +164,26 @@ class AddGroup(workflows.Workflow):
         return message % self.context['name']
 
     def handle(self, request, data):
-        pass
+        print('****************************************')
+        print(data)
+        if '__dict__' in data:
+            print(data.__dict__)
+
+        '''
+        {'name': None, 'image': u'07b28db9-feae-4ea2-9ac2-024c4daae486', 
+        'instances': [u'a7e600e2-6e7f-4460-a1b1-6e8dcd12baee'], 'flavor': u'1', 
+        'group_id': u'auto', 'desc': u'tesst'}
+        '''
+
+        group = GroupData.create(data)
+        try:
+            ok = create_group(request, group)
+            return ok
+        except:
+            # msg = _('Can\'t create group. Try again later')
+            # exceptions.handle(request, msg)
+            raise
+            return False
 
 
 class UpdateGroup(workflows.Workflow):

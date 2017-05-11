@@ -4,6 +4,8 @@ from . import authagent as auth
 import json
 from .authagent import UserTokenAuth
 
+from .models import GroupData
+
 
 class Client(object):
     endpoint = 'http://192.168.1.94:8008'
@@ -24,10 +26,21 @@ class Client(object):
         self.authagent.add_token(headers)
         headers['Content-type'] = 'application/json'
         headers['Accept'] = 'application/json'
-        return fn(url, params=params, data=data, headers=headers)
+        try:
+            r = fn(url, params=params, data=json.dumps(data), headers=headers)
+            return r, r.status_code == 200
+        except requests.ConnectionError as e:
+            print(e.message)
+            raise
 
     def request_get(self, url, **kwargs):
         return self.request('get', url, **kwargs)
+
+    def request_delete(self, url, **kwargs):
+        return self.request('delete', url, **kwargs)
+
+    def request_post(self, url, **kwargs):
+        return self.request('post', url, **kwargs)
 
     def get_url(self, url_templ, **kwargs):
         kwargs['user_id'] = self.user_id or ''
@@ -36,19 +49,50 @@ class Client(object):
         return s
 
     def get_groups(self):
-        addr_tmpl = self.endpoint + \
-            '/v1/user/{user_id}/groups'
-        addr = addr_tmpl.format(user_id=1)
-        r = self.request_get(addr)
-        if r.status_code == 200:
-            groups = json.loads(r.text)['groups']
+        addr_tmpl = '/v1/users/{user_id}/groups'
+        url = self.get_url(addr_tmpl)
+        r, ok = self.request_get(url)
+        if ok:
+            group_dicts = json.loads(r.text)['groups']
+            groups = [GroupData.create(g) for g in group_dicts]
             return groups
         else:
             return []
 
+    def drop_group(self, id):
+        addr_tmpl = '/v1/users/{user_id}/groups/{id}'
+        url = self.get_url(addr_tmpl, id=id)
+        r, ok = self.request_delete(url)
+        return ok
+
+    def add_group(self, group):
+        addr_tmpl = '/v1/users/{user_id}/groups'
+        url = self.get_url(addr_tmpl)
+        payload = {
+            'groups': [group.to_dict(), ]
+        }
+        r, ok = self.request_post(url, data=payload)
+        return ok
+
     def pings(self):
-        url = self.get_url('/v1/user/{user_id}/pings')
+        url = self.get_url('/v1/users/{user_id}/pings')
         print('*****************************************')
         print(url)
         r = self.request_get(url)
         return r.text
+
+    def enable_group(self, id):
+        print('*****************************************')
+        print('enable group')
+        addr_tmpl = '/v1/users/{user_id}/groups/{id}/actions/enable'
+        url = self.get_url(addr_tmpl, id=id)
+        r, ok = self.request_post(url)
+        return ok
+
+    def disable_group(self, id):
+        print('*****************************************')
+        print('enable group')
+        addr_tmpl = '/v1/users/{user_id}/groups/{id}/actions/disable'
+        url = self.get_url(addr_tmpl, id=id)
+        r, ok = self.request_post(url)
+        return ok

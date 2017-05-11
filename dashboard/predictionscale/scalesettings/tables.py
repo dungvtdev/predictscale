@@ -1,6 +1,10 @@
 from horizon import tables
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ungettext_lazy
+from django.utils.translation import npgettext_lazy
+
+from .utils import drop_group, enable_group, disable_group
+from horizon import exceptions
 
 
 class DeleteGroup(tables.DeleteAction):
@@ -21,7 +25,12 @@ class DeleteGroup(tables.DeleteAction):
         )
 
     def delete(self, request, obj_id):
-        pass
+        try:
+            r, ok = drop_group(request, obj_id)
+            return ok
+        except Exception:
+            msg = _('Can\'t delete group. Try again later.')
+            exceptions.handle(request, msg)
 
 
 class AddGroup(tables.LinkAction):
@@ -43,11 +52,88 @@ class UpdateGroup(tables.LinkAction):
     icon = "pencil"
 
 
-class ScaleGroupTable(tables.DataTable):
-    group_name = tables.Column("group_name",
-                               verbose_name=_("Groupname"))
+class EnableGroup(tables.BatchAction):
+    name = "enable"
+    help_text = _("The group will be enable.")
+    action_type = "danger"
 
-    desc = tables.Column("group_desc",
+    @staticmethod
+    def action_present(count):
+        return npgettext_lazy(
+            "Action to perform (the group is currently unenable)",
+            u"Enable Group",
+            u"Enable Group",
+            count
+        )
+
+    @staticmethod
+    def action_past(count):
+        return npgettext_lazy(
+            "Past action (the group is currently enable)",
+            u"Enable Group",
+            u"Enable Group",
+            count
+        )
+
+    def allowed(self, request, group):
+        print('*************************************************')
+        print(group)
+        can = (group is None) or not group.enable
+        return can
+        # return ((instance is None)
+        #         or ((get_power_state(instance) in ("RUNNING", "SUSPENDED"))
+        #             and not is_deleting(instance)))
+
+    def action(self, request, obj_id):
+        print('************************************************* enable group action')
+        print(obj_id)
+        return enable_group(request, obj_id)
+
+
+class DisableGroup(tables.BatchAction):
+    name = "disable"
+    help_text = _("The group will be disable.")
+    action_type = "danger"
+
+    @staticmethod
+    def action_present(count):
+        return npgettext_lazy(
+            "Action to perform (the group is currently enable)",
+            u"Disable Group",
+            u"Disable Group",
+            count
+        )
+
+    @staticmethod
+    def action_past(count):
+        return npgettext_lazy(
+            "Past action (the group is currently disable)",
+            u"Disable Group",
+            u"Disable Group",
+            count
+        )
+
+    def allowed(self, request, group):
+        print('*************************************************')
+        print(group)
+        can = (group is None) or group.enable
+        return can
+        # return ((instance is None)
+        #         or ((get_power_state(instance) in ("RUNNING", "SUSPENDED"))
+        #             and not is_deleting(instance)))
+
+    def action(self, request, obj_id):
+        print('************************************************* enable group action')
+        print(obj_id)
+        return disable_group(request, obj_id)
+
+
+class ScaleGroupTable(tables.DataTable):
+    name = tables.Column("name",
+                         verbose_name=_("Group Name"))
+    group_id = tables.Column("group_id", verbose_name=_("ID"))
+
+    desc = tables.Column("desc",
                          verbose_name=_("Descriptions"))
 
     instances = tables.Column("instances",
@@ -63,5 +149,5 @@ class ScaleGroupTable(tables.DataTable):
     class Meta(object):
         name = 'scalegroups'
         verbose_name = _("Scale Groups")
-        # table_actions = (AddGroup, DeleteGroup, )
-        # row_actions = (UpdateGroup, )
+        table_actions = (AddGroup, DeleteGroup, )
+        row_actions = (EnableGroup, DisableGroup, )

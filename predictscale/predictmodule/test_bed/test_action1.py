@@ -24,6 +24,11 @@ instance_meta = {
     },
     'metric': 'cpu_usage_total',
 }
+
+data = ['period', 'n_period_to_train', 'n_input', 'n_periodic']
+advance = ['n_neural_hidden']
+settings = ['auto_retrain_period', 'n_predict']
+
 config = {
     'n_input': 4,
     'n_periodic': 1,

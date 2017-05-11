@@ -143,6 +143,8 @@ class ScaleGroupTable(tables.DataTable):
                           verbose_name=_("Image"))
     flavor = tables.Column("flavor",
                            verbose_name=_("Flavor"))
+    process = tables.Column("process",
+                            verbose_name=_("Process"))
     enable = tables.Column("enable",
                            verbose_name=_("Enable"))
 

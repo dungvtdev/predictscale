@@ -24,6 +24,7 @@ from openstack_dashboard.dashboards.predictionscale.backend \
 from openstack_dashboard.dashboards.predictionscale.backend.models import GroupData
 from horizon import views
 from horizon import exceptions
+from django.views.generic.base import RedirectView
 
 
 class AddView(workflows.WorkflowView):
@@ -39,20 +40,60 @@ class UpdateView(workflows.WorkflowView):
     page_title = _("Update Group")
 
 
-class IndexView(tables.DataTableView):
+class IndexView(RedirectView):
+    url = reverse_lazy('horizon:predictionscale:scalesettings:step3')
+
+
+class Step1View(tables.DataTableView):
     table_class = settings_tables.ScaleGroupTable
-    template_name = 'predictionscale/scalesettings/index.html'
+    template_name = 'predictionscale/scalesettings/group_table.html'
     page_title = _('Settings')
+    step_title = _('Group Settings')
+    step_index = 1
 
     def get_data(self):
         try:
-            groups = []
-            # groups = client(self.request).get_groups()
+            groups = client(self.request).get_groups()
             return groups
         except Exception:
             err_msg = _('Can\'t retrieve group list')
             exceptions.handle(self.request, err_msg)
 
-    # def get_context_data(self, **kwargs):
-    #     context = super(IndexView, self).get_context_data(**kwargs)
-    #     return context
+    def get_context_data(self, **kwargs):
+        context = super(Step1View, self).get_context_data(**kwargs)
+        context['step_title'] = self.step_title
+        context['step_index'] = self.step_index
+        return context
+
+
+class Step2View(views.APIView):
+    template_name = 'predictionscale/scalesettings/service_setting.html'
+    step_title = _('Service Settings')
+    step_index = 2
+
+    def get_data(self, request, context, *args, **kwargs):
+        context = super(Step2View, self).get_context_data(**kwargs)
+        context['step_title'] = self.step_title
+        context['step_index'] = self.step_index
+        return context
+
+
+class Step3View(views.APIView):
+    template_name = 'predictionscale/scalesettings/apply_confirm.html'
+    step_title = _('Apply Confirm')
+    step_index = 3
+
+    def get_data(self, request, context, *args, **kwargs):
+        context = super(Step3View, self).get_context_data(**kwargs)
+        context['step_title'] = self.step_title
+        context['step_index'] = self.step_index
+        return context
+
+
+# class IndexView(views.APIView):
+#     # A very simple class-based view...
+#     template_name = 'predictionscale/scalesettings/index.html'
+
+#     def get_data(self, request, context, *args, **kwargs):
+#         # Add data to the context here...
+#         return context

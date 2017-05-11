@@ -21,7 +21,7 @@ class Group(Base):
     period = Column(Integer)
     n_period_to_train = Column(Integer)
     n_predict = Column(Integer)
-    period_train = Column(Integer)
+    period_train_again = Column(Integer)
 
     instances = relationship("Instance", backref='group')
 

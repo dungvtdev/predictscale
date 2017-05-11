@@ -2,6 +2,7 @@ from horizon import tables
 from django.utils.translation import ugettext_lazy as _
 from django.utils.translation import ungettext_lazy
 from django.utils.translation import npgettext_lazy
+from django.core.urlresolvers import reverse
 
 from .utils import drop_group, enable_group, disable_group
 from horizon import exceptions
@@ -36,9 +37,9 @@ class DeleteGroup(tables.DeleteAction):
 class AddGroup(tables.LinkAction):
     name = 'add_group'
     verbose_name = _('Add Group')
-    url = 'horizon:predictionscale:scalesettings:add_group'
-    classes = ('ajax-modal', )
-    icon = 'plus'
+    url = "horizon:predictionscale:scalesettings:add_group"
+    classes = ("ajax-modal",)
+    icon = "plus"
 
     def allowed(self, request, datum=None):
         return True
@@ -52,42 +53,18 @@ class UpdateGroup(tables.LinkAction):
     icon = "pencil"
 
 
-class EnableGroup(tables.BatchAction):
+class EnableGroup(tables.LinkAction):
     name = "enable"
-    help_text = _("The group will be enable.")
-    action_type = "danger"
+    verbose_name = _("Enable Group")
+    url = "horizon:predictionscale:scalesettings:step2"
 
-    @staticmethod
-    def action_present(count):
-        return npgettext_lazy(
-            "Action to perform (the group is currently unenable)",
-            u"Enable Group",
-            u"Enable Group",
-            count
-        )
-
-    @staticmethod
-    def action_past(count):
-        return npgettext_lazy(
-            "Past action (the group is currently enable)",
-            u"Enable Group",
-            u"Enable Group",
-            count
-        )
+    def get_link_url(self, group):
+        url = reverse(self.url, args=[group.id])
+        return url
 
     def allowed(self, request, group):
-        print('*************************************************')
-        print(group)
         can = (group is None) or not group.enable
         return can
-        # return ((instance is None)
-        #         or ((get_power_state(instance) in ("RUNNING", "SUSPENDED"))
-        #             and not is_deleting(instance)))
-
-    def action(self, request, obj_id):
-        print('************************************************* enable group action')
-        print(obj_id)
-        return enable_group(request, obj_id)
 
 
 class DisableGroup(tables.BatchAction):

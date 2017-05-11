@@ -5,6 +5,7 @@ import json
 from .authagent import UserTokenAuth
 
 from .models import GroupData
+from . import horizonutils as utils
 
 
 class Client(object):
@@ -15,6 +16,7 @@ class Client(object):
         self.user_id = user_id
 
     def __call__(self, request_obj):
+        self.request_obj = request_obj
         self.user_id = request_obj.user.id
         self.authagent.user_id = self.user_id
         return self
@@ -66,12 +68,19 @@ class Client(object):
         return ok
 
     def add_group(self, group):
+        ips = utils.get_instances_ip(self.request_obj, group.instances)
         addr_tmpl = '/v1/users/{user_id}/groups'
         url = self.get_url(addr_tmpl)
+        inst_data = zip(group.instances, ips)
+        group_dict = group.to_dict()
+        group_dict['instances'] = inst_data
         payload = {
-            'groups': [group.to_dict(), ]
+            'groups': [group_dict, ]
         }
         r, ok = self.request_post(url, data=payload)
+        print('************************************ add_group ***************')
+        print(ips)
+        print(payload)
         return ok
 
     def pings(self):

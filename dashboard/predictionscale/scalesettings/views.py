@@ -25,6 +25,33 @@ from openstack_dashboard.dashboards.predictionscale.backend.models import GroupD
 from horizon import views
 from horizon import exceptions
 from django.views.generic.base import RedirectView
+from openstack_dashboard import api
+
+
+# def get_group_view_data(request, groups):
+#     # flavors = api.nova.flavor_list(request)
+#     # images = api.glance.image_list_detailed(request)
+#     # instances = api.nova.server_list(request)
+
+#     for group in groups:
+#         group = group.clone()
+
+#         if group.flavor:
+#             flavor_name = api.nova.flavor_get(request, group.flavor)
+#             group.flavor = flavor_name or group.flavor
+
+#         if group.image:
+#             image_name = api.glance.image_get(request, group.image)
+
+#         # inst_names = []
+#         # if group.instances:
+#         #     for inst_id in group.instances:
+#         #         name = api.nova.server_get(request, inst_id)
+#         #         inst_names.append(name or inst_id)
+
+#         # group.instances = '\n'.join(inst_names)
+
+#     return groups
 
 
 class AddView(workflows.WorkflowView):
@@ -41,7 +68,7 @@ class UpdateView(workflows.WorkflowView):
 
 
 class IndexView(RedirectView):
-    url = reverse_lazy('horizon:predictionscale:scalesettings:step3')
+    url = reverse_lazy('horizon:predictionscale:scalesettings:step1')
 
 
 class Step1View(tables.DataTableView):
@@ -73,6 +100,7 @@ class Step2View(views.APIView):
 
     def get_data(self, request, context, *args, **kwargs):
         context = super(Step2View, self).get_context_data(**kwargs)
+        id = kwargs['id']
         context['step_title'] = self.step_title
         context['step_index'] = self.step_index
         return context

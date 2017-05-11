@@ -4,11 +4,11 @@ class GroupData:
                  image=None, flavor=None, enable=False, process=None):
         self.id = id
         self.group_id = group_id
-        self.name = name or ''
-        self.desc = desc or ''
-        self.instances = instances or ''
-        self.image = image or ''
-        self.flavor = flavor or ''
+        self.name = name
+        self.desc = desc
+        self.instances = instances
+        self.image = image
+        self.flavor = flavor
         self.process = process
         enable = enable if enable is not None else False
         self.enable = enable
@@ -17,13 +17,13 @@ class GroupData:
             self.process = 'Unknown' if self.enable else 'NotActive'
 
     def to_dict(self):
-        inst_str = '\n'.join(self.instances)
+        # inst_str = '\n'.join(self.instances)
         return {
             'id': self.id,
             'group_id': self.id,
             'name': self.name,
             'desc': self.desc,
-            'instances': inst_str,
+            'instances': self.instances,
             'image': self.image,
             'flavor': self.flavor,
             'enable': self.enable,
@@ -42,3 +42,6 @@ class GroupData:
                          flavor=g['flavor'],
                          enable=g.get('enable', False),
                          process=g.get('process', None))
+
+    def clone(self):
+        return GroupData.create(self.to_dict())

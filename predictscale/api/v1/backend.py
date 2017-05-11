@@ -9,6 +9,16 @@ import uuid
 
 db = None
 
+default_vals = {
+    'db_name': 'cadvisor',
+    'n_neural_hidden': 15,
+    'n_input': 4,
+    'n_periodic': 1,
+    'period': 1,
+    'period_train_again': 1,
+    'n_period_to_train': 7,
+}
+
 
 class DBBackend(object):
     def __init__(self):
@@ -20,6 +30,8 @@ class DBBackend(object):
         self._session = scoped_session(sessionmaker(bind=self._engine))
 
         models.Base.metadata.create_all(self._engine)
+
+        self.default_vals = default_vals
 
     @classmethod
     def default(cls):
@@ -34,6 +46,12 @@ class DBBackend(object):
 
     def _close_localsession(self):
         self._session.remove()
+
+    def _wrap_default_group_values(self, groups):
+        for g in groups:
+            for attr in g.__dict__:
+                if attr in self.default_vals and getattr(g, attr) is None:
+                    setattr(g, attr, self.default_vals[attr])
 
     def _update_group_object(self, group, group_dict, session):
         desc = group_dict.get('desc', None)
@@ -57,7 +75,7 @@ class DBBackend(object):
                     for oi in old_instances:
                         oi.group_id = None
             # create new
-            for inst_id in instances:
+            for inst_id, endpoint in instances:
                 instance = session.query(models.Instance)\
                     .filter(models.Instance.user_id == user_id)\
                     .filter(models.Instance.instance_id == inst_id)\
@@ -67,7 +85,8 @@ class DBBackend(object):
                 else:
                     instance = models.Instance(user_id=user_id,
                                                group_id=group.id,
-                                               instance_id=inst_id)
+                                               instance_id=inst_id,
+                                               endpoint=endpoint)
                     session.add(instance)
 
             # remove all old_instance not link group
@@ -126,6 +145,7 @@ class DBBackend(object):
         try:
             groups = ss.query(models.Group).filter(
                 models.Group.user_id == user_id).all()
+            self._wrap_default_group_values(groups)
             group_dicts = [g.to_dict() for g in groups]
             return group_dicts
         except:

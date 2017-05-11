@@ -48,7 +48,9 @@ class ExperimentFeeder2(ExperimentFeeder):
                    n_periodic=n_periodic,
                    period=period)
         data = self.data_fetch.fetch_series()
-        range_train = (1, 4.5)
+        begin = int(1 * period)
+        end = int(4.5 * period)
+        range_train = (begin, end)
         gdata_x, gdata_y = self.generate(data, range_train)
         # cdata = pd.Series(data=gdata_y)
         # cdata.to_csv('gdata_y', index=False, header=False)
@@ -70,5 +72,7 @@ class ExperimentTestFeeder2(ExperimentTestFeeder):
                    n_periodic=n_periodic,
                    period=period)
         data = self.data_fetch.fetch_series()
-        range_train = (4.5, 5)
+        begin = int(4.5*period)
+        end = int(5*period)
+        range_train = (begin, end)
         return self.generate(data, range_train)

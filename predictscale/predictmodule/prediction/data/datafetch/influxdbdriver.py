@@ -84,13 +84,14 @@ class DataBatchGet(DataGetBase):
             exdata = self.extract_data(rl)
             print('%s %s %s' % (_begin, _end,
                                 len(exdata) if exdata is not None else 0))
-            if exdata is not None:
+            if exdata is None:
                 if _end - begin < batch_size:
                     # truong hop nay du tang batch size nua thi cung khong lay dc data,
                     # vi vong lap nay da qua begin roi
-                    break
-                batch_size = batch_size * 2
-                _begin = _end
+                    pass
+                else:
+                    batch_size = batch_size * 2
+                    _begin = _end
 
             if filter:
                 fdata, finish = filter(exdata)

@@ -41,6 +41,9 @@ def get_available_dataframes(instance_meta, fetch_class):
     if not begin:
         raise ex.EndpointNotAvailable(
             'Cant get begin time %s' % str(instance_meta))
+
+    print('begin %s end %s' % (begin, last_time))
+
     data = fetch.get_data(begin, last_time, filter=filter)
 
     return data

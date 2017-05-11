@@ -1,7 +1,7 @@
 import pandas as pd
 
 
-class MemoryFetch():
+class InMemoryFetch():
     def __init__(self, series):
         self.init_series(series)
 

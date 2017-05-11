@@ -10,8 +10,8 @@ from prediction.data.datafetch import MemoryFetch
 instance_meta = {
     'instance_id': 1,
     'action': {
-        'period': 50,
-        'n_period_to_train': 7,
+        'period': 10,
+        'n_period_to_train': 2,
         'n_predict': 3,
         'auto_retrain_period': 10,
     },

@@ -46,7 +46,8 @@ class IndexView(tables.DataTableView):
 
     def get_data(self):
         try:
-            groups = client(self.request).get_groups()
+            groups = []
+            # groups = client(self.request).get_groups()
             return groups
         except Exception:
             err_msg = _('Can\'t retrieve group list')

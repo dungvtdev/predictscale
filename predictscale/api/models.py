@@ -17,6 +17,12 @@ class Group(Base):
     image = Column(String(250))
     flavor = Column(String(250))
     enable = Column(Boolean, default=False)
+
+    period = Column(Integer)
+    n_period_to_train = Column(Integer)
+    n_predict = Column(Integer)
+    period_train = Column(Integer)
+
     instances = relationship("Instance", backref='group')
 
     def __repr__(self):
@@ -42,8 +48,12 @@ class Instance(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column(String(250), nullable=False)
     instance_id = Column(String(250), nullable=False, unique=True)
+    endpoint = Column(String(20))
+    db_name = Column(String(20))
+
     group_id = Column(Integer, ForeignKey('group.id'))
 
     def __repr__(self):
         return "<Instance(user_id='%s', instance_id='%s', group_id='%s')>" \
             % (self.user_id, self.instance_id, self.group_id)
+

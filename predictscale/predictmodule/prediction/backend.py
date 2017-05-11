@@ -9,7 +9,8 @@ instance:{
     },
     train_params,
     endpoint,
-    db_name
+    db_name,
+    metric
 }
 '''
 

@@ -1,2 +1,2 @@
-from .utils import MemoryFetch
+from .utils import InMemoryFetch
 from .influxdb import CpuFetch

@@ -1,8 +1,8 @@
 from . import exceptions as ex
-from ..algorithm.predict import Predictor
-from ...data.datafetch import CPUFetch
-from ...data import training, MemoryFetch
-from ..algorithm.datafeeder import SimpleFeeder
+from prediction.core.algorithm.predict import Predictor
+from prediction.data.datafetch import CpuFetch, InMemoryFetch   
+from prediction.data import training
+from prediction.core.algorithm.datafeeder import SimpleFeeder
 
 config = {
     'n_input': 4,
@@ -15,7 +15,7 @@ config = {
 }
 
 map_fetch_cls = {
-    'cpu_usage_total': CPUFetch,
+    'cpu_usage_total': CpuFetch,
 }
 
 
@@ -34,20 +34,26 @@ class DataMeta:
         self.last_time = kwargs.get('last_time', None)
 
 
-class ContainerState:
-    Initialize,
-    PendingData,
-    PendingUser,
-    Pushing,
-    Running,
+# class ContainerState:
+#     Initialize,
+#     PendingData,
+#     PendingUser,
+#     Pushing,
+#     Running,
 
 
 class InstanceMonitorContainer(object):
-    def __init__(self, backend, **kwargs):
+    _last_time_have = None
+    _last_time_real = None
+
+    def __init__(self, backend, instance_meta=None, **kwargs):
         self.instance_id = kwargs.get('instance_id', None)
         self.metric = kwargs.get('metric', None)
         self.backend = backend
-        self._instance_meta = None
+        self.setup(instance_meta)
+
+    def setup(self, instance_meta):
+        self._instance_meta = instance_meta or self._instance_meta
 
     def get_instance_meta(self):
         if self.instance_id is None or self.metric is None:
@@ -79,8 +85,10 @@ class InstanceMonitorContainer(object):
         return DataMeta()
 
     def push(self):
+        source = 'cached'
+
         meta = self.get_instance_meta()
-        data = self.prepare_data()
+        data = self.prepare_data(source=source)
 
         n_input = meta['train_params']['n_input'] or config['n_input']
         n_neural_hidden = meta['train_params']['n_neural_hidden'] \
@@ -104,5 +112,5 @@ class InstanceMonitorContainer(object):
         fetch_cls = get_fetch(self.metric)
         data = training.get_available_dataframes(instance_meta, fetch_cls)
 
-        mem_fetch = MemoryFetch(data)
+        mem_fetch = InMemoryFetch(data)
         feeder = SimpleFeeder(mem_fetch)

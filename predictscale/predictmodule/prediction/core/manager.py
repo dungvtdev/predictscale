@@ -12,7 +12,7 @@ class PredictManager(threading.Thread):
         while self._running:
             time.sleep(self._loop_minute * 60)
 
-    def _init_container(self, instance_meta):
+    def init_container(self, instance_meta):
         instance_id = instance_meta['instance_id']
         metric = instance_meta['metric']
         container = InstanceMonitorContainer(self._backend,
@@ -21,13 +21,8 @@ class PredictManager(threading.Thread):
                                              metric=metric)
         return container
 
-    def prepare_container(self, instance_meta):
-        container = self._init_container(instance_meta)
-        data = container.prepare_data()
-        return data
-
     def add_container(self, instance_meta):
-        container = self._init_container(instance_meta)
+        container = self.init_container(instance_meta)
 
     def start_thread(self):
         if not self.is_alive():

@@ -24,11 +24,10 @@ def get_available_dataframes(instance_meta, fetch_class):
     params['batch_size'] = config['batch_size']
     fetch = fetch_class(**params)
 
-    action_params = instance_meta['action']
-    period = action_params['period']
-    n_period_to_train = action_params['n_period_to_train']
+    period = instance_meta['period']
+    data_length = instance_meta['data_length']
     dataframe_size_bias = config['dataframe_size_bias']
-    frame_minute = period * n_period_to_train
+    frame_minute = data_length
     frame_size_bias = dataframe_size_bias * frame_minute
 
     last_time = get_instance_metric_last_time(instance_meta)
@@ -46,7 +45,7 @@ def get_available_dataframes(instance_meta, fetch_class):
 
     data = fetch.get_data(begin, last_time, filter=filter)
 
-    return data
+    return data, last_time
 
 
 def get_instance_metric_last_time(instance_meta):

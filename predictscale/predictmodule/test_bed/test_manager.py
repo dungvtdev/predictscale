@@ -9,21 +9,20 @@ manager = PredictManager()
 
 instance_meta = {
     'instance_id': 1,
-    'action': {
-        'period': 10,
-        'n_period_to_train': 2,
-        'n_predict': 3,
-        'auto_retrain_period': 10,
-    },
+    'period': 10,
+    'data_length': 100,
+    'predict_length': 3,
+    'update_in_time': 10,
     'endpoint': '192.168.122.124',
     'db_name': 'cadvisor',
-    'train_params': {
-        'n_neural_hidden': 15,
-        'n_input': 4,
-        'n_periodic': 1,
-    },
+    'neural_size': 15,
+    'recent_point': 4,
+    'periodic_number': 1,
     'metric': 'cpu_usage_total',
 }
 
-data = manager.prepare_container(instance_meta)
-print(data)
+instance_meta['epoch'] = 'm'
+
+container = manager.init_container(instance_meta)
+msg = container.get_data_info_string()
+print(msg)

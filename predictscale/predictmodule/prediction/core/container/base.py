@@ -1,14 +1,15 @@
+import time
 from . import exceptions as ex
 from prediction.core.algorithm.predict import Predictor
-from prediction.data.datafetch import CpuFetch, InMemoryFetch   
+from prediction.data.datafetch import CpuFetch, InMemoryFetch
 from prediction.data import training
 from prediction.core.algorithm.datafeeder import SimpleFeeder
 
 config = {
-    'n_input': 4,
-    'n_periodic': 1,
+    'recent_point': 4,
+    'periodic_number': 1,
     'period': 0,
-    'n_neural_hidden': 15,
+    'neural_size': 15,
     'cross_rate': 0.6,
     'mutation_rate': 0.04,
     'pop_size': 50
@@ -24,22 +25,16 @@ def get_fetch(metric):
 
 
 class DataMeta:
-    source = 'cached' or 'remote'
+    instance_id = None
+    metric = None
     data = None
     last_time = None
 
     def __init__(self, **kwargs):
-        self.source = kwargs.get('source', None)
         self.data = kwargs.get('data', None)
         self.last_time = kwargs.get('last_time', None)
-
-
-# class ContainerState:
-#     Initialize,
-#     PendingData,
-#     PendingUser,
-#     Pushing,
-#     Running,
+        self.instance_id = kwargs.get('instance_id', None)
+        self.metric = kwargs.get('metric', None)
 
 
 class InstanceMonitorContainer(object):
@@ -49,40 +44,30 @@ class InstanceMonitorContainer(object):
     def __init__(self, backend, instance_meta=None, **kwargs):
         self.instance_id = kwargs.get('instance_id', None)
         self.metric = kwargs.get('metric', None)
-        self.backend = backend
         self.setup(instance_meta)
 
     def setup(self, instance_meta):
         self._instance_meta = instance_meta or self._instance_meta
 
-    def get_instance_meta(self):
-        if self.instance_id is None or self.metric is None:
-            raise ex.InstanceContainerInternalError(
-                'instance_id or metric not defined')
-        if not self._instance_meta:
-            self._instance_meta = backend.get_instance_meta(
-                self.instance_id, self.metric)
-        return self._instance_meta
+    def get_data(self):
+        fetch_cls = get_fetch(self.metric)
+        data, last_time = training.get_available_dataframes(
+            self._instance_meta, fetch_cls)
+        return DataMeta(data=data, last_time=last_time,
+                        instance_id=self.instance_id, metric=self.metric)
 
-    def prepare_data(self, source=None):
-        meta = self.get_instance_meta()
-        if source:
-            return self._get_data(source)
-        else:
-            return {
-                'cached': self._get_data('cached'),
-                'remote': self._get_data('remote'),
-            }
-
-    def _get_data(self, source):
-        fn = getattr(self, '_get_{source}_data'.format(source=source))
-        return fn()
-
-    def _get_cached_data(self):
-        return DataMeta()
-
-    def _get_remote_data(self):
-        return DataMeta()
+    def get_data_info_string(self):
+        data_meta = self.get_data()
+        msg_tmpl = 'Has {current}, need to wait about {more} more. Process: {percentage} %'
+        current = len(data_meta.data)
+        more = self._instance_meta['data_length'] - current
+        if more < 0:
+            more = 0
+        current_s = time.strftime('%H:%M', time.gmtime(current * 60))
+        more_s = time.strftime('%H:%M', time.gmtime(more * 60))
+        percentage = current * 100 / (current + more)
+        return msg_tmpl.format(current=current_s, more=more_s,
+                               percentage=percentage)
 
     def push(self):
         source = 'cached'

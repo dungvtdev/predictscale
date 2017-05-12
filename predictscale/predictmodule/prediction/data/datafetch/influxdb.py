@@ -54,9 +54,11 @@ class BaseMetricFetch(driver.DataBatchGet):
         if current is None:
             return new
         if new is not None:
-            new.append(current)
+            rl = new.append(current)
             del current
-        return new
+            del new
+            return rl
+        return current
 
 
 class CpuFetch(CpuRootMixin, BaseMetricFetch):

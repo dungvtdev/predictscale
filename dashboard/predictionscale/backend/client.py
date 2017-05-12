@@ -6,6 +6,7 @@ from .authagent import UserTokenAuth
 
 from .models import GroupData
 from . import horizonutils as utils
+import json
 
 
 class Client(object):
@@ -67,7 +68,7 @@ class Client(object):
         r, ok = self.request_get(url)
         if ok:
             group_dicts = json.loads(r.text)['groups']
-            group = GroupData(group_dicts[0])
+            group = GroupData.create(group_dicts[0])
             return group
 
     def drop_group(self, id):
@@ -77,7 +78,8 @@ class Client(object):
         return ok
 
     def add_group(self, group):
-        ips = utils.get_instances_ip(self.request_obj, group.instances)
+        # ips = utils.get_instances_ip(self.request_obj, group.instances)
+        ips = ['192.168.122.124'] * len(group.instances)
         addr_tmpl = '/v1/users/{user_id}/groups'
         url = self.get_url(addr_tmpl)
         inst_data = zip(group.instances, ips)
@@ -114,3 +116,16 @@ class Client(object):
         url = self.get_url(addr_tmpl, id=id)
         r, ok = self.request_post(url)
         return ok
+
+    def get_data_state(self, id, data_length, period, *args):
+        addr_tmpl = '/v1/users/{user_id}/groups/{id}/data'
+        params = {
+            'data_length': data_length,
+            'period': period,
+        }
+        url = self.get_url(addr_tmpl, id=id)
+        r, ok = self.request_get(url, params=params)
+        if ok:
+            return json.loads(r.text), True
+        else:
+            return None, False

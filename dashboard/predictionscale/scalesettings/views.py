@@ -118,12 +118,11 @@ class Step2View(views.APIView):
         except:
             err_msg = _('Can\'t retrieve group')
             exceptions.handle(self.request, err_msg)
-            return
+            return context
 
         instances = group.instances
         context['instances'] = [InstanceTmpl(inst, inst) for inst in instances]
-        print('************************** step2 view get data ********')
-        print(context['instances'])
+        context['group'] = group
         return context
 
 

@@ -13,6 +13,8 @@
 from django.conf.urls import url
 
 from openstack_dashboard.dashboards.predictionscale.scalesettings import views
+from openstack_dashboard.dashboards.predictionscale.scalesettings \
+    import ajaxviews
 
 
 urlpatterns = [
@@ -22,4 +24,6 @@ urlpatterns = [
     url(r'^step3', views.Step3View.as_view(), name='step3'),
     url(r'^add_group', views.AddView.as_view(), name='add_group'),
     url(r'^(?P<id>[^/]+)/update/$', views.UpdateView.as_view(), name='update'),
+    url(r'^ajax/groups/(?P<id>[^/]+)/data/$',
+        ajaxviews.get_data_state, name='get_data_state')
 ]

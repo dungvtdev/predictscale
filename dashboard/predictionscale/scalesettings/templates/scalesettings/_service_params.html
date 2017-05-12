@@ -1,8 +1,8 @@
-<ul class="nav nav-tabs">
+<ul class="nav nav-tabs" id="settingTabs">
     <li class="active"><a href="#common" data-toggle="tab">Common</a></li>
     <li class=""><a href="#advance" data-toggle="tab">Advances</a></li>
     <li class=""><a href="#setting" data-toggle="tab">Setting</a></li>
-    <li class=""><a href="#data" data-toggle="data">Data</a></li>
+    <li class=""><a href="#data" data-toggle="tab">Data</a></li>
 </ul>
 
 <form id="settingForm" class="form-horizontal">
@@ -60,23 +60,16 @@
                 </div>
             </div>
         </div>
-    </div>
 
-
-    <div class="tab-pane" id="data">
-        {% for inst in instances %}
-        <div class="form-group">
-            <label 
-            class="col-xs-3 control-label"
-            data-id={{ inst.id }}>{{ inst.name}}</label>
-            <!--<div class="col-xs-5">
-                <select class="form-control" name="size">
-                    <option value="">Choose data</option>
-                    <option value="s">Small (S)</option>
-                </select>
-            </div>-->
+        <div class="tab-pane" id="data" data-url="{% url 'horizon:predictionscale:scalesettings:get_data_state' id=group.id %}">
+            {% for inst in instances %}
+            <div class="form-group">
+                <label class="col-xs-3 control-label">{{ inst.name }}</label>
+                <p class="data-train" data-id={{ inst.id }}></p>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
+        
     </div>
 
 

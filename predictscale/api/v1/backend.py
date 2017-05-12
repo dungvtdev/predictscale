@@ -17,6 +17,7 @@ default_vals = {
     'period': 1,
     'update_in_time': 1,
     'data_length': 7,
+    'predict_length': 3,
 }
 
 
@@ -182,7 +183,7 @@ class DBBackend(object):
         group = ss.query(models.Group)\
             .filter(models.Group.user_id == user_id)\
             .filter(models.Group.id == id).one()
-        return group
+        return group.to_dict()
         # except Exception:
         #     raise falcon.HTTPBadRequest('Group DB error')
         # finally:

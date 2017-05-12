@@ -11,16 +11,67 @@ $(document).ready(function () {
         updateInTime: data.data("update-in-time"),
     }
 
+    var dataStates = $('.data-train')
+
+    function camelCaseToDash(myStr) {
+        return myStr.replace(/([a-z])([A-Z])/g, '$1-$2').toLowerCase();
+    }
+
     function filldata() {
         $.each(default_data, function (key, val) {
             $('form#settingForm input[name="' + key + '"]').val(val);
         })
     }
 
+    function getData(url) {
+        form = $('form#settingForm')
+        arr = form.serializeArray()
+        data = {}
+        arr.forEach(function (elm) {
+            data[camelCaseToDash(elm.name)] = elm.value;
+        });
+        $.ajax({
+            url: url,
+            type: 'GET',
+            data: {
+                dataLength: data['data-length'],
+                period: data['period']
+            },
+            dataType: 'json',
+            success: function (data) {
+                dataStates.each(function(index){
+                    
+                })
+            }
+        })
+    }
+
+    function canGetData() {
+        var hasData = true
+        if(!dataStates){
+            return false;
+        }
+        dataStates.each(function(index){
+            if($(this).text().trim()==""){
+                hasData = false
+            }
+        })
+        return !hasData
+    }
+
     var btn_refesh = $('form#settingForm button#refresh')
-    btn_refesh.click(function(){
+    btn_refesh.click(function () {
         filldata();
     });
+
+    var dataTab = $('ul#settingTabs a[href="#data"]')
+    dataTab.on('shown.bs.tab', function (e) {
+        if (!canGetData())
+            return;
+        url = $('form#settingForm div#data').data('url')
+        getData(url)
+    });
+
 
     filldata()
 });

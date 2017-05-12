@@ -52,6 +52,13 @@ from openstack_dashboard import api
 #         # group.instances = '\n'.join(inst_names)
 
 #     return groups
+class InstanceTmpl:
+    name = None
+    id = None
+
+    def __init__(self, name, id):
+        self.name = name
+        self.id = id
 
 
 class AddView(workflows.WorkflowView):
@@ -103,6 +110,20 @@ class Step2View(views.APIView):
         id = kwargs['id']
         context['step_title'] = self.step_title
         context['step_index'] = self.step_index
+
+        try:
+            group = client(request).get_group(id)
+            if group is None:
+                raise
+        except:
+            err_msg = _('Can\'t retrieve group')
+            exceptions.handle(self.request, err_msg)
+            return
+
+        instances = group.instances
+        context['instances'] = [InstanceTmpl(inst, inst) for inst in instances]
+        print('************************** step2 view get data ********')
+        print(context['instances'])
         return context
 
 

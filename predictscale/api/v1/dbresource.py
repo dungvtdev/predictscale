@@ -39,9 +39,9 @@ class GroupResourceId(object):
             user_id, group_id, body['group'])
 
     def on_get(self, req, resp, user_id, id):
-        group_dict = self.db_backend.get_group(user_id, group_id)
+        group_dict = self.db_backend.get_group(user_id, id)
         req.context['result'] = {
-            'groups': [group_dict]
+            'groups': [group_dict, ]
         }
 
 

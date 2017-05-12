@@ -61,6 +61,15 @@ class Client(object):
         else:
             return []
 
+    def get_group(self, group_id):
+        addr_tmpl = '/v1/users/{user_id}/groups/{group_id}'
+        url = self.get_url(addr_tmpl, group_id=group_id)
+        r, ok = self.request_get(url)
+        if ok:
+            group_dicts = json.loads(r.text)['groups']
+            group = GroupData(group_dicts[0])
+            return group
+
     def drop_group(self, id):
         addr_tmpl = '/v1/users/{user_id}/groups/{id}'
         url = self.get_url(addr_tmpl, id=id)

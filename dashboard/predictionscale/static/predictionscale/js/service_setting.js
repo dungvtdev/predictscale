@@ -8,7 +8,7 @@ $(document).ready(function () {
         periodicNumber: data.data("periodic-number"),
         neuralSize: data.data("neural-size"),
         predictLength: data.data("predict-length"),
-        updateInPeriod: data.data("update-in-period"),
+        updateInTime: data.data("update-in-time"),
     }
 
     function filldata() {

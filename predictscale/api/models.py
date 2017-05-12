@@ -19,9 +19,12 @@ class Group(Base):
     enable = Column(Boolean, default=False)
 
     period = Column(Integer)
-    n_period_to_train = Column(Integer)
-    n_predict = Column(Integer)
-    period_train_again = Column(Integer)
+    data_length = Column(Integer)
+    recent_point = Column(Integer)
+    periodic_number = Column(Integer)
+    predict_length = Column(Integer)
+    update_in_time = Column(Integer)
+    neural_size = Column(Integer)
 
     instances = relationship("Instance", backref='group')
 
@@ -38,8 +41,14 @@ class Group(Base):
             'image': self.image,
             'flavor': self.flavor,
             'instances': [i.instance_id for i in self.instances],
-            'enable': self.enable
-        }
+            'enable': self.enable,
+            'period': self.period,
+            'data_length': self.data_length,
+            'recent_point': self.recent_point,
+            'periodic_number': self.periodic_number,
+            'predict_length': self.predict_length,
+            'update_in_time': self.update_in_time,
+            'neural_size': self.neural_size}
 
 
 class Instance(Base):
@@ -56,4 +65,3 @@ class Instance(Base):
     def __repr__(self):
         return "<Instance(user_id='%s', instance_id='%s', group_id='%s')>" \
             % (self.user_id, self.instance_id, self.group_id)
-

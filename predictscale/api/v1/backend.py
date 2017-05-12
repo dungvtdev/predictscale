@@ -11,12 +11,12 @@ db = None
 
 default_vals = {
     'db_name': 'cadvisor',
-    'n_neural_hidden': 15,
-    'n_input': 4,
-    'n_periodic': 1,
+    'neural_size': 15,
+    'recent_point': 4,
+    'periodic_number': 1,
     'period': 1,
-    'period_train_again': 1,
-    'n_period_to_train': 7,
+    'update_in_time': 1,
+    'data_length': 7,
 }
 
 
@@ -115,8 +115,13 @@ class DBBackend(object):
             self._update_group_object(group, group_dict, ss)
             ss.add(group)
             ss.commit()
-            self._update_group_instance(user_id, group, group_dict, ss)
-            ss.commit()
+            try:
+                self._update_group_instance(user_id, group, group_dict, ss)
+            except:
+                ss.delete(group)
+                raise
+            finally:
+                ss.commit()
 
         # except:
         #     # ss.rollback()
@@ -142,16 +147,16 @@ class DBBackend(object):
 
     def get_groups(self, user_id):
         ss = self._get_localsession()
-        try:
-            groups = ss.query(models.Group).filter(
-                models.Group.user_id == user_id).all()
-            self._wrap_default_group_values(groups)
-            group_dicts = [g.to_dict() for g in groups]
-            return group_dicts
-        except:
-            raise falcon.HTTPBadRequest('Group DB error')
-        finally:
-            self._close_localsession()
+        # try:
+        groups = ss.query(models.Group).filter(
+            models.Group.user_id == user_id).all()
+        self._wrap_default_group_values(groups)
+        group_dicts = [g.to_dict() for g in groups]
+        return group_dicts
+        # except:
+        #     raise falcon.HTTPBadRequest('Group DB error')
+        # finally:
+        self._close_localsession()
 
     def update_groups(self, user_id, id, group_dict):
         ss = self._get_localsession()

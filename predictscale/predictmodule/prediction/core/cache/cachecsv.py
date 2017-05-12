@@ -1,4 +1,4 @@
-from prediction.backend import default as backend
+from predictmodule.prediction.backend import default as backend
 import pandas as pd
 import os
 from .. import DataMeta

@@ -64,5 +64,5 @@ class GroupAction(object):
 routes = [
     ('/users/{user_id}/groups', GroupResource()),
     ('/users/{user_id}/groups/{id}', GroupResourceId()),
-    ('/users/{user_id}/groups/{id}/actions/{action}', GroupAction())
+    # ('/users/{user_id}/groups/{id}/actions/{action}', GroupAction())
 ]

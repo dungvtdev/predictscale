@@ -6,6 +6,36 @@ from sqlalchemy.orm import relationship
 Base = declarative_base()
 
 
+instance_meta_pattern = {
+    'instance_id': 1,
+    'period': 10,
+    'data_length': 100,
+    'predict_length': 3,
+    'update_in_time': 10,
+    'endpoint': '192.168.122.124',
+    'db_name': 'cadvisor',
+    'neural_size': 15,
+    'recent_point': 4,
+    'periodic_number': 1,
+    'metric': 'cpu_usage_total',
+    'epoch': 'm'
+}
+
+group_pattern = {
+    'db_name': 'cadvisor',
+    'neural_size': 15,
+    'recent_point': 4,
+    'periodic_number': 1,
+    'period': 1,
+    'update_in_time': 1,
+    'data_length': 7,
+    'predict_length': 3,
+}
+
+for k in group_pattern:
+    group_pattern[k] = instance_meta_pattern[k]
+
+
 class Group(Base):
     __tablename__ = 'group'
 
@@ -65,3 +95,13 @@ class Instance(Base):
     def __repr__(self):
         return "<Instance(user_id='%s', instance_id='%s', group_id='%s')>" \
             % (self.user_id, self.instance_id, self.group_id)
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'user_id': self.user_id,
+            'instance_id': self.instance_id,
+            'endpoint': self.endpoint,
+            'db_name': self.db_name,
+            'group_id': self.group_id,
+        }

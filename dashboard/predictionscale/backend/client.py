@@ -117,11 +117,10 @@ class Client(object):
         r, ok = self.request_post(url)
         return ok
 
-    def get_data_state(self, id, data_length, period, *args):
+    def get_data_state(self, id, data_length, *args):
         addr_tmpl = '/v1/users/{user_id}/groups/{id}/data'
         params = {
             'data_length': data_length,
-            'period': period,
         }
         url = self.get_url(addr_tmpl, id=id)
         r, ok = self.request_get(url, params=params)

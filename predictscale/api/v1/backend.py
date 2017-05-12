@@ -5,20 +5,25 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 from share import configtool
 from api import models
 import uuid
-
+from .. import models
 
 db = None
 
-default_vals = {
-    'db_name': 'cadvisor',
-    'neural_size': 15,
-    'recent_point': 4,
-    'periodic_number': 1,
-    'period': 1,
-    'update_in_time': 1,
-    'data_length': 7,
-    'predict_length': 3,
-}
+
+def _wrap_default_group_object(group, default_dict):
+    for attr in group.__dict__:
+        if attr in default_dict and getattr(group, attr) is None:
+            setattr(group, attr, default_dict[attr])
+    return group
+
+
+def _wrap_default_instance_dict(instance, default_dict, group=None):
+    d = {}
+    group = group or {}
+    for k in default_dict:
+        d[k] = getattr(instance, k, None) \
+            or getattr(group, k, None) or default_dict[k]
+    return d
 
 
 class DBBackend(object):
@@ -32,7 +37,8 @@ class DBBackend(object):
 
         models.Base.metadata.create_all(self._engine)
 
-        self.default_vals = default_vals
+        self.group_pattern = models.group_pattern
+        self.instance_meta_pattern = instance_meta_pattern
 
     @classmethod
     def default(cls):
@@ -48,11 +54,11 @@ class DBBackend(object):
     def _close_localsession(self):
         self._session.remove()
 
-    def _wrap_default_group_values(self, groups):
-        for g in groups:
-            for attr in g.__dict__:
-                if attr in self.default_vals and getattr(g, attr) is None:
-                    setattr(g, attr, self.default_vals[attr])
+    # def _wrap_default_group_values(self, groups):
+    #     for g in groups:
+    #         for attr in g.__dict__:
+    #             if attr in self.default_vals and getattr(g, attr) is None:
+    #                 setattr(g, attr, self.default_vals[attr])
 
     def _update_group_object(self, group, group_dict, session):
         desc = group_dict.get('desc', None)
@@ -146,12 +152,18 @@ class DBBackend(object):
         # finally:
         self._close_localsession()
 
-    def get_groups(self, user_id):
+    def get_groups(self, user_id, group_default=None):
+        group_default = self.group_pattern or group_default
+
         ss = self._get_localsession()
         # try:
         groups = ss.query(models.Group).filter(
             models.Group.user_id == user_id).all()
-        self._wrap_default_group_values(groups)
+
+        if group_default not is None:
+            groups = [_wrap_default_group_object(
+                group, group_default) for group in groups]
+
         group_dicts = [g.to_dict() for g in groups]
         return group_dicts
         # except:
@@ -176,15 +188,47 @@ class DBBackend(object):
         finally:
             self._close_localsession()
 
-    def get_group(self, user_id, id):
+    def get_group(self, user_id, id, group_default=None):
+        group_default = group_default or self.group_pattern
         # print('user_id %s, id %s' % (user_id, id))
         ss = self._get_localsession()
         # try:
         group = ss.query(models.Group)\
             .filter(models.Group.user_id == user_id)\
             .filter(models.Group.id == id).one()
+        group = _wrap_default_group_object(group, group_default)
         return group.to_dict()
         # except Exception:
         #     raise falcon.HTTPBadRequest('Group DB error')
         # finally:
         self._close_localsession()
+
+    def get_instance(self, user_id, instance_id):
+        ss = self._get_localsession()
+
+        inst = ss.query(models.Instance)\
+            .filter(models.Instance.instance_id == instance_id) \
+            .filter(models.Instance.user_id == user_id).one()
+        return inst.to_dict()
+
+        self._close_localsession()
+
+    def get_instance_meta_from_db(self, user_id, instance_id,
+                                  default_instance_dict=None):
+        default_instance_dict = default_instance_dict \
+            or self.instance_meta_pattern
+
+        ss = self._get_localsession()
+
+        inst = ss.query(models.Instance)\
+            .filter(models.Instance.instance_id == instance_id) \
+            .filter(models.Instance.user_id == user_id).one()
+
+        group = inst.group
+
+        if default_instance_dict not is None:
+            inst_dict = _wrap_default_instance_dict(
+                inst, default_instance_dict, group)
+            return inst_dict
+        else:
+            return inst.to_dict()

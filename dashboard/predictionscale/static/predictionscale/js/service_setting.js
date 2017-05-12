@@ -35,7 +35,6 @@ $(document).ready(function () {
             type: 'GET',
             data: {
                 dataLength: data['data-length'],
-                period: data['period']
             },
             dataType: 'json',
             success: function (data) {

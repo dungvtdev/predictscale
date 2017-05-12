@@ -1,23 +1,23 @@
 import time
 from . import exceptions as ex
-from prediction.core.algorithm.predict import Predictor
-from prediction.data.datafetch import CpuFetch, InMemoryFetch
-from prediction.data import training
-from prediction.core.algorithm.datafeeder import SimpleFeeder
+from predictmodule.prediction.core.algorithm.predict import Predictor
+from predictmodule.prediction.data.datafetch import CpuFetch, InMemoryFetch
+from predictmodule.prediction.data import training
+from predictmodule.prediction.core.algorithm.datafeeder import SimpleFeeder
+from predictmodule import config
+# config = {
+#     'recent_point': 4,
+#     'periodic_number': 1,
+#     'period': 0,
+#     'neural_size': 15,
+#     'cross_rate': 0.6,
+#     'mutation_rate': 0.04,
+#     'pop_size': 50
+# }
 
-config = {
-    'recent_point': 4,
-    'periodic_number': 1,
-    'period': 0,
-    'neural_size': 15,
-    'cross_rate': 0.6,
-    'mutation_rate': 0.04,
-    'pop_size': 50
-}
-
-map_fetch_cls = {
-    'cpu_usage_total': CpuFetch,
-}
+# map_fetch_cls = {
+#     'cpu_usage_total': CpuFetch,
+# }
 
 
 def get_fetch(metric):

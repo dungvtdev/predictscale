@@ -14,3 +14,7 @@ def time_series_to_pandas_series_minute(time_series, interpolate=False):
 
 def interpolate_pandas_time_series(series):
     return series.interpolate()
+
+
+def concat_pandas_series(old, new, old_from):
+    return old[old_from:].append(new)

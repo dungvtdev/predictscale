@@ -2,6 +2,8 @@ import pandas as pd
 from .datafetch import influxdb
 from . import utils
 from .. import exceptions as ex
+from predictmodule import DataMeta, datacache
+
 CONF = {
     'batch_size': 4000,
     'dataframe_size_bias': 0.1,
@@ -41,11 +43,35 @@ def get_available_dataframes(instance_meta, fetch_class):
         raise ex.EndpointNotAvailable(
             'Cant get begin time %s' % str(instance_meta))
 
+    data_meta = DataMeta(**instance_meta)
+    cached = datacache.get_cached_data_forever(data_meta)
+    if cached:
+        cached_last = cached.last_time
+        if cached_last > begin:
+            temp_begin = cached_last
+            data = fetch.get_data(temp_begin, last_time, filter=filter)
+            real_begin = last_time - len(data)
+            if temp_begin < real_begin:
+                # giua cache va real series co khoang trong
+                data_meta.data = data
+                data_meta.last_time = last_time
+            else:
+                print('from cache')
+                cat_from = len(cached.data) - (cached_last - begin)
+                data_meta = utils.concat_pandas_series(
+                    cached.data, data, cat_from)
+                data_meta.last_time = last_time
+
+    if data_meta.data is None:
+        data = fetch.get_data(begin, last_time, filter=filter)
+        data_meta.data = data
+        data_meta.last_time = last_time
+
     print('begin %s end %s' % (begin, last_time))
 
-    data = fetch.get_data(begin, last_time, filter=filter)
+    datacache.cache_data_forever(data_meta)
 
-    return data, last_time
+    return data_meta
 
 
 def get_instance_metric_last_time(instance_meta):

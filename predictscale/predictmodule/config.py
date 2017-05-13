@@ -13,3 +13,5 @@ instance_meta_default = {
 map_fetch_cls = {
     'cpu_usage_total': CpuFetch,
 }
+
+cache_root = '/home/dungvt/cache'

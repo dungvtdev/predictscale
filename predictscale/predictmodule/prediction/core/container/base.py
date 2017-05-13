@@ -24,19 +24,6 @@ def get_fetch(metric):
     return config.map_fetch_cls[metric]
 
 
-class DataMeta:
-    instance_id = None
-    metric = None
-    data = None
-    last_time = None
-
-    def __init__(self, **kwargs):
-        self.data = kwargs.get('data', None)
-        self.last_time = kwargs.get('last_time', None)
-        self.instance_id = kwargs.get('instance_id', None)
-        self.metric = kwargs.get('metric', None)
-
-
 class InstanceMonitorContainer(object):
     _last_time_have = None
     _last_time_real = None
@@ -51,10 +38,11 @@ class InstanceMonitorContainer(object):
 
     def get_data(self):
         fetch_cls = get_fetch(self.metric)
-        data, last_time = training.get_available_dataframes(
+        data_meta = training.get_available_dataframes(
             self._instance_meta, fetch_cls)
-        return DataMeta(data=data, last_time=last_time,
-                        instance_id=self.instance_id, metric=self.metric)
+        # return DataMeta(data=data, last_time=last_time,
+        #                 instance_id=self.instance_id, metric=self.metric)
+        return data_meta
 
     def get_data_info_string(self):
         data_meta = self.get_data()

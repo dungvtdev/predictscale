@@ -2,7 +2,7 @@ import json
 from . import influxdbdriver as driver
 from . import base
 import time
-from .. import utils
+from predictmodule import utils
 
 
 def container_filter(serie, name):

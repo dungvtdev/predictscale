@@ -1,4 +1,4 @@
-from predictmodule.prediction.data.datafetch import CpuFetch
+from predictmodule.datafetch import CpuFetch
 
 instance_meta_default = {
     'recent_point': 4,
@@ -15,3 +15,5 @@ map_fetch_cls = {
 }
 
 cache_root = '/home/dungvt/cache'
+
+cache_temp_expire = 3600

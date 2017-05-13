@@ -1,9 +1,9 @@
 import time
 from . import exceptions as ex
-from predictmodule.prediction.core.algorithm.predict import Predictor
-from predictmodule.prediction.data.datafetch import CpuFetch, InMemoryFetch
-from predictmodule.prediction.data import training
-from predictmodule.prediction.core.algorithm.datafeeder import SimpleFeeder
+from predictmodule.algorithm.predict import Predictor
+from predictmodule.datafetch import CpuFetch, InMemoryFetch
+from predictmodule import trainingutils as training
+from predictmodule.algorithm.datafeeder import SimpleFeeder
 from predictmodule import config
 # config = {
 #     'recent_point': 4,
@@ -46,13 +46,13 @@ class InstanceMonitorContainer(object):
 
     def get_data_info_string(self):
         data_meta = self.get_data()
-        msg_tmpl = 'Has {current}, need to wait about {more} more. Process: {percentage} %'
+        msg_tmpl = 'Has {current} of data, need to wait about {more} more. Process: {percentage} %'
         current = len(data_meta.data)
         more = self._instance_meta['data_length'] - current
         if more < 0:
             more = 0
-        current_s = time.strftime('%H:%M', time.gmtime(current * 60))
-        more_s = time.strftime('%H:%M', time.gmtime(more * 60))
+        current_s = time.strftime('%Hh:%Mm', time.gmtime(current * 60))
+        more_s = time.strftime('%Hh:%Mm', time.gmtime(more * 60))
         percentage = current * 100 / (current + more)
         return msg_tmpl.format(current=current_s, more=more_s,
                                percentage=percentage)

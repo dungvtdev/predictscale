@@ -1,11 +1,13 @@
 import pandas as pd
 from .datafetch import influxdb
 from . import utils
-from .. import exceptions as ex
-from predictmodule import DataMeta, datacache
+from . import exceptions as ex
+# from predictmodule import DataMeta, datacache
+from predictmodule.models import DataMeta
+from predictmodule.cache import datacache
 
 CONF = {
-    'batch_size': 4000,
+    'batch_size': 8000,
     'dataframe_size_bias': 0.1,
 }
 
@@ -44,11 +46,15 @@ def get_available_dataframes(instance_meta, fetch_class):
             'Cant get begin time %s' % str(instance_meta))
 
     data_meta = DataMeta(**instance_meta)
-    cached = datacache.get_cached_data_forever(data_meta)
+    cached = datacache.get_cached_data_temp(data_meta)
     if cached:
         cached_last = cached.last_time
-        if cached_last > begin:
+        if cached_last == last_time:
+            data_meta.data = cached.data
+            data_meta.last_time = last_time
+        elif cached_last > begin:
             temp_begin = cached_last
+            # print('%s %s' % (temp_begin, last_time))
             data = fetch.get_data(temp_begin, last_time, filter=filter)
             real_begin = last_time - len(data)
             if temp_begin < real_begin:
@@ -58,7 +64,7 @@ def get_available_dataframes(instance_meta, fetch_class):
             else:
                 print('from cache')
                 cat_from = len(cached.data) - (cached_last - begin)
-                data_meta = utils.concat_pandas_series(
+                data_meta.data = utils.concat_pandas_series(
                     cached.data, data, cat_from)
                 data_meta.last_time = last_time
 
@@ -69,7 +75,7 @@ def get_available_dataframes(instance_meta, fetch_class):
 
     print('begin %s end %s' % (begin, last_time))
 
-    datacache.cache_data_forever(data_meta)
+    datacache.cache_data_temp(data_meta)
 
     return data_meta
 

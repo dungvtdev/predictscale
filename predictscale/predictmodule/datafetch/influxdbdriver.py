@@ -1,6 +1,6 @@
 import requests
 import json
-from ... import exceptions as ex
+from predictmodule import exceptions as ex
 
 import re
 

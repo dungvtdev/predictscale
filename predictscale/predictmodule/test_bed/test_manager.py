@@ -1,6 +1,6 @@
 import startup
 import time
-from predictmodule import PredictManager, create_container
+from predictmodule.manager import PredictManager, create_container
 
 
 manager = PredictManager()
@@ -11,7 +11,7 @@ manager = PredictManager()
 instance_meta = {
     'instance_id': 1,
     'period': 10,
-    'data_length': 100,
+    'data_length': 1000,
     'predict_length': 3,
     'update_in_time': 10,
     'endpoint': '192.168.122.124',

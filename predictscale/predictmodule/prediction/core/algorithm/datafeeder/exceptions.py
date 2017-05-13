@@ -1,2 +1,0 @@
-class NotEnoughData(Exception):
-    pass

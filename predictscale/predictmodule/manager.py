@@ -1,6 +1,6 @@
 import threading
 import time
-from predictmodule.prediction.core.container import InstanceMonitorContainer
+from predictmodule.container import InstanceMonitorContainer
 
 
 def create_container(instance_meta):

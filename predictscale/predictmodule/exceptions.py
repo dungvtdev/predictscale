@@ -1,4 +1,3 @@
-from .core.algorithm.datafeeder.exceptions import *
 
 
 class DataFetchError(Exception):
@@ -10,4 +9,8 @@ class EndpointConnectionRefuse(Exception):
 
 
 class EndpointNotAvailable(Exception):
+    pass
+
+
+class NotEnoughData(Exception):
     pass

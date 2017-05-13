@@ -13,7 +13,7 @@ def _get_key_string(data_meta, namespace=None):
 
 def cache_data_temp(data_meta):
     key = _get_key_string(data_meta, 'temp')
-    expire = cf.expire
+    expire = cf.cache_temp_expire
     cache.cache_data(key, data_meta, expire=expire)
 
     print('cache temp key={key}'.format(key=key))

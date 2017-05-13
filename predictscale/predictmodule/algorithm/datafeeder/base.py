@@ -2,35 +2,28 @@ import pandas as pd
 import numpy as np
 
 
-def normalize(data):
-    norm = (data - data.min()) / (data.max() - data.min())
-    return norm
+# def normalize(data):
+#     norm = (data - data.min()) / (data.max() - data.min())
+#     return norm
 
 
-def unnormalize(data, min_val, max_val):
-    # max_val = self.workload.max()
-    # min_val = self.workload.min()
-    return data * (max_val - min_val) + min_val
-
-
-def clamp_01(data):
-    data[(data > 1) | (data < 0)] = np.nan
-    data = data.interpolate()
-    i = 0
-    while(np.isnan(data[i])):
-        data[i] = 0
-        i = i + 1
-    return data
+# def unnormalize(data, min_val, max_val):
+#     # max_val = self.workload.max()
+#     # min_val = self.workload.min()
+#     return data * (max_val - min_val) + min_val
 
 
 class BaseFeeder():
-    n_input = None
-    n_periodic = None
-    period = None
-    data_fetch = None
 
     def __init__(self, data_fetch=None, **kwargs):
         self.data_fetch = data_fetch
+
+        self.n_input = None
+        self.n_periodic = None
+        self.period = None
+        self._max = None
+        self._min = None
+
         self.setup(**kwargs)
 
     def setup(self, n_input=None, n_periodic=None, period=None):
@@ -44,6 +37,11 @@ class BaseFeeder():
 
     def generate(self, data, range_data):
         data = self.preprocess_data(data)
+
+        self._max = data.max()
+        self._min = data.min()
+        data = (data - self._min) / (self._max - self._min)
+
         period = self.period
         output_train = data[range_data[0]:range_data[1]]
         input_train = self.get_train_data(output_train, data)
@@ -60,6 +58,37 @@ class BaseFeeder():
                 temp.append(pval)
             training.append(temp)
         return training
+
+    def _normalize(self, data):
+        if not isinstance(data, list):
+            data = (data - self._min) / (self._max - self._min)
+        else:
+            for i in range(len(data)):
+                data[i] = (data[i] - self._min) / (self._max - self._min)
+        return data
+
+    def _unnormalize(self, data):
+        if not isinstance(data, list):
+            return data * (self._max - self._min) + self._min
+        else:
+            for i in range(len(data)):
+                data[i] = data[i] * (self._max - self._min) + self._min
+            return data
+
+    def generate_extend(self, data, extend, normalize=False):
+        idxs = list(range(0, self.n_input))
+        for m in range(1, self.n_periodic + 1):
+            idxs.append(m * self.period)
+        rl = []
+        n_ex = len(extend)
+        for idx in idxs:
+            if idx >= n_ex:
+                rl.append(data[-(idx - n_ex)])
+            else:
+                rl.append(extend[-idx - 1])
+        if normalize:
+            rl = self._normalize(rl)
+        return rl
 
     def fetch_training(self, n_input=None, n_periodic=None, period=None):
         pass

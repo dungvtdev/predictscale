@@ -6,6 +6,9 @@ from predictmodule.datafetch import CpuFetch, InMemoryFetch
 from predictmodule import trainingutils as training
 from predictmodule.algorithm.datafeeder import SimpleFeeder
 from predictmodule import config as CONF
+from predictmodule.cache import datacache
+from predictmodule.series.chunkseries import ChunkSeries
+from predictmodule import config as conf
 
 # config = {
 #     'recent_point': 4,
@@ -27,13 +30,19 @@ def get_fetch(metric):
 
 
 class InstanceMonitorContainer(object):
-    _last_time_have = None
-    _last_time_real = None
-    _need_time = None
-
     _chunk_length_bias = 0.1
 
     def __init__(self, instance_meta=None, **kwargs):
+        self._last_time_have = None
+        self._last_time_real = None
+        self._need_time = None
+        self.fetch = None
+        self.feeder = None
+
+        period = instance_meta['period']
+        self.series = ChunkSeries(max_length=period + 1,
+                                  bias_length=conf.chunk_series_length_bias)
+
         self.instance_id = kwargs.get('instance_id', None)
         self.metric = kwargs.get('metric', None)
         self.setup(instance_meta)
@@ -108,6 +117,17 @@ class InstanceMonitorContainer(object):
         mem_fetch = InMemoryFetch(data_meta.data)
         feeder = SimpleFeeder(mem_fetch)
         predictor.train(feeder)
+
+        self.feeder = feeder
+        # cache data
+        datacache.cache_data_forever(data_meta)
+
+        # generate series
+        cat_idx = len(data_meta.data) - period
+        self.series.append(data_meta.data[cat_idx:], data_meta.last_time)
+
+        # add fetch object
+        self.fetch = training.get_fetch(meta, fetch_cls)
         # data = [0.2, 0.3, 0.5, 0.4, 0.7]
         # print(predictor.predict(data))
 
@@ -116,19 +136,25 @@ class InstanceMonitorContainer(object):
         return tmpl.format(name=self._instance_meta['instance_id'],
                            metric=self._instance_meta['metric'])
 
-    def predict(self):
-        return 'test_val'
+    def predict(self, tick_minute):
+        self._last_time_real = self._last_time_real + tick_minute
+        data, last = self.fetch.get_short_data_as_list(self._last_time_real)
+        if data:
+            self.series.append(data, last)
 
+    def _predict(self, input_data):
+        return input_data[-1]
 
-class FakeContainer():
-    _last_time_have = None
-    _last_time_real = None
-    _need_time = None
+    def predict_value_future(self):
+        predict_length = self._instance_meta['predict_length']
+        wnd = []
+        for i in range(predict_length):
+            input_data = self.feeder.generate_extend(data=self.series.data,
+                                                     extend=wnd)
+            input_data = self._normalize(input_data)
+            val = self._predict(input_data)
+            wnd.append(val)
 
-    def __init__(self, instance_meta=None, **kwargs):
-        self.instance_id = kwargs.get('instance_id', None)
-        self.metric = kwargs.get('metric', None)
-        self.setup(instance_meta)
-
-    def setup(self, instance_meta):
-        self._instance_meta = instance_meta or self._instance_meta
+        mean_val = self.feeder._unnormalize(mean(wnd))
+        max_val = self.feeder._unnormalize(max(wnd))
+        return max_val, mean_val

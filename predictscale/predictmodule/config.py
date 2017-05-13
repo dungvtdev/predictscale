@@ -17,3 +17,5 @@ map_fetch_cls = {
 cache_root = '/home/dungvt/cache'
 
 cache_temp_expire = 3600
+
+chunk_series_length_bias = 20

@@ -57,6 +57,7 @@ class DataBatchGet(DataGetBase):
         raise NotImplementedError('get_query must be implement')
 
     def extract_data(self, data):
+        # return data_series, last
         raise NotImplementedError('extract_data must be implement')
 
     def extend_data(self, current, new):
@@ -81,7 +82,7 @@ class DataBatchGet(DataGetBase):
 
             q = self.get_query(begin=_begin, end=_end, **kwargs)
             rl = self.query_service.query_data(q)
-            exdata = self.extract_data(rl)
+            exdata, exlast = self.extract_data(rl)
             print('%s %s %s' % (_begin, _end,
                                 len(exdata) if exdata is not None else 0))
             if exdata is None:

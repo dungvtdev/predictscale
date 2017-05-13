@@ -3,6 +3,7 @@ from . import influxdbdriver as driver
 from . import base
 import time
 from predictmodule import utils
+import numpy as np
 
 
 def container_filter(serie, name):
@@ -20,6 +21,16 @@ def extract_data(data, filter):
     return values
 
 
+def clamp_01(data):
+    data[(data > 1) | (data < 0)] = np.nan
+    data = data.interpolate()
+    i = 0
+    while(np.isnan(data[i])):
+        data[i] = 0
+        i = i + 1
+    return data
+
+
 def convert_data_minute_to_pandas(data):
     if data is None:
         return
@@ -31,7 +42,10 @@ class CpuRootMixin():
         return container_filter(serie, "/")
 
     def get_query(self, begin, end):
-        q = 'SELECT derivative("value", 1s)/1000000000 FROM {metric} WHERE time >= {utc_begin}{epoch} AND time <= {utc_end}{epoch} GROUP BY "container_name" fill(null)'
+        if end is not None:
+            q = 'SELECT derivative("value", 1s)/1000000000 FROM {metric} WHERE time >= {utc_begin}{epoch} AND time <= {utc_end}{epoch} GROUP BY "container_name" fill(null)'
+        else:
+            q = 'SELECT derivative("value", 1s)/1000000000 FROM {metric} WHERE time >= {utc_begin}{epoch} GROUP BY "container_name" fill(null)'
         q = q.format(utc_begin=begin, utc_end=end,
                      epoch=self._epoch, metric=self._metric)
         return q
@@ -50,7 +64,8 @@ class BaseMetricFetch(driver.DataBatchGet):
     def extract_data(self, data):
         filter = self.filter or (lambda d: True)
         d = extract_data(data, filter)
-        return convert_data_minute_to_pandas(d)
+        last = d[-1][0]
+        return convert_data_minute_to_pandas(d), last
 
     def extend_data(self, current, new):
         if current is None:
@@ -64,7 +79,17 @@ class BaseMetricFetch(driver.DataBatchGet):
 
 
 class CpuFetch(CpuRootMixin, BaseMetricFetch):
-    pass
+    def get_short_data_as_list(self, begin):
+        q = self.get_query(begin, None)
+        rl = self.query_service.query_data(q)
+        data = self.extract_data(rl)
+        series = [d[1] for d in data]
+        last = data[-1][0]
+        return data, last
+
+    def extract_data(self, data):
+        d, last = BaseMetricFetch.extract_data(self, data)
+        return clamp_01(d), last
 
 
 class DiscoverLastTimeMinute():

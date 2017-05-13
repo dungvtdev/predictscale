@@ -21,12 +21,18 @@ def filter(exdata):
     return exdata, False
 
 
-def get_available_dataframes(instance_meta, fetch_class):
+def get_fetch(instance_meta, fetch_class):
     config = CONF
 
     params = instance_meta
     params['batch_size'] = config['batch_size']
     fetch = fetch_class(**params)
+
+    return fetch
+
+
+def get_available_dataframes(instance_meta, fetch_class):
+    fetch = get_fetch(instance_meta, fetch_class)
 
     period = instance_meta['period']
     data_length = instance_meta['data_length']

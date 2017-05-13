@@ -80,12 +80,12 @@ class BaseMetricFetch(driver.DataBatchGet):
 
 class CpuFetch(CpuRootMixin, BaseMetricFetch):
     def get_short_data_as_list(self, begin):
+        begin = int(begin)
         q = self.get_query(begin, None)
         rl = self.query_service.query_data(q)
-        data = self.extract_data(rl)
-        series = [d[1] for d in data]
-        last = data[-1][0]
-        return data, last
+        data, last = self.extract_data(rl)
+        data = clamp_01(data)
+        return data.tolist(), last
 
     def extract_data(self, data):
         d, last = BaseMetricFetch.extract_data(self, data)

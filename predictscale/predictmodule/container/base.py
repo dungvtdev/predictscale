@@ -38,6 +38,7 @@ class InstanceMonitorContainer(object):
         self._need_time = None
         self.fetch = None
         self.feeder = None
+        self.predictor = None
 
         period = instance_meta['period']
         self.series = ChunkSeries(max_length=period + 1,
@@ -139,22 +140,27 @@ class InstanceMonitorContainer(object):
     def predict(self, tick_minute):
         self._last_time_real = self._last_time_real + tick_minute
         data, last = self.fetch.get_short_data_as_list(self._last_time_real)
-        if data:
+        if data is not None:
             self.series.append(data, last)
+            return self.predict_value_future(), True
+        else:
+            return None, False
 
     def _predict(self, input_data):
-        return input_data[-1]
+        return self.predictor.predict(input_data)
 
     def predict_value_future(self):
         predict_length = self._instance_meta['predict_length']
         wnd = []
         for i in range(predict_length):
             input_data = self.feeder.generate_extend(data=self.series.data,
-                                                     extend=wnd)
-            input_data = self._normalize(input_data)
+                                                     extend=wnd, normalize=True)
             val = self._predict(input_data)
-            wnd.append(val)
+            if val:
+                wnd.append(val[0][0])
 
-        mean_val = self.feeder._unnormalize(mean(wnd))
+        mean_val = sum(wnd) / len(wnd)
+        mean_val = self.feeder._unnormalize(mean_val)
         max_val = self.feeder._unnormalize(max(wnd))
+        # unormalize
         return max_val, mean_val

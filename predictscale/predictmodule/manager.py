@@ -1,7 +1,7 @@
 import threading
 import time
 from predictmodule.container import InstanceMonitorContainer
-import gevent
+from gevent.pool import Group
 
 
 def create_container(instance_meta):
@@ -13,8 +13,21 @@ def create_container(instance_meta):
     return container
 
 
-def predict_container(container):
-    return container, container.predict()
+def predict_container(data):
+    # return container, 1
+    try:
+        container = data[0]
+        tick_minute = data[1]
+        vals, success = container.predict(tick_minute)
+        if success:
+            max_val = vals[0]
+            mean_val = vals[1]
+            return container, max_val, mean_val, True
+        else:
+            return container, None, None, False
+    except Exception as e:
+        print(e.message)
+        return container, None, None, False
 
 
 class SimpleList():
@@ -95,19 +108,11 @@ class PredictManager(threading.Thread):
                 self.add_pushing(container)
 
     def _predict(self):
-        threads = []
         run_list = self._run_list.get_list()
-        for container in run_list:
-            t = gevent.spawn(predict_container, container)
-            threads.append(t)
-
-        gevent.joinall(threads)
-        for t in threads:
-            container, val = t.value
-            if not t.successful():
-                print('%s get fail' % container)
-            else:
-                print('%s val %s' % (container, val))
+        run_list = zip(run_list, [self._loop_minute] * len(run_list))
+        group = Group()
+        for container, max_val, mean_val, success in group.imap(predict_container, run_list):
+            print('predict %s val %s : %s  %s' % (container, max_val, mean_val, success))   
 
     def add_container(self, instance_meta):
         container = create_container(instance_meta)

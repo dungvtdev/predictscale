@@ -81,9 +81,10 @@ class BaseFeeder():
             idxs.append(m * self.period)
         rl = []
         n_ex = len(extend)
+        n_d = len(data)
         for idx in idxs:
             if idx >= n_ex:
-                rl.append(data[-(idx - n_ex)])
+                rl.append(data[n_d - (idx - n_ex) - 1])
             else:
                 rl.append(extend[-idx - 1])
         if normalize:

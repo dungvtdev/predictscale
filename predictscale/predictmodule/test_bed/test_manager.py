@@ -1,6 +1,7 @@
 import startup
 import time
-from prediction.core import PredictManager
+from predictmodule import PredictManager, create_container
+
 
 manager = PredictManager()
 # manager.start_thread()
@@ -23,6 +24,6 @@ instance_meta = {
 
 instance_meta['epoch'] = 'm'
 
-container = manager.init_container(instance_meta)
+container = create_container(instance_meta)
 msg = container.get_data_info_string()
 print(msg)

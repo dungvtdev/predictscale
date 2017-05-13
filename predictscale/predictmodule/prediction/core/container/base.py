@@ -21,7 +21,7 @@ from predictmodule import config
 
 
 def get_fetch(metric):
-    return map_fetch_cls[metric]
+    return config.map_fetch_cls[metric]
 
 
 class DataMeta:
@@ -41,7 +41,7 @@ class InstanceMonitorContainer(object):
     _last_time_have = None
     _last_time_real = None
 
-    def __init__(self, backend, instance_meta=None, **kwargs):
+    def __init__(self, instance_meta=None, **kwargs):
         self.instance_id = kwargs.get('instance_id', None)
         self.metric = kwargs.get('metric', None)
         self.setup(instance_meta)

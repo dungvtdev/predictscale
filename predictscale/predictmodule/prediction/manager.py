@@ -6,8 +6,7 @@ from predictmodule.prediction.core.container import InstanceMonitorContainer
 def create_container(instance_meta):
     instance_id = instance_meta['instance_id']
     metric = instance_meta['metric']
-    container = InstanceMonitorContainer(self._backend,
-                                         instance_meta,
+    container = InstanceMonitorContainer(instance_meta,
                                          instance_id=instance_id,
                                          metric=metric)
     return container

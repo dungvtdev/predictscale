@@ -1,3 +1,5 @@
+from predictmodule.prediction.data.datafetch import CpuFetch
+
 instance_meta_default = {
     'recent_point': 4,
     'periodic_number': 1,

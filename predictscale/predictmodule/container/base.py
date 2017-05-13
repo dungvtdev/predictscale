@@ -4,7 +4,8 @@ from predictmodule.algorithm.predict import Predictor
 from predictmodule.datafetch import CpuFetch, InMemoryFetch
 from predictmodule import trainingutils as training
 from predictmodule.algorithm.datafeeder import SimpleFeeder
-from predictmodule import config
+from predictmodule import config as CONF
+
 # config = {
 #     'recent_point': 4,
 #     'periodic_number': 1,
@@ -21,7 +22,7 @@ from predictmodule import config
 
 
 def get_fetch(metric):
-    return config.map_fetch_cls[metric]
+    return CONF.map_fetch_cls[metric]
 
 
 class InstanceMonitorContainer(object):
@@ -58,23 +59,22 @@ class InstanceMonitorContainer(object):
                                percentage=percentage)
 
     def push(self):
-        source = 'cached'
+        meta = self._instance_meta
+        data_meta = self.get_data()
 
-        meta = self.get_instance_meta()
-        data = self.prepare_data(source=source)
+        config = CONF.instance_meta_default
 
-        n_input = meta['train_params']['n_input'] or config['n_input']
-        n_neural_hidden = meta['train_params']['n_neural_hidden'] \
-            or config['n_neural_hidden']
-        n_periodic = meta['train_params']['n_periodic'] or config['n_periodic']
+        recent_point = meta['recent_point'] or config['recent_point']
+        neural_size = meta['neural_size'] or config['neural_size']
+        periodic_number = meta['periodic_number'] or config['periodic_number']
         cross_rate = config['cross_rate']
         mutation_rate = config['mutation_rate']
         pop_size = config['pop_size']
-        period = meta['action']['period']
+        period = meta['period']
 
-        predictor = Predictor(n_input=n_input,
-                              n_periodic=n_periodic,
-                              n_neural_hidden=n_neural_hidden,
+        predictor = Predictor(recent_point=recent_point,
+                              periodic_number=periodic_number,
+                              neural_size=neural_size,
                               period=period,
                               cross_rate=cross_rate,
                               mutation_rate=mutation_rate,
@@ -83,7 +83,8 @@ class InstanceMonitorContainer(object):
 
         # get data to train
         fetch_cls = get_fetch(self.metric)
-        data = training.get_available_dataframes(instance_meta, fetch_cls)
+        data_meta = training.get_available_dataframes(meta, fetch_cls)
 
-        mem_fetch = InMemoryFetch(data)
+        mem_fetch = InMemoryFetch(data_meta.data)
         feeder = SimpleFeeder(mem_fetch)
+        predictor.train(feeder)

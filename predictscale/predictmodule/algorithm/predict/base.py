@@ -6,11 +6,11 @@ import pandas as pd
 class Predictor():
     neural = None
 
-    def __init__(self, n_input=0, n_periodic=0, period=0, n_neural_hidden=0,
+    def __init__(self, recent_point=0, periodic_number=0, period=0, neural_size=0,
                  cross_rate=0.6, mutation_rate=0.04, pop_size=50):
-        self._n_input = n_input
-        self._n_periodic = n_periodic
-        self._n_hidden = n_neural_hidden
+        self._recent_point = recent_point
+        self._periodic_number = periodic_number
+        self._n_hidden = neural_size
         self._cross_rate = cross_rate
         self._mutation_rate = mutation_rate
         self._pop_size = pop_size
@@ -18,13 +18,13 @@ class Predictor():
 
     def train(self, dataFeeder):
         in_train, out_train = dataFeeder.fetch_training(
-            self._n_input, self._n_periodic, self.period)
+            self._recent_point, self._periodic_number, self.period)
 
         gaEstimator = GAEstimator(cross_rate=self._cross_rate,
                                   mutation_rate=self._mutation_rate,
                                   pop_size=self._pop_size)
 
-        neural_shape = [self._n_input + self._n_periodic, self._n_hidden, 1]
+        neural_shape = [self._recent_point + self._periodic_number, self._n_hidden, 1]
         fit_param = {
             "neural_shape": neural_shape
         }
@@ -37,7 +37,7 @@ class Predictor():
 
     def predict_test(self, dataFeeder):
         in_test, out_test = dataFeeder.fetch_training(
-            self._n_input, self._n_periodic, self.period)
+            self._recent_point, self._periodic_number, self.period)
 
         out_pred = self.neural.predict(in_test)
         return out_pred, out_test

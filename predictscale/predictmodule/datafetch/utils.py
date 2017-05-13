@@ -11,7 +11,6 @@ class InMemoryFetch():
         else:
             s = pd.Series([])
             s = s.append(series, ignore_index=True)
-            print(s)
             # isnull = pd.isnull(series)
             # print(isnull[isnull])
             self._series = s

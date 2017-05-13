@@ -27,3 +27,5 @@ instance_meta['epoch'] = 'm'
 container = create_container(instance_meta)
 msg = container.get_data_info_string()
 print(msg)
+
+container.push()

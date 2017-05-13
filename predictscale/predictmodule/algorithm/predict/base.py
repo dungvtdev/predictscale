@@ -35,9 +35,13 @@ class Predictor():
         neuralNet.fit(in_train, out_train, **fit_param)
         self.neural = neuralNet
 
-    def predict_test(self, dataFeeder):
-        in_test, out_test = dataFeeder.fetch_training(
-            self._recent_point, self._periodic_number, self.period)
+    # def predict_test(self, dataFeeder):
+    #     in_test, out_test = dataFeeder.fetch_training(
+    #         self._recent_point, self._periodic_number, self.period)
 
-        out_pred = self.neural.predict(in_test)
-        return out_pred, out_test
+    #     out_pred = self.neural.predict(in_test)
+    #     return out_pred, out_test
+
+    def predict(self, data):
+        df = pd.DataFrame([data, ])
+        return self.neural.predict(df)

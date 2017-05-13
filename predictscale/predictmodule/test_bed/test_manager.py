@@ -11,7 +11,7 @@ manager = PredictManager()
 instance_meta = {
     'instance_id': 1,
     'period': 10,
-    'data_length': 1000,
+    'data_length': 1284,
     'predict_length': 3,
     'update_in_time': 10,
     'endpoint': '192.168.122.124',
@@ -24,8 +24,16 @@ instance_meta = {
 
 instance_meta['epoch'] = 'm'
 
-container = create_container(instance_meta)
-msg = container.get_data_info_string()
-print(msg)
+# container = create_container(instance_meta)
+# msg = container.get_data_info_string()
+# print(msg)
 
-container.push()
+# container.push()
+
+manager.start_thread()
+
+manager.add_container(instance_meta)
+
+time.sleep(50*60)
+
+manager.stop_thread()

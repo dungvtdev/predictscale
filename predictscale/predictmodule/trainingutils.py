@@ -30,9 +30,9 @@ def get_available_dataframes(instance_meta, fetch_class):
 
     period = instance_meta['period']
     data_length = instance_meta['data_length']
-    dataframe_size_bias = config['dataframe_size_bias']
+    # dataframe_size_bias = config['dataframe_size_bias']
     frame_minute = data_length
-    frame_size_bias = dataframe_size_bias * frame_minute
+    # frame_size_bias = dataframe_size_bias * frame_minute
 
     last_time = get_instance_metric_last_time(instance_meta)
     if not last_time:
@@ -52,7 +52,7 @@ def get_available_dataframes(instance_meta, fetch_class):
         if cached_last == last_time:
             data_meta.data = cached.data
             data_meta.last_time = last_time
-        elif cached_last > begin:
+        elif cached_last > begin and begin > cached_last - len(cached.data):
             temp_begin = cached_last
             # print('%s %s' % (temp_begin, last_time))
             data = fetch.get_data(temp_begin, last_time, filter=filter)

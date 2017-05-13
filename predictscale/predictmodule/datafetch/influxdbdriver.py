@@ -92,6 +92,7 @@ class DataBatchGet(DataGetBase):
                 else:
                     batch_size = batch_size * 2
                     _begin = _end
+                    continue
 
             if filter:
                 fdata, finish = filter(exdata)

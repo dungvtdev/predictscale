@@ -21,6 +21,8 @@ def extract_data(data, filter):
 
 
 def convert_data_minute_to_pandas(data):
+    if data is None:
+        return
     return utils.time_series_to_pandas_series_minute(data)
 
 

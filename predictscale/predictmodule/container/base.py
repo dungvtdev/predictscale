@@ -1,4 +1,5 @@
 import time
+import datetime
 from . import exceptions as ex
 from predictmodule.algorithm.predict import Predictor
 from predictmodule.datafetch import CpuFetch, InMemoryFetch
@@ -28,6 +29,9 @@ def get_fetch(metric):
 class InstanceMonitorContainer(object):
     _last_time_have = None
     _last_time_real = None
+    _need_time = None
+
+    _chunk_length_bias = 0.1
 
     def __init__(self, instance_meta=None, **kwargs):
         self.instance_id = kwargs.get('instance_id', None)
@@ -37,6 +41,16 @@ class InstanceMonitorContainer(object):
     def setup(self, instance_meta):
         self._instance_meta = instance_meta or self._instance_meta
 
+    def setup_wait(self):
+        data_length = self._instance_meta['data_length']
+        data_meta = self.get_data()
+
+        self._last_time_have = data_meta.last_time
+        self._last_time_real = self._last_time_have
+        self._need_time = data_length - len(data_meta.data)
+        if self._need_time < 0:
+            self._need_time = 0
+
     def get_data(self):
         fetch_cls = get_fetch(self.metric)
         data_meta = training.get_available_dataframes(
@@ -45,15 +59,21 @@ class InstanceMonitorContainer(object):
         #                 instance_id=self.instance_id, metric=self.metric)
         return data_meta
 
-    def get_data_info_string(self):
-        data_meta = self.get_data()
+    def check_time_to_run(self, tick_minute=0):
+        self._last_time_real = self._last_time_real + tick_minute
+        return self._last_time_real >= \
+            (self._last_time_have + self._need_time * (1 - self._chunk_length_bias))
+
+    def get_data_info_string(self, data_meta=None):
+        if data_meta is None:
+            data_meta = self.get_data()
         msg_tmpl = 'Has {current} of data, need to wait about {more} more. Process: {percentage} %'
         current = len(data_meta.data)
         more = self._instance_meta['data_length'] - current
         if more < 0:
             more = 0
-        current_s = time.strftime('%Hh:%Mm', time.gmtime(current * 60))
-        more_s = time.strftime('%Hh:%Mm', time.gmtime(more * 60))
+        current_s = str(datetime.timedelta(minutes=current))
+        more_s = str(datetime.timedelta(minutes=more))
         percentage = current * 100 / (current + more)
         return msg_tmpl.format(current=current_s, more=more_s,
                                percentage=percentage)
@@ -88,3 +108,27 @@ class InstanceMonitorContainer(object):
         mem_fetch = InMemoryFetch(data_meta.data)
         feeder = SimpleFeeder(mem_fetch)
         predictor.train(feeder)
+        # data = [0.2, 0.3, 0.5, 0.4, 0.7]
+        # print(predictor.predict(data))
+
+    def __repr__(self):
+        tmpl = 'container {name}:{metric}'
+        return tmpl.format(name=self._instance_meta['instance_id'],
+                           metric=self._instance_meta['metric'])
+
+    def predict(self):
+        return 'test_val'
+
+
+class FakeContainer():
+    _last_time_have = None
+    _last_time_real = None
+    _need_time = None
+
+    def __init__(self, instance_meta=None, **kwargs):
+        self.instance_id = kwargs.get('instance_id', None)
+        self.metric = kwargs.get('metric', None)
+        self.setup(instance_meta)
+
+    def setup(self, instance_meta):
+        self._instance_meta = instance_meta or self._instance_meta

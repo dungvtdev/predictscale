@@ -64,6 +64,8 @@ class BaseMetricFetch(driver.DataBatchGet):
     def extract_data(self, data):
         filter = self.filter or (lambda d: True)
         d = extract_data(data, filter)
+        if d is None:
+            raise Exception('Get data None')
         last = d[-1][0]
         return convert_data_minute_to_pandas(d), last
 

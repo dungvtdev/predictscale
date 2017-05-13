@@ -13,7 +13,7 @@ instance_meta = {
     'period': 10,
     'data_length': 1284,
     'predict_length': 3,
-    'update_in_time': 10,
+    'update_in_time': 2,
     'endpoint': '192.168.122.124',
     'db_name': 'cadvisor',
     'neural_size': 15,
@@ -33,9 +33,6 @@ instance_meta['epoch'] = 'm'
 manager.start_thread()
 
 manager.add_container(instance_meta)
-# manager.add_container(instance_meta)
-# manager.add_container(instance_meta)
-# manager.add_container(instance_meta)
 
 time.sleep(50*60)
 

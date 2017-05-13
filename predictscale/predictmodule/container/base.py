@@ -33,9 +33,15 @@ class InstanceMonitorContainer(object):
     _chunk_length_bias = 0.1
 
     def __init__(self, instance_meta=None, **kwargs):
-        self._last_time_have = None
         self._last_time_real = None
+        # for first train
+        self._last_time_have = None
         self._need_time = None
+        # for next update
+        self._last_train = None
+
+        self._version = 1
+
         self.fetch = None
         self.feeder = None
         self.predictor = None
@@ -47,6 +53,10 @@ class InstanceMonitorContainer(object):
         self.instance_id = kwargs.get('instance_id', None)
         self.metric = kwargs.get('metric', None)
         self.setup(instance_meta)
+
+    def equal(self, other):
+        return self.instance_id == other.instance_id or \
+            self.metric == other.metric
 
     def setup(self, instance_meta):
         self._instance_meta = instance_meta or self._instance_meta
@@ -69,10 +79,19 @@ class InstanceMonitorContainer(object):
         #                 instance_id=self.instance_id, metric=self.metric)
         return data_meta
 
-    def check_time_to_run(self, tick_minute=0):
+    def tick_time(self, tick_minute=0):
         self._last_time_real = self._last_time_real + tick_minute
+
+    def check_time_to_run(self):
         return self._last_time_real >= \
             (self._last_time_have + self._need_time * (1 - self._chunk_length_bias))
+
+    def check_time_to_update(self):
+        update_in_time = self._instance_meta['update_in_time']
+        if self._last_train is None:
+            return False
+        return self._last_time_real >= \
+            update_in_time + self._last_train
 
     def get_data_info_string(self, data_meta=None):
         if data_meta is None:
@@ -88,7 +107,25 @@ class InstanceMonitorContainer(object):
         return msg_tmpl.format(current=current_s, more=more_s,
                                percentage=percentage)
 
-    def push(self):
+    def new_version(self):
+        nc = InstanceMonitorContainer(self._instance_meta,
+                                      instance_id=self.instance_id,
+                                      metric=self.metric)
+        nc._version = self._version + 1
+        # nc.setup(self._instance_meta)
+
+        nc._last_time_have = self._last_time_have
+        nc._last_time_real = self._last_time_real
+        nc._need_time = self._need_time
+        nc._last_train = self._last_train
+
+        nc.fetch = self.fetch
+        nc.feeder = self.feeder
+        nc.predictor = self.predictor
+
+        return nc
+
+    def push(self, cache_type='temp'):
         meta = self._instance_meta
         data_meta = self.get_data()
 
@@ -113,7 +150,8 @@ class InstanceMonitorContainer(object):
 
         # get data to train
         fetch_cls = get_fetch(self.metric)
-        data_meta = training.get_available_dataframes(meta, fetch_cls)
+        data_meta = training.get_available_dataframes(
+            meta, fetch_cls, cache_type=cache_type)
 
         mem_fetch = InMemoryFetch(data_meta.data)
         feeder = SimpleFeeder(mem_fetch)
@@ -131,20 +169,27 @@ class InstanceMonitorContainer(object):
         self.fetch = training.get_fetch(meta, fetch_cls)
         # data = [0.2, 0.3, 0.5, 0.4, 0.7]
         # print(predictor.predict(data))
+        self._last_train = data_meta.last_time
 
     def __repr__(self):
-        tmpl = 'container {name}:{metric}'
+        tmpl = 'container._{version} {name}:{metric}'
         return tmpl.format(name=self._instance_meta['instance_id'],
-                           metric=self._instance_meta['metric'])
+                           metric=self._instance_meta['metric'],
+                           version=self._version)
 
-    def predict(self, tick_minute):
-        self._last_time_real = self._last_time_real + tick_minute
-        data, last = self.fetch.get_short_data_as_list(self._last_time_real)
-        if data is not None:
-            self.series.append(data, last)
-            return self.predict_value_future(), True
-        else:
+    def predict(self):
+        # self._last_time_real = self._last_time_real + 1
+        try:
+            data, last = self.fetch.get_short_data_as_list(
+                self._last_time_real)
+        except Exception as e:
+            print(e.message)
             return None, False
+        # if data is not None:
+        self.series.append(data, last)
+        return self.predict_value_future(), True
+        # else:
+        #     return None, False
 
     def _predict(self, input_data):
         return self.predictor.predict(input_data)

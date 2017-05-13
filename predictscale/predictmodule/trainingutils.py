@@ -31,7 +31,7 @@ def get_fetch(instance_meta, fetch_class):
     return fetch
 
 
-def get_available_dataframes(instance_meta, fetch_class):
+def get_available_dataframes(instance_meta, fetch_class, cache_type='temp'):
     fetch = get_fetch(instance_meta, fetch_class)
 
     period = instance_meta['period']
@@ -52,7 +52,12 @@ def get_available_dataframes(instance_meta, fetch_class):
             'Cant get begin time %s' % str(instance_meta))
 
     data_meta = DataMeta(**instance_meta)
-    cached = datacache.get_cached_data_temp(data_meta)
+    get_cached_fn = datacache.get_cached_data_temp if cache_type == 'temp' else \
+        datacache.get_cached_data_forever
+    # cache_fn = datacache.cache_data_temp if cache_type == 'temp' else \
+    #     datacache.cache_data_forever
+
+    cached = get_cached_fn(data_meta)
     if cached:
         cached_last = cached.last_time
         if cached_last == last_time:
@@ -82,6 +87,8 @@ def get_available_dataframes(instance_meta, fetch_class):
     print('begin %s end %s' % (begin, last_time))
 
     datacache.cache_data_temp(data_meta)
+    datacache.cache_data_forever(data_meta)
+    # cache_fn(data_meta)
 
     return data_meta
 

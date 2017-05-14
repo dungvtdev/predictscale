@@ -22,6 +22,9 @@ def run_containers(request, id):
             params = {}
             for k, v in request.POST.items():
                 params[k] = v
+            if 'csrfmiddlewaretoken' in params:
+                del params['csrfmiddlewaretoken']
+
             is_ok = utils.run_group(request, id, params)
             if is_ok:
                 return redirect(reverse("horizon:predictionscale:scalesettings:step3"))

@@ -1,4 +1,4 @@
-    from share import configtool
+from share import configtool
 from share import baseconfig
 from share import log
 import config

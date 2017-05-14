@@ -131,10 +131,10 @@ class PredictManager(threading.Thread):
         del wait_list
 
     def _tick_update(self):
-        run_list = self._run_list.get_list()
-        for container in run_list:
+        containers = self._get_all_containers()
+        for container in containers:
             container.tick_time(self._loop_minute)
-        del run_list
+        del containers
 
     def _predict(self):
         run_list = self._run_list.get_list()
@@ -152,6 +152,13 @@ class PredictManager(threading.Thread):
                 # self.add_pushing_update(nc)
                 self._update_container(container)
         del run_list
+
+    def _get_all_containers(self):
+        run_list = self._run_list.get_list()
+        wait_list = self._wait_list.get_list()
+        pushing_list = self._pushing_list.get_list()
+        pushing_list = [p._container for p in pushing_list]
+        return run_list + wait_list + pushing_list
 
     def _update_container(self, container, instance_meta=None):
         nc = container.new_version(instance_meta)
@@ -238,6 +245,9 @@ class UpThread(threading.Thread):
         self._container = container
         self._callback = callback
         self._cache_type = cache_type
+
+        self.instance_id = container.instance_id
+        self.metric = container.metric
 
     def push(self):
         self.start()

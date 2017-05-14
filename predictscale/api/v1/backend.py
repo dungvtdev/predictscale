@@ -243,7 +243,8 @@ class DBBackend(object):
     def get_instances_in_group(self, user_id, group_id):
         ss = self._get_localsession()
         try:
-            group = ss.query(models.Group).filter(models.Group.user_id == user_id)\
+            group = ss.query(models.Group)\
+                .filter(models.Group.user_id == user_id)\
                 .filter(models.Group.id == group_id).one()
             instances = group.instances
             return instances

@@ -34,11 +34,9 @@ manager = PredictManager.default()
 
 manager.start_thread()
 
-manager.add_container(instance_meta)
+manager.update_container(instance_meta)
 
 time.sleep(50 * 60)
 
 manager.stop_thread()
 
-manager = PredictManager.default()
-print(getattr(manager, 'update_container'))

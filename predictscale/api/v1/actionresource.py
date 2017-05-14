@@ -48,9 +48,7 @@ class GroupActionResource(object):
 
         print(params)
         # try:
-        is_ok = action.run_group(user_id, id, params)
-        if not is_ok:
-            raise
+        action.run_group(user_id, id, params)
         # except:
         #     raise falcon.HTTPBadRequest('Group can\'t up')
 

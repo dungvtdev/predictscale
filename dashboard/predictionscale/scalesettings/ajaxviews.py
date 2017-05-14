@@ -36,3 +36,9 @@ def run_containers(request, id):
         exceptions.handle(request, e.message)
         return redirect(reverse("horizon:predictionscale:scalesettings:step2",
                                 kwargs={'id': id}))
+
+
+def poll_process_data(request, id){
+    data = utils.poll_process_data(request, id)
+    return JsonResponse(data)
+}

@@ -84,6 +84,7 @@ class InstanceMonitorContainer(object):
 
     def tick_time(self, tick_minute=0):
         self._last_time_real = self._last_time_real + tick_minute
+        self._need_time = self._need_time - tick_minute
 
     def check_time_to_run(self):
         return self._last_time_real >= \
@@ -109,6 +110,32 @@ class InstanceMonitorContainer(object):
         percentage = current * 100 / (current + more)
         return msg_tmpl.format(current=current_s, more=more_s,
                                percentage=percentage)
+
+    def get_info_string(self, state):
+        if state == 'waiting':
+            msg_tmpl = 'Has {current} of data, need to wait about {more} more. Process: {percentage} %'
+            more = self._need_time
+            current = self._instance_meta['data_length'] - more
+            percentage = current * 100 / (more + current)
+            current_s = str(datetime.timedelta(minutes=current))
+            more_s = str(datetime.timedelta(minutes=more))
+            return msg_tmpl.format(current=current_s, more=more_s,
+                                   percentage=percentage)
+        elif state == 'pushing':
+            return "Pushing, please wait."
+        elif state == 'running':
+            if self._last_train is not None:
+                t = datetime.datetime.utcfromtimestamp(self._last_train * 60)
+                msg_tmp = 'Runing, last update at %s'
+                return msg_tmp % (datetime.datetime.strftime(t, '%Hh%Mp %d/%m/%Y'))
+            else:
+                return 'Some thing wrong'
+
+    def get_wait_process(self):
+        more = self._last_time_real - self._last_time_have
+        current = self._instance_meta['data_length'] - more
+        percentage = current * 100 / (more + current)
+        return percentage
 
     def new_version(self, instance_meta=None):
         instance_meta = instance_meta or self._instance_meta
@@ -218,12 +245,12 @@ class InstanceMonitorContainer(object):
         # unormalize
         return max_val, mean_val
 
-    def get_status(self):
-        return {
-            'state': 'wait',
-            'data_length': self._instance_meta['data_length'],
-            'data_length_current': '',
-            'updated_count': 1,
-            'last_time_update': 1,
-            'next_time_update': 1,
-        }
+    # def get_status(self):
+    #     return {
+    #         'state': 'wait',
+    #         'data_length': self._instance_meta['data_length'],
+    #         'data_length_current': '',
+    #         'updated_count': 1,
+    #         'last_time_update': 1,
+    #         'next_time_update': 1,
+    #     }

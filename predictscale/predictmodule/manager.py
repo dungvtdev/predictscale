@@ -168,17 +168,26 @@ class PredictManager(threading.Thread):
         instance_id = instance_meta['instance_id']
         metric = instance_meta['metric']
 
-        inst, state = self._get_instance(instance_id, metric)
-        if inst is None:
+        container, state = self._get_instance(instance_id, metric)
+        # if inst is None:
+        #     self.add_container(instance_meta)
+        # elif state == 'running':
+        #     self._update_container(inst, instance_meta)
+        # elif state == 'wait':
+        #     nc = inst.new_version(instance_meta)
+        #     self._wait_list.patch(nc)
+        if container is not None:
+            nc = container.new_version(instance_meta)
+            self._remove_instance(container.instance_id, container.metric)
+            container = nc
+            self.add_container(nc)
+        else:
             self.add_container(instance_meta)
-        elif state == 'running':
-            self._update_container(inst, instance_meta)
-        elif state == 'wait':
-            nc = inst.new_version(instance_meta)
-            self._wait_list.patch(nc)
 
     def add_container(self, instance_meta):
-        container = create_container(instance_meta)
+        container = instance_meta
+        if isinstance(instance_meta, dict):
+            container = create_container(instance_meta)
         container.setup_wait()
         print(container.get_data_info_string())
         if container.check_time_to_run():
@@ -231,12 +240,43 @@ class PredictManager(threading.Thread):
                 return c, state[idx]
         return None, None
 
+    def _remove_instance(self, instance_id, metric):
+        find = [self._wait_list, self._pushing_list, self._run_list, ]
+        for fl in find:
+            flist = fl.get_list()
+            c = self._get_instance_from_list(instance_id, metric, flist)
+            del flist
+            if c is not None:
+                fl.remove(c)
+                break
+
     def get_instance_status(self, instance_id, metric):
-        container = self._get_instance(instance_id, metric)
-        if container is not None:
-            return container.get_status()
+        container, state = self._get_instance(instance_id, metric)
+        # if container is not None:
+        #     return container.get_status()
+        # else:
+        #     return None
+        status = None
+        msg = ''
+        process = 0
+        next_secs = 0
+        if container is None:
+            status = 'not use'
         else:
-            return None
+            status = state
+            msg = container.get_info_string(state)
+        if state == 'wait':
+            process = container.get_wait_process()
+        if state == 'pushing':
+            next_secs = 3
+        else:
+            next_secs = 30
+
+        return {
+            'process': process,
+            'message': msg,
+            'status': status
+        }
 
 
 class UpThread(threading.Thread):

@@ -27,5 +27,7 @@ urlpatterns = [
     url(r'^ajax/groups/(?P<id>[^/]+)/data/$',
         ajaxviews.get_data_state, name='get_data_state'),
     url(r'^ajax/groups/(?P<id>[^/]+)/run/$',
-        ajaxviews.run_containers, name='run_containers')
+        ajaxviews.run_containers, name='run_containers'),
+    url(r'^ajax/groups/(?P<id>[^/]+)/poll_process_data/$',
+        ajaxviews.poll_process_data, name='poll_process_data')
 ]

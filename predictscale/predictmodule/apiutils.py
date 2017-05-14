@@ -28,3 +28,9 @@ def run_instances(instance_metas):
         for instance_meta in instance_metas:
             instance_meta = preprocess_instance_meta(instance_meta)
             manager.update_container(instance_meta)
+
+
+def get_instance_status(instance_id, metric=None):
+    manager = PredictManager.default()
+    status = manager.get_instance_status(instance_id, metric)
+    return status

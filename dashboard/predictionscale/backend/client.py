@@ -134,3 +134,10 @@ class Client(object):
         url = self.get_url(addr_tmpl, id=id)
         r, ok = self.request_post(url, data=group_params)
         return ok
+
+    def poll_process_data(self, id):
+        addr_tmpl = '/v1/users/{user_id}/groups/{id}/poll_process_data'
+        url = self.get_url(addr_tmpl, id=id)
+        r, ok = self.request_get(url)
+        if ok:
+            return json.loads(r.text)

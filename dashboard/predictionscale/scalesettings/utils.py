@@ -17,10 +17,14 @@ def enable_group(request, id):
 def disable_group(request, id):
     return client(request).disable_group(id)
 
-
+    
 def get_data_state(request, id, *args):
     return client(request).get_data_state(id, *args)
 
 
 def run_group(request, id, params):
     return client(request).run_group(id, params)
+
+
+def poll_process_data(request, id):
+    return client(request).poll_process_data(id)

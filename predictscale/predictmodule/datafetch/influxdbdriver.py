@@ -82,7 +82,7 @@ class DataBatchGet(DataGetBase):
 
             q = self.get_query(begin=_begin, end=_end, **kwargs)
             rl = self.query_service.query_data(q)
-            exdata, exlast = self.extract_data(rl)
+            exdata, exbegin, exlast = self.extract_data(rl)
             print('%s %s %s' % (_begin, _end,
                                 len(exdata) if exdata is not None else 0))
             if exdata is None:
@@ -103,5 +103,8 @@ class DataBatchGet(DataGetBase):
             else:
                 result = self.extend_data(result, exdata)
             count = count + 1
+            if exbegin > _begin:
+                break
+
         print('Get Success %s' % count)
         return result

@@ -3,7 +3,7 @@ import time
 from predictmodule.manager import PredictManager, create_container
 
 
-manager = PredictManager()
+# manager = PredictManager()
 # manager.start_thread()
 # # time.sleep(3)
 # manager.stop_thread()
@@ -30,10 +30,15 @@ instance_meta['epoch'] = 'm'
 
 # container.push()
 
+manager = PredictManager.default()
+
 manager.start_thread()
 
 manager.add_container(instance_meta)
 
-time.sleep(50*60)
+time.sleep(50 * 60)
 
 manager.stop_thread()
+
+manager = PredictManager.default()
+print(getattr(manager, 'update_container'))

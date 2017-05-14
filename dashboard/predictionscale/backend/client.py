@@ -118,7 +118,7 @@ class Client(object):
         return ok
 
     def get_data_state(self, id, data_length, *args):
-        addr_tmpl = '/v1/users/{user_id}/groups/{id}/data'
+        addr_tmpl = '/v1/users/{user_id}/groups/{id}/datastate'
         params = {
             'data_length': data_length,
         }
@@ -128,3 +128,9 @@ class Client(object):
             return json.loads(r.text), True
         else:
             return None, False
+
+    def run_group(self, id, group_params):
+        addr_tmpl = '/v1/users/{user_id}/groups/{id}/run_group'
+        url = self.get_url(addr_tmpl, id=id)
+        r, ok = self.request_post(url, data=group_params)
+        return ok

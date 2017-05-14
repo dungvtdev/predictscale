@@ -38,7 +38,7 @@ class DBBackend(object):
         models.Base.metadata.create_all(self._engine)
 
         self.group_pattern = models.group_pattern
-        self.instance_meta_pattern = instance_meta_pattern
+        self.instance_meta_pattern = models.instance_meta_pattern
 
     @classmethod
     def default(cls):
@@ -91,7 +91,7 @@ class DBBackend(object):
                     instance.group_id = group.group_id
                 else:
                     instance = models.Instance(user_id=user_id,
-                                               group_id=group.id,
+                                               group_id=group.group_id,
                                                instance_id=inst_id,
                                                endpoint=endpoint)
                     session.add(instance)
@@ -141,11 +141,17 @@ class DBBackend(object):
         if user_id is None or id is None:
             raise ValueError('Delete group get invalid value')
         ss = self._get_localsession()
+
         group = ss.query(models.Group).filter(
             models.Group.id == id).first()
         if group is not None:
+            # delete all instance associate with
+            insts = group.instances
+            if insts:
+                for inst in insts:
+                    ss.delete(inst)
             ss.delete(group)
-            ss.commit()
+        ss.commit()
         # except:
         #     ss.rollback()
         #     raise falcon.HTTPBadRequest('Group DB error')
@@ -160,16 +166,17 @@ class DBBackend(object):
         groups = ss.query(models.Group).filter(
             models.Group.user_id == user_id).all()
 
-        if group_default not is None:
+        if group_default is not None:
             groups = [_wrap_default_group_object(
                 group, group_default) for group in groups]
 
         group_dicts = [g.to_dict() for g in groups]
-        return group_dicts
+        # return group_dicts
         # except:
         #     raise falcon.HTTPBadRequest('Group DB error')
         # finally:
         self._close_localsession()
+        return group_dicts
 
     def update_groups(self, user_id, id, group_dict):
         ss = self._get_localsession()
@@ -226,9 +233,21 @@ class DBBackend(object):
 
         group = inst.group
 
-        if default_instance_dict not is None:
+        if default_instance_dict is not None:
             inst_dict = _wrap_default_instance_dict(
                 inst, default_instance_dict, group)
             return inst_dict
         else:
             return inst.to_dict()
+
+    def get_instances_in_group(self, user_id, group_id):
+        ss = self._get_localsession()
+        try:
+            group = ss.query(models.Group).filter(models.Group.user_id == user_id)\
+                .filter(models.Group.id == group_id).one()
+            instances = group.instances
+            return instances
+        except Exception as e:
+            raise falcon.HTTPBadRequest('Group DB error')
+        finally:
+            self._close_localsession()

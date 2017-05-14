@@ -75,6 +75,7 @@ class UpdateView(workflows.WorkflowView):
 
 
 class IndexView(RedirectView):
+    permanent = False
     url = reverse_lazy('horizon:predictionscale:scalesettings:step1')
 
 
@@ -92,6 +93,7 @@ class Step1View(tables.DataTableView):
         except Exception:
             err_msg = _('Can\'t retrieve group list')
             exceptions.handle(self.request, err_msg)
+            return []
 
     def get_context_data(self, **kwargs):
         context = super(Step1View, self).get_context_data(**kwargs)

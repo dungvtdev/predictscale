@@ -1,7 +1,8 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, ForeignKey, String, \
-    Integer, Boolean
+    Integer, Boolean, DateTime
 from sqlalchemy.orm import relationship
+import datetime
 
 Base = declarative_base()
 
@@ -47,6 +48,7 @@ class Group(Base):
     image = Column(String(250))
     flavor = Column(String(250))
     enable = Column(Boolean, default=False)
+    created = Column(DateTime, default=datetime.datetime.utcnow)
 
     period = Column(Integer)
     data_length = Column(Integer)
@@ -63,6 +65,7 @@ class Group(Base):
             % (self.name)
 
     def to_dict(self):
+        created = self.created.isoformat()
         return {
             'id': self.id,
             'group_id': self.group_id,
@@ -72,6 +75,7 @@ class Group(Base):
             'flavor': self.flavor,
             'instances': [i.instance_id for i in self.instances],
             'enable': self.enable,
+            'created': created,
             'period': self.period,
             'data_length': self.data_length,
             'recent_point': self.recent_point,
@@ -90,7 +94,7 @@ class Instance(Base):
     endpoint = Column(String(20))
     db_name = Column(String(20))
 
-    group_id = Column(Integer, ForeignKey('group.id'))
+    group_id = Column(Integer, ForeignKey('group.group_id'))
 
     def __repr__(self):
         return "<Instance(user_id='%s', instance_id='%s', group_id='%s')>" \

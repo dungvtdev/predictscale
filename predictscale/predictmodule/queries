@@ -1,1 +1,15 @@
 select * from cpu_usage_total group by * order by desc limit 1
+
+{u'periodic_number': u'1', 
+u'update_in_time': u'10', 
+u'neural_size': u'15', 
+u'data_length': u'100', 
+u'period': u'10', 
+u'predict_length': u'3', 
+u'recent_point': u'4', 
+u'csrfmiddlewaretoken': u'1d0CmjwGkwzGqG8gxWFK7EgjQ633osM2'}
+
+instance_id
+endpoint
+db_name
+metric

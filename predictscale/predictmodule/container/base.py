@@ -58,6 +58,9 @@ class InstanceMonitorContainer(object):
         return self.instance_id == other.instance_id or \
             self.metric == other.metric
 
+    def version_exceed(self, other):
+        return self.equal(other) and self._version > other._version
+
     def setup(self, instance_meta):
         self._instance_meta = instance_meta or self._instance_meta
 
@@ -107,8 +110,10 @@ class InstanceMonitorContainer(object):
         return msg_tmpl.format(current=current_s, more=more_s,
                                percentage=percentage)
 
-    def new_version(self):
-        nc = InstanceMonitorContainer(self._instance_meta,
+    def new_version(self, instance_meta=None):
+        instance_meta = instance_meta or self._instance_meta
+
+        nc = InstanceMonitorContainer(instance_meta,
                                       instance_id=self.instance_id,
                                       metric=self.metric)
         nc._version = self._version + 1
@@ -116,7 +121,10 @@ class InstanceMonitorContainer(object):
 
         nc._last_time_have = self._last_time_have
         nc._last_time_real = self._last_time_real
-        nc._need_time = self._need_time
+        # update lai need time trong truong hop dang cho
+        nc._need_time = self._need_time + \
+            (nc._instance_meta['data_length'] -
+             self._instance_meta['data_length'])
         nc._last_train = self._last_train
 
         nc.fetch = self.fetch
@@ -209,3 +217,13 @@ class InstanceMonitorContainer(object):
         max_val = self.feeder._unnormalize(max(wnd))
         # unormalize
         return max_val, mean_val
+
+    def get_status(self):
+        return {
+            'state': 'wait',
+            'data_length': self._instance_meta['data_length'],
+            'data_length_current': '',
+            'updated_count': 1,
+            'last_time_update': 1,
+            'next_time_update': 1,
+        }

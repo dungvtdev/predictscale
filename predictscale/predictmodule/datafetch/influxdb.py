@@ -67,7 +67,8 @@ class BaseMetricFetch(driver.DataBatchGet):
         if d is None:
             raise Exception('Get data None')
         last = d[-1][0]
-        return convert_data_minute_to_pandas(d), last
+        begin = d[0][0]
+        return convert_data_minute_to_pandas(d), begin, last
 
     def extend_data(self, current, new):
         if current is None:
@@ -85,13 +86,13 @@ class CpuFetch(CpuRootMixin, BaseMetricFetch):
         begin = int(begin)
         q = self.get_query(begin, None)
         rl = self.query_service.query_data(q)
-        data, last = self.extract_data(rl)
+        data, begin, last = self.extract_data(rl)
         data = clamp_01(data)
         return data.tolist(), last
 
     def extract_data(self, data):
-        d, last = BaseMetricFetch.extract_data(self, data)
-        return clamp_01(d), last
+        d, begin, last = BaseMetricFetch.extract_data(self, data)
+        return clamp_01(d), begin, last
 
 
 class DiscoverLastTimeMinute():

@@ -18,3 +18,15 @@ def interpolate_pandas_time_series(series):
 
 def concat_pandas_series(old, new, old_from):
     return old[old_from:].append(new)
+
+
+class Singleton(object):
+    _instances = {}
+
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            try:
+                cls._instances = super(Singleton, cls).__call__(*args, **kwargs)
+            except:
+                cls._instances = super(Singleton, cls).__call__()
+        return cls._instance[cls]

@@ -7,7 +7,10 @@ instance_meta_default = {
     'neural_size': 15,
     'cross_rate': 0.6,
     'mutation_rate': 0.04,
-    'pop_size': 50
+    'pop_size': 50,
+    'metric': 'cpu_usage_total',
+    'db_name': 'cadvisor',
+    'epoch': 'm'
 }
 
 map_fetch_cls = {

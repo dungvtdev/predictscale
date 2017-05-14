@@ -1,4 +1,6 @@
 $(document).ready(function () {
+    var isGettingData = false;
+
     var data = $("div#service-data div")
 
     var default_data = {
@@ -38,20 +40,23 @@ $(document).ready(function () {
             },
             dataType: 'json',
             success: function (data) {
-                dataStates.each(function(index){
-                    
+                dataStates.each(function (index) {
+
                 })
             }
         })
     }
 
     function canGetData() {
+        if (isGettingData)
+            return false
+
         var hasData = true
-        if(!dataStates){
+        if (!dataStates) {
             return false;
         }
-        dataStates.each(function(index){
-            if($(this).text().trim()==""){
+        dataStates.each(function (index) {
+            if ($(this).text().trim() == "") {
                 hasData = false
             }
         })

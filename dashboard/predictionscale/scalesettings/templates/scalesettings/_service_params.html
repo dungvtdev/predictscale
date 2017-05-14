@@ -5,7 +5,8 @@
     <li class=""><a href="#data" data-toggle="tab">Data</a></li>
 </ul>
 
-<form id="settingForm" class="form-horizontal">
+<form id="settingForm" class="form-horizontal" action="{% url 'horizon:predictionscale:scalesettings:run_containers' id=group.id %}" method="POST">
+    {% csrf_token %}
     <div class="tab-content">
         <div class="tab-pane active" id="common">
             <div class="form-group">
@@ -69,7 +70,7 @@
             </div>
             {% endfor %}
         </div>
-        
+
     </div>
 
 

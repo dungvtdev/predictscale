@@ -1,7 +1,11 @@
 import falcon
 import predictmodule as pdm
-from . import backend
+from . import backend as dbbackend
 from .. import models
+from predictmodule import apiutils as api
+
+
+backend = dbbackend.DBBackend.default()
 
 
 def get_instance_data_info(user_id, instance_id, *args):
@@ -11,8 +15,8 @@ def get_instance_data_info(user_id, instance_id, *args):
     return pdm.get_instance_data_info(inst_meta_dict)
 
 
-def get_instance_meta(user_id, instance_id):
-    inst_dict = backend.get_instance_meta_from_db(user_id, instance_id)
+# def get_instance_meta(user_id, instance_id):
+#     inst_dict = backend.get_instance_meta_from_db(user_id, instance_id)
 
 
 def enable_group_action(backend, user_id, id):
@@ -37,3 +41,18 @@ def disable_group_action(backend, user_id, id):
             'enable': False,
         }
         backend.update_groups(user_id, id, group_dict)
+
+
+def run_group(user_id, group_id, params):
+    instances = backend.get_instances_in_group(user_id, group_id)
+    instance_metas = []
+    for inst in instances:
+        c = {}
+        c['instance_id'] = inst.instance_id
+        c['endpoint'] = inst.endpoint
+        c['db_name'] = inst.db_name
+        for k, v in params.items():
+            c[k] = params[k]
+        instance_metas.append(c)
+
+    api.run_instances(instance_metas)

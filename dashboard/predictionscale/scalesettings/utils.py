@@ -20,3 +20,7 @@ def disable_group(request, id):
 
 def get_data_state(request, id, *args):
     return client(request).get_data_state(id, *args)
+
+
+def run_group(request, id, params):
+    return client(request).run_group(id, params)

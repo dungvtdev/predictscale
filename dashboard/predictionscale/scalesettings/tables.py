@@ -6,6 +6,7 @@ from django.core.urlresolvers import reverse
 
 from .utils import drop_group, enable_group, disable_group
 from horizon import exceptions
+from horizon.utils import filters
 
 
 class DeleteGroup(tables.DeleteAction):
@@ -27,8 +28,9 @@ class DeleteGroup(tables.DeleteAction):
 
     def delete(self, request, obj_id):
         try:
-            r, ok = drop_group(request, obj_id)
-            return ok
+            return drop_group(request, obj_id)
+        # print('*************************** delete *********************')
+        # print('is ok %s ' % ok)
         except Exception:
             msg = _('Can\'t delete group. Try again later.')
             exceptions.handle(request, msg)
@@ -120,6 +122,11 @@ class ScaleGroupTable(tables.DataTable):
                           verbose_name=_("Image"))
     flavor = tables.Column("flavor",
                            verbose_name=_("Flavor"))
+    created = tables.Column("created",
+                            verbose_name=_("Time since created"),
+                            filters=(filters.parse_isotime,
+                                     filters.timesince_sortable),
+                            attrs={'data-type': 'timesince'})
     process = tables.Column("process",
                             verbose_name=_("Process"))
     enable = tables.Column("enable",

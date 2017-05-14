@@ -25,5 +25,7 @@ urlpatterns = [
     url(r'^add_group', views.AddView.as_view(), name='add_group'),
     url(r'^(?P<id>[^/]+)/update/$', views.UpdateView.as_view(), name='update'),
     url(r'^ajax/groups/(?P<id>[^/]+)/data/$',
-        ajaxviews.get_data_state, name='get_data_state')
+        ajaxviews.get_data_state, name='get_data_state'),
+    url(r'^ajax/groups/(?P<id>[^/]+)/run/$',
+        ajaxviews.run_containers, name='run_containers')
 ]

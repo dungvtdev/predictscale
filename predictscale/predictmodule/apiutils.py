@@ -2,10 +2,13 @@ from .manager import PredictManager
 from . import config
 
 
+metric_default = 'cpu_usage_total'
+
+
 def preprocess_instance_meta(instance_meta):
     default = config.instance_meta_default
 
-    instance_meta['metric'] = 'cpu_usage_total'
+    instance_meta['metric'] = metric_default
     int_map = ['period', 'data_length', 'predict_length',
                'update_in_time', 'recent_point', 'neural_size',
                'periodic_number']
@@ -28,6 +31,12 @@ def run_instances(instance_metas):
         for instance_meta in instance_metas:
             instance_meta = preprocess_instance_meta(instance_meta)
             manager.update_container(instance_meta)
+
+
+def stop_instances(instance_id):
+    metric = metric_default
+    manager = PredictManager.default()
+    manager.remove_container(instance_id, metric)
 
 
 def get_instance_status(instance_id, metric=None):

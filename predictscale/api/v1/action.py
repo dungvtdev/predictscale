@@ -21,7 +21,7 @@ def get_instance_data_info(user_id, instance_id, *args):
 
 def enable_group_action(backend, user_id, id):
     group = backend.get_group(user_id, id)
-    if group.enable:
+    if group['enable']:
         raise falcon.HTTPBadRequest(
             'Group currently is enable, can\'t enable again')
     else:
@@ -56,3 +56,11 @@ def run_group(user_id, group_id, params):
         instance_metas.append(c)
 
     api.run_instances(instance_metas)
+
+
+def stop_group(user_id, group_id):
+    instances = backend.get_instances_in_group(user_id, group_id)
+    for inst in instances:
+        api.stop_instances(inst.instance_id)
+
+    # metas = [(inst.instance_id, 'cpu_usage_total')]

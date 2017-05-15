@@ -35,7 +35,7 @@ class InstanceActionResource(object):
 class GroupActionResource(object):
     db_backend = DBBackend.default()
 
-    post_map = ['run_group', ]
+    post_map = ['run_group', 'stop_group', ]
     get_map = ['poll_process_data', ]
 
     def on_post(self, req, resp, user_id, id, action):
@@ -63,8 +63,13 @@ class GroupActionResource(object):
         print(params)
         # try:
         action.run_group(user_id, id, params)
+        action.enable_group_action(self.db_backend, user_id, id)
+
         # except:
         #     raise falcon.HTTPBadRequest('Group can\'t up')
+
+    def _stop_group_action(self, req, resp, user_id, id):
+        action.stop_group(user_id, id)
 
     def _poll_process_data_action(self, req, resp, user_id, id):
         insts = self.db_backend.get_instances_in_group(user_id, id)
@@ -103,4 +108,4 @@ routes = [
     # ('/users/{user_id}/instances/{id}/{action}', InstanceActionResource()),
 ]
 
-# action = run_group, poll_process_data
+# action = run_group, poll_process_data, stop_group

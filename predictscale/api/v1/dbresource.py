@@ -1,6 +1,7 @@
 import falcon
 from .backend import DBBackend
 from .action import enable_group_action, disable_group_action
+from predictmodule import apiutils
 
 
 class GroupResource(object):
@@ -8,6 +9,24 @@ class GroupResource(object):
 
     def on_get(self, req, resp, user_id):
         group_dicts = self.db_backend.get_groups(user_id)
+        if group_dicts is not None:
+            for gd in group_dicts:
+                insts = gd['instances'] or []
+                statuses = []
+                for inst in insts:
+                    statuses.append(apiutils.get_instance_status(
+                        inst, 'cpu_usage_total'))
+                if len(statuses) == 0:
+                    gd['process'] = 'No Instances'
+                else:
+                    if gd['enable']:
+                        count = len(
+                            [i for i in statuses if i['status'] == 'running'])
+                        gd['process'] = "Run %s/%s" % (count, len(statuses))
+                    else:
+                        gd['process'] = 'Not Active'
+
+        print(group_dicts)
         req.context['result'] = {
             'groups': group_dicts
         }

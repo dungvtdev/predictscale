@@ -93,6 +93,7 @@ class PredictManager(threading.Thread):
         self._pushing_list = SimpleList()
         self._run_list = SimpleList()
         self._running = False
+        # self._close_list = SimpleList()
 
     @classmethod
     def default(cls):
@@ -195,6 +196,17 @@ class PredictManager(threading.Thread):
         else:
             self._wait_list.add_unique(container)
 
+    def remove_container(self, instance_id, metric):
+        container, state = self._get_instance(instance_id, metric)
+        if state == 'waiting':
+            self._wait_list.remove(container)
+        elif state == 'running':
+            self._run_list.remove(container)
+        elif state == 'pushing':
+            t = self._get_thread_pushing(container)
+            t.join()
+            self._run_list.remove(container)
+
     def start_thread(self):
         if not self.is_alive():
             self._running = True
@@ -229,6 +241,10 @@ class PredictManager(threading.Thread):
                   instance_id and w.metric == metric), None)
         return c
 
+    def _get_thread_pushing(self, container):
+        c = next((w for w in self._pushing_list if w._container == container), None)
+        return c
+
     def _get_instance(self, instance_id, metric):
         find = [self._wait_list, self._pushing_list, self._run_list, ]
         state = ['waiting', 'pushing', 'running']
@@ -237,6 +253,8 @@ class PredictManager(threading.Thread):
             c = self._get_instance_from_list(instance_id, metric, flist)
             del flist
             if c is not None:
+                if isinstance(c, UpThread):
+                    c = c._container
                 return c, state[idx]
         return None, None
 

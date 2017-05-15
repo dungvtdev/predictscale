@@ -11,15 +11,24 @@ $(document).ready(function () {
         }
     ]
 
+    var next_seconds = 0;
+
     function fillData(data) {
+        console.log(data)
         if (!data)
             return
+        if (!('process' in data))
+            return
+        data = data['process']
+        for (var i = 0; i < data.length; i++) {
+            var d = data[i]
+            pbar = $('.instance-process[data-id=' + d.instance_id + '] .progress-bar')
+            lstatus = $('.instance-process[data-id=' + d.instance_id + '] .instance-status')
+            lmsg = $('.instance-process[data-id=' + d.instance_id + '] .instance-message')
 
-        for (var d in data) {
-            pbar = $('instance-process[data-id=' + d.id + '] .progress-bar')
-            lstatus = $('instance-process[data-id=' + d.id + '] .instance-status')
             pbar.css('width', d.process + '%')
-            lstatus.text = d.status
+            lstatus.text(d.status)
+            lmsg.text(d.message)
         }
     }
 
@@ -35,12 +44,9 @@ $(document).ready(function () {
         })
     }
 
-    function update(){
-        next_seconds = pullData(url)   
-        if(next_seconds <=0){
-            next_seconds = 4
-        }
-        setTimeout(update, next_seconds * 1000)   
+    function update() {
+        pullData(url)
+        setTimeout(update, 2000)
     }
 
     update()

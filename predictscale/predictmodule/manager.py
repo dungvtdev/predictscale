@@ -265,8 +265,11 @@ class PredictManager(threading.Thread):
         else:
             status = state
             msg = container.get_info_string(state)
-        if state == 'wait':
+        if state == 'waiting':
             process = container.get_wait_process()
+        elif state in ['pushing', 'running']:
+            process = 100
+
         if state == 'pushing':
             next_secs = 3
         else:

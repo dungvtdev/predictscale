@@ -27,7 +27,8 @@ def run_containers(request, id):
 
             is_ok = utils.run_group(request, id, params)
             if is_ok:
-                return redirect(reverse("horizon:predictionscale:scalesettings:step3"))
+                return redirect(reverse("horizon:predictionscale:scalesettings:step3",
+                                        kwargs={'id': id}))
             else:
                 raise Exception("Can\'t up container. Try again")
         else:
@@ -38,7 +39,6 @@ def run_containers(request, id):
                                 kwargs={'id': id}))
 
 
-def poll_process_data(request, id){
+def poll_process_data(request, id):
     data = utils.poll_process_data(request, id)
     return JsonResponse(data)
-}

@@ -21,7 +21,7 @@ urlpatterns = [
     url(r'^$', views.IndexView.as_view(), name='index'),
     url(r'^step1', views.Step1View.as_view(), name='step1'),
     url(r'^(?P<id>[^/]+)/step2', views.Step2View.as_view(), name='step2'),
-    url(r'^step3', views.Step3View.as_view(), name='step3'),
+    url(r'^(?P<id>[^/]+)/step3', views.Step3View.as_view(), name='step3'),
     url(r'^add_group', views.AddView.as_view(), name='add_group'),
     url(r'^(?P<id>[^/]+)/update/$', views.UpdateView.as_view(), name='update'),
     url(r'^ajax/groups/(?P<id>[^/]+)/data/$',

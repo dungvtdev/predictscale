@@ -132,7 +132,7 @@ class InstanceMonitorContainer(object):
                 return 'Some thing wrong'
 
     def get_wait_process(self):
-        more = self._last_time_real - self._last_time_have
+        more = self._need_time
         current = self._instance_meta['data_length'] - more
         percentage = current * 100 / (more + current)
         return percentage

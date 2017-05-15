@@ -94,7 +94,7 @@ class GroupActionResource(object):
                 result.append(rl)
 
         req.context['result'] = {
-            'process': [result, ]
+            'process': result
         }
 
 

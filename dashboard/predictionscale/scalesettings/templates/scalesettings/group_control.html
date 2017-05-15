@@ -1,10 +1,9 @@
 {% extends 'predictionscale/scalesettings/index.html' %} {% block step_content %}
-<div id="group-control"
-class="col-md-6 col-md-offset-3 apply-parent"
-data-url={% url 'horizon:predictionscale:scalesettings:poll_process_data'%}>
+<div id="group-control" class="col-md-6 col-md-offset-3 apply-parent" data-url="{% url 'horizon:predictionscale:scalesettings:poll_process_data' id=group.id %}">
     {% for inst in instances %}
     <div class="instance-process" data-id={{ inst.id }}>
         <p>{{ inst.name }}</p>
+        <p class="instance-message"></p>
         <div class="progress">
             <div class="progress-bar progress-bar-info" style="width: 0%"></div>
         </div>
@@ -12,9 +11,13 @@ data-url={% url 'horizon:predictionscale:scalesettings:poll_process_data'%}>
         <p class="instance-status"></p>
     </div>
     {% endfor %}
-</div>
-{% endblock %}
 
-{% block self_js %}
+    <div class="col-md-12">
+        <div class="btn-group">
+            <a class="btn btn-primary" href="{% url 'horizon:predictionscale:scalesettings:step1' %}">Back</a>
+        </div>
+    </div>
+</div>
+{% endblock %} {% block self_js %}
 <script src="{{ STATIC_URL }}predictionscale/js/group_control.js" type='text/javascript' charset='utf-8'></script>
 {% endblock %}

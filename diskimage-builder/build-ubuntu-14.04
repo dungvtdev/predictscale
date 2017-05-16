@@ -1,0 +1,10 @@
+#!/bin/bash
+
+export ARCH="amd64"
+export BASE_ELEMENTS="ubuntu bootloader cloud-init-datasources ubuntu-14-custom"
+export DIB_CLOUD_INIT_DATASOURCES="ConfigDrive,Ec2"
+export DIB_RELEASE="trusty"
+export ELEMENTS_PATH="./elements/:./diskimage-builder/diskimage_builder/elements/"
+export IMAGE_PATH="./images/ubuntu-14.04"
+
+disk-image-create vm $BASE_ELEMENTS -t qcow2 -o $IMAGE_PATH

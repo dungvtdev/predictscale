@@ -1,0 +1,16 @@
+#!/bin/bash
+ 
+# Permit password auth via SSH
+echo 'ssh_pwauth: true'     	>> /etc/cloud/cloud.cfg.d/50_remote_access.cfg
+# Generate new keys in first boot
+echo 'ssh_deletekeys: true' 	>> /etc/cloud/cloud.cfg.d/50_remote_access.cfg
+# Don’t disable root access via SSH
+echo 'disable_root: false'  	>> /etc/cloud/cloud.cfg.d/50_remote_access.cfg
+# Don’t create "ubuntu" user
+echo 'users: []'            	>> /etc/cloud/cloud.cfg.d/50_remote_access.cfg
+# Change default timezone to MSK
+echo 'timezone: Asia/Ho_Chi_Minh Time'  >> /etc/cloud/cloud.cfg.d/50_timezone.cfg
+# Change PermitRootLogin value to "yes"
+sed -i 's/PermitRootLogin .*/PermitRootLogin yes/g' /etc/ssh/sshd_config
+# Set root password to empty
+passwd -d root

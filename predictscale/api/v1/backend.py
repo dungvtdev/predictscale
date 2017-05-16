@@ -64,10 +64,14 @@ class DBBackend(object):
         desc = group_dict.get('desc', None)
         image = group_dict.get('image', None)
         flavor = group_dict.get('flavor', None)
+        selfservice = group_dict.get('selfservice', None)
+        provider = group_dict.get('provider', None)
 
         group.desc = desc or group.desc
         group.image = image or group.image
         group.flavor = flavor or group.flavor
+        group.selfservice = selfservice or group.selfservice
+        group.provider = provider or group.provider
 
     def _update_group_instance(self, user_id, group, group_dict, session):
         instances = group_dict.get('instances', None)

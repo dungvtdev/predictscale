@@ -25,7 +25,7 @@ def predict_container(container):
         else:
             return container, None, None, False
     except Exception as e:
-        print(e.message)
+        # print(e.message)
         return container, None, None, False
 
 
@@ -102,7 +102,7 @@ class PredictManager(threading.Thread):
         return cls._default
 
     def run(self):
-        print('manager running')
+        # print('manager running')
         count = 0
         while self._running:
             time_stm = time.time()
@@ -113,9 +113,9 @@ class PredictManager(threading.Thread):
             self._predict()
             self._check_update_model()
 
-            print(self._wait_list)
-            print(self._pushing_list)
-            print(self._run_list)
+            # print(self._wait_list)
+            # print(self._pushing_list)
+            # print(self._run_list)
 
             sleep_time = self._loop_minute * 60 - (time.time() - time_stm)
             if sleep_time < 0:
@@ -141,8 +141,9 @@ class PredictManager(threading.Thread):
         run_list = self._run_list.get_list()
         group = Group()
         for container, max_val, mean_val, success in group.imap(predict_container, run_list):
-            print('predict %s val %s : %s  %s' %
-                  (container, max_val, mean_val, success))
+            pass
+            # print('predict %s val %s : %s  %s' %
+            #       (container, max_val, mean_val, success))
         del run_list
 
     def _check_update_model(self):
@@ -190,7 +191,7 @@ class PredictManager(threading.Thread):
         if isinstance(instance_meta, dict):
             container = create_container(instance_meta)
         container.setup_wait()
-        print(container.get_data_info_string())
+        # print(container.get_data_info_string())
         if container.check_time_to_run():
             self.add_pushing(container)
         else:
@@ -216,7 +217,7 @@ class PredictManager(threading.Thread):
         self._running = False
 
     def add_pushing(self, container):
-        print('add push')
+        # print('add push')
         upthread = UpThread(container, self._finish_push, cache_type='temp')
         self._pushing_list.add_unique(upthread)
         upthread.push()
@@ -314,7 +315,7 @@ class UpThread(threading.Thread):
         self.start()
 
     def run(self):
-        print('begin push')
+        # print('begin push')
         self._container.push(self._cache_type)
         self._callback(self)
 

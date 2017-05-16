@@ -16,14 +16,14 @@ def cache_data_temp(data_meta):
     expire = cf.cache_temp_expire
     cache.cache_data(key, data_meta, expire=expire)
 
-    print('cache temp key={key}'.format(key=key))
+    # print('cache temp key={key}'.format(key=key))
 
 
 def cache_data_forever(data_meta):
     key = _get_key_string(data_meta, 'forever')
     cache.cache_data(key, data_meta)
 
-    print('cache forever key={key}'.format(key=key))
+    # print('cache forever key={key}'.format(key=key))
 
 
 def get_cached_data_temp(data_meta):

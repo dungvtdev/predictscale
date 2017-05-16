@@ -8,7 +8,7 @@ def populate_params(self, **kwargs):
 
 class DataBatchGet():
     def get_data(self, begin, end, filter=None, **kwargs):
-        print('Get data from %s to %s' % (begin, end))
+        # print('Get data from %s to %s' % (begin, end))
 
         _begin = end
         _end = end
@@ -20,8 +20,8 @@ class DataBatchGet():
             q = self.get_query(begin, last, **kwargs)
             rl = self.query_service.query_data(q)
             exdata = self.extract_data(rl)
-            print('%s %s %s' % (begin, last,
-                                len(exdata) if exdata is not None else 0))
+            # print('%s %s %s' % (begin, last,
+            #                     len(exdata) if exdata is not None else 0))
             if not exdata:
                 return result, False, False
             finish = False
@@ -42,7 +42,7 @@ class DataBatchGet():
                 batch_size = batch_size * 2
                 _begin = _end
             count = count + 1
-        print('Get Success %s' % count)
+        # print('Get Success %s' % count)
         return result
 
     def extend_data(self, current, new):

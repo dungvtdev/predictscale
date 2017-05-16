@@ -1,5 +1,5 @@
 LOG = {
-    'file': 'manage.log',
+    'file': 'predictmodule.log',
     'level': 'INFO'
 }
 

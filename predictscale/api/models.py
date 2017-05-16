@@ -47,6 +47,8 @@ class Group(Base):
     desc = Column(String(250), nullable=True)
     image = Column(String(250))
     flavor = Column(String(250))
+    selfservice = Column(String(250))
+    provider = Column(String(250))
     enable = Column(Boolean, default=False)
     created = Column(DateTime, default=datetime.datetime.utcnow)
 
@@ -73,6 +75,8 @@ class Group(Base):
             'desc': self.desc,
             'image': self.image,
             'flavor': self.flavor,
+            'selfservice': self.selfservice,
+            'provider': self.provider,
             'instances': [i.instance_id for i in self.instances],
             'enable': self.enable,
             'created': created,

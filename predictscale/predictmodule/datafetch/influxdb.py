@@ -14,7 +14,7 @@ def extract_data(data, filter):
     jdata = json.loads(data)
     if jdata.get("results", None) is None \
             or not jdata["results"][0]:
-        print("Get Empty data")
+        # print("Get Empty data")
         return
     series = jdata["results"][0]["series"]
     values = next(s["values"] for s in series if filter(s))

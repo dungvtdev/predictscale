@@ -26,16 +26,16 @@ class GroupResource(object):
                     else:
                         gd['process'] = 'Not Active'
 
-        print(group_dicts)
+        # print(group_dicts)
         req.context['result'] = {
             'groups': group_dicts
         }
-        print(group_dicts)
+        # print(group_dicts)
 
     def on_post(self, req, resp, user_id):
         body = req.context['doc']
-        print('body')
-        print(body)
+        # print('body')
+        # print(body)
         if 'groups' not in body:
             raise falcon.HTTP_BAD_REQUEST(
                 "Create group must have 'group' in body")

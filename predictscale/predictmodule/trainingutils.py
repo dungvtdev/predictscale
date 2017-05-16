@@ -16,7 +16,7 @@ def filter(exdata):
     if pd.isnull(exdata).any():
         isnull = pd.isnull(exdata)
         idx = isnull[isnull == True].index.get_values()[-1]
-        print('filter %s %s' % (idx, True))
+        # print('filter %s %s' % (idx, True))
         return exdata[idx + 1:], True
     return exdata, False
 
@@ -73,7 +73,7 @@ def get_available_dataframes(instance_meta, fetch_class, cache_type='temp'):
                 data_meta.data = data
                 data_meta.last_time = last_time
             else:
-                print('from cache')
+                # print('from cache')
                 cat_from = len(cached.data) - (cached_last - begin)
                 data_meta.data = utils.concat_pandas_series(
                     cached.data, data, cat_from)
@@ -84,7 +84,7 @@ def get_available_dataframes(instance_meta, fetch_class, cache_type='temp'):
         data_meta.data = data
         data_meta.last_time = last_time
 
-    print('begin %s end %s' % (begin, last_time))
+    # print('begin %s end %s' % (begin, last_time))
 
     datacache.cache_data_temp(data_meta)
     datacache.cache_data_forever(data_meta)

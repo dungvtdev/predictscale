@@ -33,6 +33,8 @@ class AddGroupInfoAction(workflows.Action):
 
     image = forms.ChoiceField(label='Image')
     flavor = forms.ChoiceField(label='Flavor')
+    selfservice = forms.ChoiceField(label='Network')
+    provider = forms.ChoiceField(label='Network Provider')
 
     def populate_image_choices(self, request, context):
         try:
@@ -41,7 +43,7 @@ class AddGroupInfoAction(workflows.Action):
         except Exception:
             images = []
             exceptions.handle(self.request, _("Unable to retrieve images."))
-        return [(img.id, '%s {%s}' % (img.name, img.id)) for img in images]
+        return [(img.id, img.name) for img in images]
 
     def populate_flavor_choices(self, request, context):
         try:
@@ -51,7 +53,30 @@ class AddGroupInfoAction(workflows.Action):
             flavors = []
             exceptions.handle(request,
                               _('Unable to retrieve flavor list.'))
-        return [(f.id, '%s{%s}' % (f.name, f.id))for f in flavors]
+        return [(f.id, f.name) for f in flavors]
+
+    def populate_selfservice_choices(self, request, context):
+        try:
+            networks = api.neutron.network_list(request)
+            for n in networks:
+                print('*************************   network   ******')
+                print(n)
+            return [(n.id, n.name) for n in networks
+                    if not n.router__external and n.status == 'ACTIVE']
+        except Exception:
+            msg = _('Network list can not be retrieved.')
+            exceptions.handle(self.request, msg)
+            return []
+
+    def populate_provider_choices(self, request, context):
+        try:
+            networks = api.neutron.network_list(request)
+            return [(n.name, n.name) for n in networks
+                    if n.router__external and n.status == 'ACTIVE']
+        except Exception:
+            msg = _('Network list can not be retrieved.')
+            exceptions.handle(self.request, msg)
+            return []
 
     class Meta(object):
         name = _("Group Information")

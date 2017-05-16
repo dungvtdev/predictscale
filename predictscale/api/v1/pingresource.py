@@ -3,7 +3,7 @@ class Ping(object):
         req.context['result'] = {
             'message': 'OK'
         }
-        print('ping %s' % user_id)
+        # print('ping %s' % user_id)
 
 
 routes = [

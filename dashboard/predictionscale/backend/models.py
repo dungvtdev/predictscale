@@ -4,7 +4,8 @@ import datetime
 class GroupData:
 
     def __init__(self, id=None, name=None, group_id=None, desc=None, instances=None,
-                 image=None, flavor=None, enable=False, process=None,
+                 image=None, flavor=None, selfservice=None, provider=None,
+                 enable=False, process=None,
                  period=None, data_length=None, recent_point=None,
                  periodic_number=None, predict_length=None,
                  update_in_time=None, neural_size=None, created=None):
@@ -15,6 +16,8 @@ class GroupData:
         self.instances = instances
         self.image = image
         self.flavor = flavor
+        self.selfservice = selfservice
+        self.provider = provider
         self.process = process
         enable = enable if enable is not None else False
         self.enable = enable
@@ -41,6 +44,8 @@ class GroupData:
             'instances': self.instances,
             'image': self.image,
             'flavor': self.flavor,
+            'selfservice': self.selfservice,
+            'provider': self.provider,
             'enable': self.enable,
             'process': self.process,
             'created': self.created,

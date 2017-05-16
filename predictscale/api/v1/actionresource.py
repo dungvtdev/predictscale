@@ -19,12 +19,12 @@ class InstanceActionResource(object):
         req.context['result'] = {
             'groups': group_dicts
         }
-        print(group_dicts)
+        # print(group_dicts)
 
     def on_post(self, req, resp, user_id):
         body = req.context['doc']
-        print('body')
-        print(body)
+        # print('body')
+        # print(body)
         if 'groups' not in body:
             raise falcon.HTTP_BAD_REQUEST(
                 "Create group must have 'group' in body")
@@ -60,7 +60,7 @@ class GroupActionResource(object):
             k = camelcase_to_underscore(k)
             params[k] = v
 
-        print(params)
+        # print(params)
         # try:
         action.run_group(user_id, id, params)
         action.enable_group_action(self.db_backend, user_id, id)

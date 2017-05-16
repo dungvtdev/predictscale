@@ -64,5 +64,5 @@ class UserTokenAuth(AuthAgent):
         if not self.is_authen(token):
             return False
         payload = self.encode_token(token)
-        print(payload)
+        # print(payload)
         return payload.get('user_id', None) == user_id

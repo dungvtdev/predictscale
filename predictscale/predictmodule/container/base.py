@@ -218,7 +218,7 @@ class InstanceMonitorContainer(object):
             data, last = self.fetch.get_short_data_as_list(
                 self._last_time_real)
         except Exception as e:
-            print(e.message)
+            # print(e.message)
             return None, False
         # if data is not None:
         self.series.append(data, last)

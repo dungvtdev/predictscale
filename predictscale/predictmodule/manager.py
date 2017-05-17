@@ -3,6 +3,10 @@ import time
 from predictmodule.container import InstanceMonitorContainer
 from gevent.pool import Group
 from .utils import Singleton
+from share import log
+
+
+logger = log.get_log(__name__)
 
 
 def create_container(instance_meta):
@@ -127,6 +131,9 @@ class PredictManager(threading.Thread):
         wait_list = self._wait_list.get_list()
         for container in wait_list:
             if container.check_time_to_run():
+                logger.info('From wait list to pushing %s' %
+                            container.instance_id)
+
                 self._wait_list.remove(container)
                 self.add_pushing(container)
         del wait_list
@@ -150,6 +157,8 @@ class PredictManager(threading.Thread):
         run_list = self._run_list.get_list()
         for container in run_list:
             if container.check_time_to_update():
+                logger.info('Update container base period %s' %
+                            container.instance_id)
                 # nc = container.new_version()
                 # self.add_pushing_update(nc)
                 self._update_container(container)
@@ -167,6 +176,8 @@ class PredictManager(threading.Thread):
         self.add_pushing_update(nc)
 
     def update_container(self, instance_meta):
+        logger.info('Update container %s' % instance_meta['instance_id'])
+
         instance_id = instance_meta['instance_id']
         metric = instance_meta['metric']
 
@@ -182,8 +193,15 @@ class PredictManager(threading.Thread):
             nc = container.new_version(instance_meta)
             self._remove_instance(container.instance_id, container.metric)
             container = nc
+
+            logger.info('New version of instance %s to version %s' %
+                        (instance_meta['instance_id'], nc._version))
+
             self.add_container(nc)
         else:
+            logger.info('Create new container of instance %s' %
+                        instance_meta['instance_id'])
+
             self.add_container(instance_meta)
 
     def add_container(self, instance_meta):
@@ -197,6 +215,9 @@ class PredictManager(threading.Thread):
         else:
             self._wait_list.add_unique(container)
 
+            logger.info('Add to wait list instance %s. INFO: %s' % (
+                instance_meta['instance_id'], container.get_info_string('waiting')))
+
     def remove_container(self, instance_id, metric):
         container, state = self._get_instance(instance_id, metric)
         if state == 'waiting':
@@ -208,21 +229,28 @@ class PredictManager(threading.Thread):
             t.join()
             self._run_list.remove(container)
 
+        logger.info('Remove container %s' % instance_meta['instance_id'])
+
     def start_thread(self):
+        logger.info('Manager start thread.')
         if not self.is_alive():
             self._running = True
             self.start()
 
     def stop_thread(self):
+        logger.info('Manager stop thread.')
         self._running = False
 
     def add_pushing(self, container):
+        logger.info('Add Pushing %s' % container.instance_id)
         # print('add push')
         upthread = UpThread(container, self._finish_push, cache_type='temp')
         self._pushing_list.add_unique(upthread)
         upthread.push()
 
     def add_pushing_update(self, container):
+        logger.info('Add Pushing update %s' % container.instance_id)
+
         upthread = UpThread(container, self._patch_version,
                             cache_type='forever')
         self._pushing_list.add_unique(upthread)
@@ -232,9 +260,15 @@ class PredictManager(threading.Thread):
         self._pushing_list.remove(upthread)
         self._run_list.add_unique(upthread.get_container())
 
+        logger.info('Finish push instance %s' %
+                    (upthread.get_container().instance_id))
+
     def _patch_version(self, upthread):
         self._pushing_list.remove(upthread)
         self._run_list.patch(upthread.get_container())
+
+        logger.info('Patch instance done %s' %
+                    (upthread.get_container().instance_id))
 
     # utils func
     def _get_instance_from_list(self, instance_id, metric, flist):

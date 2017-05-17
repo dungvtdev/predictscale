@@ -4,6 +4,9 @@ from . import base
 import time
 from predictmodule import utils
 import numpy as np
+from share import log
+
+logger = log.get_log(__name__)
 
 
 def container_filter(serie, name):
@@ -88,6 +91,10 @@ class CpuFetch(CpuRootMixin, BaseMetricFetch):
         rl = self.query_service.query_data(q)
         data, begin, last = self.extract_data(rl)
         data = clamp_01(data)
+
+        logger.debug('Get short data begin %s last %s data %s' %
+                     (begin, last, data))
+
         return data.tolist(), last
 
     def extract_data(self, data):

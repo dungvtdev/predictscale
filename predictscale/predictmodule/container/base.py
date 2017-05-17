@@ -196,6 +196,9 @@ class InstanceMonitorContainer(object):
         # cache data
         datacache.cache_data_forever(data_meta)
 
+        from predictmodule.test_bed import cache_test
+        cache_test.cache_training(data_meta.data)
+
         # generate series
         cat_idx = len(data_meta.data) - period
         self.series.append(data_meta.data[cat_idx:], data_meta.last_time)
@@ -217,6 +220,8 @@ class InstanceMonitorContainer(object):
         try:
             data, last = self.fetch.get_short_data_as_list(
                 self._last_time_real)
+            from predictmodule.test_bed import cache_test
+            cache_test.cache_real(data)
         except Exception as e:
             # print(e.message)
             return None, False
@@ -232,6 +237,7 @@ class InstanceMonitorContainer(object):
     def predict_value_future(self):
         predict_length = self._instance_meta['predict_length']
         wnd = []
+        data = (0, 0, 0)
         for i in range(predict_length):
             input_data = self.feeder.generate_extend(data=self.series.data,
                                                      extend=wnd, normalize=True)
@@ -239,9 +245,17 @@ class InstanceMonitorContainer(object):
             if val:
                 wnd.append(val[0][0])
 
+            data[0] = val
+
         mean_val = sum(wnd) / len(wnd)
         mean_val = self.feeder._unnormalize(mean_val)
         max_val = self.feeder._unnormalize(max(wnd))
+
+        data[1] = mean_val
+        data[2] = max_val
+        from predictmodule.test_bed import cache_test
+        cache_test.cache((val, mean_val, max_val,))
+
         # unormalize
         return max_val, mean_val
 

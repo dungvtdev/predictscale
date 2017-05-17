@@ -3,6 +3,9 @@ import json
 from predictmodule import exceptions as ex
 
 import re
+from share import log
+
+logger = log.get_log(__name__)
 
 
 def batch_size_by_time_dv(batch_size, dv):
@@ -107,4 +110,6 @@ class DataBatchGet(DataGetBase):
                 break
 
         # print('Get Success %s' % count)
+        logger.debug(
+            'Get traning data info begin %s, last %s, count %s' % (begin, end, count))
         return result

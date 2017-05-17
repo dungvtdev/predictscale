@@ -1,7 +1,8 @@
 import startup
-import time
-from predictmodule.manager import PredictManager, create_container
-
+from share import configtool
+from share import baseconfig
+from share import log
+import config
 
 # manager = PredictManager()
 # manager.start_thread()
@@ -24,6 +25,14 @@ instance_meta = {
 
 instance_meta['epoch'] = 'm'
 
+configtool.apply_all_config(baseconfig)
+configtool.apply_all_config(config)
+log.init(configtool)
+
+import startup
+import time
+from predictmodule.manager import PredictManager, create_container
+
 # container = create_container(instance_meta)
 # msg = container.get_data_info_string()
 # print(msg)
@@ -39,4 +48,3 @@ manager.update_container(instance_meta)
 time.sleep(50 * 60)
 
 manager.stop_thread()
-

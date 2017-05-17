@@ -2,6 +2,9 @@ import os
 import logging
 
 
+def_config = None
+
+
 def init(config_module):
     global def_config
     def_config = config_module.get_config('LOG')

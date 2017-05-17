@@ -62,5 +62,3 @@ def stop_group(user_id, group_id):
     instances = backend.get_instances_in_group(user_id, group_id)
     for inst in instances:
         api.stop_instances(inst.instance_id)
-
-    # metas = [(inst.instance_id, 'cpu_usage_total')]

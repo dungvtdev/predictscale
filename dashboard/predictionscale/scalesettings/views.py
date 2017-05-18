@@ -69,7 +69,7 @@ def get_group_view_data(request, groups):
 
             group.instances = inst_names
 
-    result.append(group)
+        result.append(group)
 
     return result
 

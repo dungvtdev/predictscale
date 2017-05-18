@@ -9,6 +9,10 @@ from predictmodule import config as CONF
 from predictmodule.cache import datacache
 from predictmodule.series.chunkseries import ChunkSeries
 from predictmodule import config as conf
+import requests
+from openstackclient.client.client import OSClient
+from predictmodule import exceptions
+
 
 # config = {
 #     'recent_point': 4,
@@ -75,12 +79,37 @@ class InstanceMonitorContainer(object):
             self._need_time = 0
 
     def get_data(self):
-        fetch_cls = get_fetch(self.metric)
-        data_meta = training.get_available_dataframes(
-            self._instance_meta, fetch_cls)
-        # return DataMeta(data=data, last_time=last_time,
-        #                 instance_id=self.instance_id, metric=self.metric)
-        return data_meta
+        try:
+            fetch_cls = get_fetch(self.metric)
+            if not self._instance_meta['endpoint']:
+                raise requests.ConnectionError()
+
+            data_meta = training.get_available_dataframes(
+                self._instance_meta, fetch_cls)
+            # return DataMeta(data=data, last_time=last_time,
+            #                 instance_id=self.instance_id, metric=self.metric)
+            return data_meta
+        except requests.ConnectionError:
+            osclient = OSClient.default()
+            try:
+                instance_info = osclient.get_instance_info(self.instance_id)
+                if instance_info is not None and instance_info['status'] == 'ACTIVE':
+                    ip = instance_info['ip']
+                    cur_ip = self._instance_meta['endpoint']
+                    if ip == cur_ip:
+                        # truong hop loi ben trong instance
+                        raise
+                    else:
+                        self._instance_meta['endpoint'] = ip
+                        from api.v1 import backend
+                        backend.DBBackend.default().update_instance(self._instance_meta)
+                        return self.get_data()
+                else:
+                    raise
+            except Exception:
+                from api.v1 import backend
+                backend.DBBackend.default().drop_instance(self._instance_meta)
+                raise exceptions.InstanceFailError()
 
     def tick_time(self, tick_minute=0):
         self._last_time_real = self._last_time_real + tick_minute
@@ -163,7 +192,7 @@ class InstanceMonitorContainer(object):
 
     def push(self, cache_type='temp'):
         meta = self._instance_meta
-        data_meta = self.get_data()
+        # data_meta = self.get_data()
 
         config = CONF.instance_meta_default
 
@@ -186,8 +215,9 @@ class InstanceMonitorContainer(object):
 
         # get data to train
         fetch_cls = get_fetch(self.metric)
-        data_meta = training.get_available_dataframes(
-            meta, fetch_cls, cache_type=cache_type)
+        # data_meta = training.get_available_dataframes(
+        #     meta, fetch_cls, cache_type=cache_type)
+        data_meta = self.get_data()
         mem_fetch = InMemoryFetch(data_meta.data)
         feeder = SimpleFeeder(mem_fetch)
         predictor.train(feeder)
@@ -270,3 +300,6 @@ class InstanceMonitorContainer(object):
     #         'last_time_update': 1,
     #         'next_time_update': 1,
     #     }
+
+    def _get_instance_status(self, instance_id):
+        pass

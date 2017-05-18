@@ -22,7 +22,7 @@ def _wrap_default_instance_dict(instance, default_dict, group=None):
     group = group or {}
     for k in default_dict:
         d[k] = getattr(instance, k, None) \
-            or getattr(group, k, None) or default_dict[k]
+               or getattr(group, k, None) or default_dict[k]
     return d
 
 
@@ -80,16 +80,16 @@ class DBBackend(object):
             old_instances = None
             if group.group_id is not None:
                 old_instances = session.query(models.Instance) \
-                    .filter(models.Instance.user_id == user_id)\
-                    .filter(models.Instance.group_id == group.id).all()
+                    .filter(models.Instance.user_id == user_id) \
+                    .filter(models.Instance.group_id == group.group_id).all()
                 if old_instances is not None:
                     for oi in old_instances:
                         oi.group_id = None
             # create new
             for inst_id, endpoint in instances:
-                instance = session.query(models.Instance)\
-                    .filter(models.Instance.user_id == user_id)\
-                    .filter(models.Instance.instance_id == inst_id)\
+                instance = session.query(models.Instance) \
+                    .filter(models.Instance.user_id == user_id) \
+                    .filter(models.Instance.instance_id == inst_id) \
                     .one_or_none()
                 if instance:
                     instance.group_id = group.group_id
@@ -116,13 +116,13 @@ class DBBackend(object):
             if group_id is None or group_id == 'auto':
                 group_id = str(uuid.uuid4())
 
-            exist_group = self.get_group(user_id=user_id, group_id=group_id)
-            if exist_group is not None:
+            try:
+                exist_group = self.get_group(user_id=user_id, id=group_id)
                 group = exist_group
-            else:
+            except:
                 group = models.Group()
 
-            if not(user_id and name):
+            if not (user_id and name):
                 raise ValueError('Group init must have user id and name')
             group.user_id = user_id
             group.name = name
@@ -209,21 +209,21 @@ class DBBackend(object):
         group_default = group_default or self.group_pattern
         # print('user_id %s, id %s' % (user_id, id))
         ss = self._get_localsession()
-        # try:
-        group = ss.query(models.Group)\
-            .filter(models.Group.user_id == user_id)\
-            .filter(models.Group.id == id).one()
-        group = _wrap_default_group_object(group, group_default)
-        return group.to_dict()
-        # except Exception:
-        #     raise falcon.HTTPBadRequest('Group DB error')
-        # finally:
-        self._close_localsession()
+        try:
+            group = ss.query(models.Group) \
+                .filter(models.Group.user_id == user_id) \
+                .filter(models.Group.id == id).one()
+            group = _wrap_default_group_object(group, group_default)
+            return group.to_dict()
+        except Exception:
+            raise falcon.HTTPBadRequest('Group DB error')
+        finally:
+            self._close_localsession()
 
     def get_instance(self, user_id, instance_id):
         ss = self._get_localsession()
 
-        inst = ss.query(models.Instance)\
+        inst = ss.query(models.Instance) \
             .filter(models.Instance.instance_id == instance_id) \
             .filter(models.Instance.user_id == user_id).one()
         return inst.to_dict()
@@ -233,11 +233,11 @@ class DBBackend(object):
     def get_instance_meta_from_db(self, user_id, instance_id,
                                   default_instance_dict=None):
         default_instance_dict = default_instance_dict \
-            or self.instance_meta_pattern
+                                or self.instance_meta_pattern
 
         ss = self._get_localsession()
 
-        inst = ss.query(models.Instance)\
+        inst = ss.query(models.Instance) \
             .filter(models.Instance.instance_id == instance_id) \
             .filter(models.Instance.user_id == user_id).one()
 
@@ -253,12 +253,51 @@ class DBBackend(object):
     def get_instances_in_group(self, user_id, group_id):
         ss = self._get_localsession()
         try:
-            group = ss.query(models.Group)\
-                .filter(models.Group.user_id == user_id)\
+            group = ss.query(models.Group) \
+                .filter(models.Group.user_id == user_id) \
                 .filter(models.Group.id == group_id).one()
             instances = group.instances
             return instances
         except Exception as e:
             raise falcon.HTTPBadRequest('Group DB error')
+        finally:
+            self._close_localsession()
+
+    def disable_all_group(self):
+        ss = self._get_localsession()
+        try:
+            groups = ss.query(models.Group).all()
+            for group in groups:
+                group.enable = False
+            ss.commit()
+        except Exception as e:
+            print('DB error')
+        finally:
+            self._close_localsession()
+
+    def update_instance(self, instance_meta):
+        ss = self._get_localsession()
+        try:
+            instance = ss.query(models.Instance) \
+                .filter(models.Instance.instance_id == instance_meta['instance_id']) \
+                .one()
+
+            instance.endpoint = instance_meta['endpoint']
+            ss.commit()
+        except Exception as e:
+            print('DB error')
+        finally:
+            self._close_localsession()
+
+    def drop_instance(self, instance_meta):
+        ss = self._get_localsession()
+        try:
+            instance = ss.query(models.Instance) \
+                .filter(models.Instance.instance_id == instance_meta['instance_id']) \
+                .one()
+            ss.delete(instance)
+            ss.commit()
+        except Exception as e:
+            print('DB error')
         finally:
             self._close_localsession()

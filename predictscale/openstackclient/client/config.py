@@ -2,7 +2,7 @@
 auth_url = 'http://controller:5000/v3'
 user_domain_name = 'default'
 username = 'admin'
-password = 'admin'
+password = '123'
 project_domain_name = 'default'
 project_name = 'admin'
 

@@ -14,3 +14,6 @@ class EndpointNotAvailable(Exception):
 
 class NotEnoughData(Exception):
     pass
+
+class InstanceFailError(Exception):
+    pass

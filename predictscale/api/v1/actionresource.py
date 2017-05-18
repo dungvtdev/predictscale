@@ -61,12 +61,11 @@ class GroupActionResource(object):
             params[k] = v
 
         # print(params)
-        # try:
-        action.run_group(user_id, id, params)
-        action.enable_group_action(self.db_backend, user_id, id)
-
-        # except:
-        #     raise falcon.HTTPBadRequest('Group can\'t up')
+        try:
+            action.run_group(user_id, id, params)
+            action.enable_group_action(self.db_backend, user_id, id)
+        except:
+            raise falcon.HTTPBadRequest('Group can\'t up')
 
     def _stop_group_action(self, req, resp, user_id, id):
         action.stop_group(user_id, id)

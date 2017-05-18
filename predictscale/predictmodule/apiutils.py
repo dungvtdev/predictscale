@@ -43,3 +43,11 @@ def get_instance_status(instance_id, metric=None):
     manager = PredictManager.default()
     status = manager.get_instance_status(instance_id, metric)
     return status
+
+def filter_container_success(instance_ids):
+    manager = PredictManager.default()
+    return manager.filter_container_success(instance_ids)
+
+def is_instance_in(instance_id, metric=None):
+    manager = PredictManager.default()
+    return manager.is_instance_in(instance_id)

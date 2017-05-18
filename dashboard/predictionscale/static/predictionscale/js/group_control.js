@@ -39,7 +39,9 @@ $(document).ready(function () {
             dataType: 'json',
             success: function (data) {
                 next_secs = fillData(data)
-                setTimeout(pullData(url), next_secs)
+                if(next_secs==0)
+                    next_secs = 30
+                setTimeout(pullData(url), next_secs*1000)
             }
         })
     }

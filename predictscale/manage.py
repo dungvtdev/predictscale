@@ -9,8 +9,14 @@ if __name__ == '__main__':
     log.init(configtool)
 
     from predictmodule.manager import PredictManager
+
     manager = PredictManager.default()
     manager.start_thread()
+
+    logger = log.get_log(__name__)
+    logger.info('Clean up...')
+    from predictmodule import dbutils
+    dbutils.disable_all_group()
 
     from app import App
 

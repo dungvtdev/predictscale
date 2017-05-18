@@ -2,9 +2,8 @@ import threading
 import time
 from predictmodule.container import InstanceMonitorContainer
 from gevent.pool import Group
-from .utils import Singleton
 from share import log
-
+from predictmodule import exceptions
 
 logger = log.get_log(__name__)
 
@@ -40,7 +39,6 @@ def log_list(manager):
 
 
 class SimpleList():
-
     def __init__(self):
         self.data = []
         self._lock = threading.Lock()
@@ -91,6 +89,7 @@ class PredictManager(threading.Thread):
     _default = None
 
     _loop_minute = 1
+
     # _wait_list = None
     # _pushing_list = None
     # _run_list = None
@@ -122,7 +121,6 @@ class PredictManager(threading.Thread):
             self._check_wait_list()
             self._predict()
             self._check_update_model()
-
 
             sleep_time = self._loop_minute * 60 - (time.time() - time_stm)
             if sleep_time < 0:
@@ -210,19 +208,32 @@ class PredictManager(threading.Thread):
 
             self.add_container(instance_meta)
 
+    def stop_container(self, instance_id, metric):
+        self._get_instance(instance_id, metric)
     def add_container(self, instance_meta):
-        container = instance_meta
-        if isinstance(instance_meta, dict):
-            container = create_container(instance_meta)
-        container.setup_wait()
-        # print(container.get_data_info_string())
-        if container.check_time_to_run():
-            self.add_pushing(container)
-        else:
-            self._wait_list.add_unique(container)
+        try:
+            container = instance_meta
+            if isinstance(instance_meta, dict):
+                container = create_container(instance_meta)
+            container.setup_wait()
+            # print(container.get_data_info_string())
+            if container.check_time_to_run():
+                self.add_pushing(container)
+            else:
+                self._wait_list.add_unique(container)
 
-            logger.info('Add to wait list instance %s. INFO: %s' % (
-                instance_meta['instance_id'], container.get_info_string('waiting')))
+                inst_id = None
+                if isinstance(instance_meta, dict):
+                    inst_id = instance_meta['instance_id']
+                else:
+                    inst_id = instance_meta.instance_id
+                logger.info('Add to wait list instance %s. INFO: %s' % (
+                    inst_id, container.get_info_string('waiting')))
+        except Exception as e:
+            print(e)
+        except exceptions.InstanceFailError as e:
+            logger.info('Create container fail, can\'t connect %s' % instance_meta['instance_id'])
+            raise e
 
     def remove_container(self, instance_id, metric):
         container, state = self._get_instance(instance_id, metric)
@@ -235,7 +246,7 @@ class PredictManager(threading.Thread):
             t.join()
             self._run_list.remove(container)
 
-        logger.info('Remove container %s' % instance_meta['instance_id'])
+        logger.info('Remove container %s' % instance_id)
 
     def start_thread(self):
         logger.info('Manager start thread.')
@@ -250,14 +261,14 @@ class PredictManager(threading.Thread):
     def add_pushing(self, container):
         logger.info('Add Pushing %s' % container.instance_id)
         # print('add push')
-        upthread = UpThread(container, self._finish_push, cache_type='temp')
+        upthread = UpThread(container, self._finish_push, self._finish_push_error, cache_type='temp')
         self._pushing_list.add_unique(upthread)
         upthread.push()
 
     def add_pushing_update(self, container):
         logger.info('Add Pushing update %s' % container.instance_id)
 
-        upthread = UpThread(container, self._patch_version,
+        upthread = UpThread(container, self._patch_version, self._patch_version_error,
                             cache_type='forever')
         self._pushing_list.add_unique(upthread)
         upthread.push()
@@ -269,6 +280,12 @@ class PredictManager(threading.Thread):
         logger.info('Finish push instance %s' %
                     (upthread.get_container().instance_id))
 
+    def _finish_push_error(self, upthread):
+        self._pushing_list.remove(upthread)
+
+        logger.info('Error push instance %s' % \
+                    (upthread.get_container().instance_id))
+
     def _patch_version(self, upthread):
         self._pushing_list.remove(upthread)
         self._run_list.patch(upthread.get_container())
@@ -276,6 +293,11 @@ class PredictManager(threading.Thread):
         logger.info('Patch instance done %s' %
                     (upthread.get_container().instance_id))
 
+    def _patch_version_error(self, upthread):
+        self._pushing_list.remove(upthread)
+
+        logger.info('Patch instance error %s' %
+                    (upthread.get_container().instance_id))
     # utils func
     def _get_instance_from_list(self, instance_id, metric, flist):
         c = next((w for w in flist if w.instance_id ==
@@ -345,12 +367,23 @@ class PredictManager(threading.Thread):
             'status': status
         }
 
+    def is_instance_in(self, instance_id, metric):
+        container, state = self._get_instance(instance_id, metric)
+        return container is not None
+
+    def filter_container_success(self, instance_ids):
+        return []
+
+    def update_instances(self, add_instances, remove_instances):
+        pass
+
 
 class UpThread(threading.Thread):
-    def __init__(self, container, callback, cache_type='temp'):
+    def __init__(self, container, success, error, cache_type='temp'):
         threading.Thread.__init__(self)
         self._container = container
-        self._callback = callback
+        self._success = success
+        self._error = error
         self._cache_type = cache_type
 
         self.instance_id = container.instance_id
@@ -361,8 +394,11 @@ class UpThread(threading.Thread):
 
     def run(self):
         # print('begin push')
-        self._container.push(self._cache_type)
-        self._callback(self)
+        try:
+            self._container.push(self._cache_type)
+            self._success(self)
+        except exceptions.InstanceFailError:
+            self._error(self)
 
     def get_container(self):
         return self._container

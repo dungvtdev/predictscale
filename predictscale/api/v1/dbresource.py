@@ -1,7 +1,9 @@
 import falcon
 from .backend import DBBackend
-from .action import enable_group_action, disable_group_action
+from .action import enable_group_action, disable_group_action, \
+    update_group_instance
 from predictmodule import apiutils
+from api import models
 
 
 class GroupResource(object):
@@ -51,11 +53,27 @@ class GroupResourceId(object):
 
     def on_put(self, req, resp, user_id, id):
         body = req.context['doc']
+        new_group_data = body['group']
         if 'group' not in body:
             raise falcon.HTTP_BAD_REQUEST(
                 "Update group must have 'group' in body")
-        self.db_backend.update_groups(
-            user_id, id, body['group'])
+
+        group = self.db_backend.get_group(user_id, id)
+        # khong cho update sua enable
+        new_group_data['enable'] = group['enable']
+        if group['enable']:
+            cur_instance_ids = group['instances']
+            new_instances = new_group_data['instances']
+            new_instance_ids = [it[0] for it in new_instances]
+            remove_list = [inst for inst in cur_instance_ids if inst not in new_instance_ids]
+            new_list = [inst for inst in new_instance_ids if inst not in cur_instance_ids]
+
+            self.db_backend.update_groups(
+                user_id, id, new_group_data)
+            update_group_instance(user_id, id, new_list, remove_list)
+        else:
+            self.db_backend.update_groups(
+                user_id, id, new_group_data )
 
     def on_get(self, req, resp, user_id, id):
         group_dict = self.db_backend.get_group(user_id, id)

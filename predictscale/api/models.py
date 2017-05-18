@@ -6,7 +6,6 @@ import datetime
 
 Base = declarative_base()
 
-
 instance_meta_pattern = {
     'instance_id': 1,
     'period': 10,
@@ -64,7 +63,25 @@ class Group(Base):
 
     def __repr__(self):
         return "<User(name='%s')>" \
-            % (self.name)
+               % (self.name)
+
+    @classmethod
+    def to_instance_meta(cls, data):
+        attrs = ['period', 'data_length', 'recent_point', 'periodic_number', \
+                 'predict_length', 'update_in_time', 'neural_size']
+        result = {}
+        for at in attrs:
+            result[at] = data.get(at, None)
+        # return {
+        #     'period': data['period'],
+        #     'data_length': data['data_length'],
+        #     'recent_point': data.recent_point,
+        #     'periodic_number': data.periodic_number,
+        #     'predict_length': data.predict_length,
+        #     'update_in_time': data.update_in_time,
+        #     'neural_size': data.neural_size
+        # }
+        return result
 
     def to_dict(self):
         created = self.created.isoformat()
@@ -103,7 +120,7 @@ class Instance(Base):
 
     def __repr__(self):
         return "<Instance(user_id='%s', instance_id='%s', group_id='%s')>" \
-            % (self.user_id, self.instance_id, self.group_id)
+               % (self.user_id, self.instance_id, self.group_id)
 
     def to_dict(self):
         return {

@@ -7,6 +7,8 @@ file = '1m.data.csv'
 
 
 class FakeDataSource():
+    _default = None
+
     def __init__(self):
         self.minute = 24916683
         self.pointer = 0
@@ -14,6 +16,12 @@ class FakeDataSource():
         series = series[0].interpolate()
         self.series = series
         self.max = len(series)
+
+    @classmethod
+    def default(cls):
+        if FakeDataSource._default is None:
+            FakeDataSource._default = FakeDataSource()
+        return FakeDataSource._default
 
     def make_query(self):
         tmpl = 'http://{ip}:8086/write?db={db_name}'

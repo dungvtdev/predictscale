@@ -31,11 +31,17 @@ def get_instances_ip(request, instance_ids, ip_type='floating'):
     # print('**************** instance ip ***********************')
     # print(instances)
     # print('*****************************************')
-    ips = []
+    ips = {}
     for inst in instances:
-        s = inst.addresses['selfservice']
-        for item in s:
-            if item.get('OS-EXT-IPS:type', None) == ip_type:
-                ips.append(item['addr'])
+        for k, addresses in inst.addresses.items():
+            ip = None
+            for address in addresses:
+                if ('OS-EXT-IPS:type' in address and
+                            address['OS-EXT-IPS:type'] == "floating"):
+                    ip = address['addr']
+                    break
+            if ip is not None:
+                ips[inst.id] = ip
+                break
 
     return ips

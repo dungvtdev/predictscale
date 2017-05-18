@@ -97,7 +97,8 @@ class DBBackend(object):
                     instance = models.Instance(user_id=user_id,
                                                group_id=group.group_id,
                                                instance_id=inst_id,
-                                               endpoint=endpoint)
+                                               endpoint=endpoint,
+                                               monitor=True)
                     session.add(instance)
 
             # remove all old_instance not link group
@@ -115,7 +116,12 @@ class DBBackend(object):
             if group_id is None or group_id == 'auto':
                 group_id = str(uuid.uuid4())
 
-            group = models.Group()
+            exist_group = self.get_group(user_id=user_id, group_id=group_id)
+            if exist_group is not None:
+                group = exist_group
+            else:
+                group = models.Group()
+
             if not(user_id and name):
                 raise ValueError('Group init must have user id and name')
             group.user_id = user_id

@@ -96,6 +96,7 @@ class Instance(Base):
     user_id = Column(String(250), nullable=False)
     instance_id = Column(String(250), nullable=False, unique=True)
     endpoint = Column(String(20))
+    monitor = Column(Boolean)
     db_name = Column(String(20))
 
     group_id = Column(Integer, ForeignKey('group.group_id'))

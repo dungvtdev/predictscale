@@ -36,7 +36,7 @@ class GroupActionResource(object):
     db_backend = DBBackend.default()
 
     post_map = ['run_group', 'stop_group', ]
-    get_map = ['poll_process_data', ]
+    get_map = ['poll_process_data', 'data_length', ]
 
     def on_post(self, req, resp, user_id, id, action):
         if action in self.post_map:
@@ -102,10 +102,13 @@ class GroupActionResource(object):
             'process': result
         }
 
+        def _data_length_action(elf, req, resp, user_id, id):
+            insts = self.db_backend.get_instances_in_group(user_id, id)
+
 
 routes = [
     ('/users/{user_id}/groups/{id}/{action}', GroupActionResource())
     # ('/users/{user_id}/instances/{id}/{action}', InstanceActionResource()),
 ]
 
-# action = run_group, poll_process_data, stop_group
+# action = run_group, poll_process_data, stop_group, data_length

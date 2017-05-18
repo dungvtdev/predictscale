@@ -1,5 +1,5 @@
 import requests
-from . import config as cf
+from openstack_dashboard.dashboards.predictionscale.backend import config as cf
 from . import authagent as auth
 import json
 from .authagent import UserTokenAuth
@@ -10,11 +10,10 @@ import json
 
 
 class Client(object):
-    endpoint = 'http://192.168.1.94:8008'
-
     def __init__(self, user_id=None):
         self.authagent = auth.UserTokenAuth(secret=cf.SECRET)
         self.user_id = user_id
+        self.endpoint = cf.ENDPOINT
 
     def __call__(self, request_obj):
         self.request_obj = request_obj
@@ -44,6 +43,9 @@ class Client(object):
 
     def request_post(self, url, **kwargs):
         return self.request('post', url, **kwargs)
+
+    def request_put(self, url, **kwargs):
+        return self.request('put', url, **kwargs)
 
     def get_url(self, url_templ, **kwargs):
         kwargs['user_id'] = self.user_id or ''
@@ -78,47 +80,54 @@ class Client(object):
         return ok
 
     def add_group(self, group):
-        # ips = utils.get_instances_ip(self.request_obj, group.instances)
-        ips = ['192.168.122.124'] * len(group.instances)
+        ips = utils.get_instances_ip(self.request_obj, group.instances)
         addr_tmpl = '/v1/users/{user_id}/groups'
         url = self.get_url(addr_tmpl)
-        inst_data = zip(group.instances, ips)
+        inst_data = []
+        for inst in group.instances:
+            inst_data.append((inst, ips.get(inst, None)))
         group_dict = group.to_dict()
         group_dict['instances'] = inst_data
         payload = {
             'groups': [group_dict, ]
         }
         r, ok = self.request_post(url, data=payload)
-        print('************************************ add_group ***************')
-        print(ips)
-        print(payload)
+        return ok
+
+    def update_group(self, group, id):
+        ips = utils.get_instances_ip(self.request_obj, group.instances)
+        addr_tmpl = '/v1/users/{user_id}/groups/{id}'
+        url = self.get_url(addr_tmpl, id=id)
+        inst_data = []
+        for inst in group.instances:
+            inst_data.append((inst, ips.get(inst, None)))
+        group_dict = group.to_dict()
+        group_dict['instances'] = inst_data
+        payload = {
+            'group': group_dict
+        }
+        r, ok = self.request_put(url, data=payload)
         return ok
 
     def pings(self):
         url = self.get_url('/v1/users/{user_id}/pings')
-        print('*****************************************')
-        print(url)
         r = self.request_get(url)
         return r.text
 
     def enable_group(self, id):
-        print('*****************************************')
-        print('enable group')
         addr_tmpl = '/v1/users/{user_id}/groups/{id}/actions/enable'
         url = self.get_url(addr_tmpl, id=id)
         r, ok = self.request_post(url)
         return ok
 
     def disable_group(self, id):
-        print('*****************************************')
-        print('enable group')
         addr_tmpl = '/v1/users/{user_id}/groups/{id}/actions/disable'
         url = self.get_url(addr_tmpl, id=id)
         r, ok = self.request_post(url)
         return ok
 
-    def get_data_state(self, id, data_length, *args):
-        addr_tmpl = '/v1/users/{user_id}/groups/{id}/datastate'
+    def get_data_length(self, id, data_length, *args):
+        addr_tmpl = '/v1/users/{user_id}/groups/{id}/data_length'
         params = {
             'data_length': data_length,
         }

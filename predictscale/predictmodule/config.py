@@ -1,5 +1,4 @@
 from predictmodule.datafetch import CpuFetch
-from predictmodule.test_bed import csvfetch
 
 instance_meta_default = {
     'recent_point': 4,
@@ -15,8 +14,7 @@ instance_meta_default = {
 }
 
 map_fetch_cls = {
-    # 'cpu_usage_total': CpuFetch,
-    'cpu_usage_total': csvfetch.CsvFetch
+    'cpu_usage_total': CpuFetch,
 }
 
 cache_root = '/home/dungvt/cache'

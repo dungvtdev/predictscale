@@ -33,6 +33,12 @@ def predict_container(container):
         return container, None, None, False
 
 
+def log_list(manager):
+    print('WAITING %s' % manager._wait_list)
+    print('PUSHING %s' % manager._pushing_list)
+    print('RUNNING %s' % manager._run_list)
+
+
 class SimpleList():
 
     def __init__(self):
@@ -117,9 +123,6 @@ class PredictManager(threading.Thread):
             self._predict()
             self._check_update_model()
 
-            # print(self._wait_list)
-            # print(self._pushing_list)
-            # print(self._run_list)
 
             sleep_time = self._loop_minute * 60 - (time.time() - time_stm)
             if sleep_time < 0:
@@ -131,11 +134,12 @@ class PredictManager(threading.Thread):
         wait_list = self._wait_list.get_list()
         for container in wait_list:
             if container.check_time_to_run():
-                logger.info('From wait list to pushing %s' %
-                            container.instance_id)
-
                 self._wait_list.remove(container)
                 self.add_pushing(container)
+
+                logger.info('From wait list to pushing %s' %
+                            container.instance_id)
+                log_list(self)
         del wait_list
 
     def _tick_update(self):
@@ -162,6 +166,8 @@ class PredictManager(threading.Thread):
                 # nc = container.new_version()
                 # self.add_pushing_update(nc)
                 self._update_container(container)
+
+                log_list(self)
         del run_list
 
     def _get_all_containers(self):
@@ -302,6 +308,11 @@ class PredictManager(threading.Thread):
             if c is not None:
                 fl.remove(c)
                 break
+
+    def get_instance_datalength(self, instance_id, metric):
+        container, state = self._get_instance(instance_id, metric)
+        if container is None:
+            pass
 
     def get_instance_status(self, instance_id, metric):
         container, state = self._get_instance(instance_id, metric)

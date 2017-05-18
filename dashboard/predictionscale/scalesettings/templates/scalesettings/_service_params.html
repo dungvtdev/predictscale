@@ -62,7 +62,7 @@
             </div>
         </div>
 
-        <div class="tab-pane" id="data" data-url="{% url 'horizon:predictionscale:scalesettings:get_data_state' id=group.id %}">
+        <div class="tab-pane" id="data" data-url="{% url 'horizon:predictionscale:scalesettings:get_data_length' id=group.id %}">
             {% for inst in instances %}
             <div class="form-group">
                 <label class="col-xs-3 control-label">{{ inst.name }}</label>

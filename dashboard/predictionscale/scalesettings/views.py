@@ -27,31 +27,53 @@ from horizon import exceptions
 from django.views.generic.base import RedirectView
 from openstack_dashboard import api
 
+INDEX_URL = "horizon:predictionscale:scalesettings:index"
 
-# def get_group_view_data(request, groups):
-#     # flavors = api.nova.flavor_list(request)
-#     # images = api.glance.image_list_detailed(request)
-#     # instances = api.nova.server_list(request)
 
-#     for group in groups:
-#         group = group.clone()
+def get_group_view_data(request, groups):
+    try:
+        flavors = api.nova.flavor_list(request)
+    except Exception:
+        flavors = []
+        exceptions.handle(request, ignore=True)
 
-#         if group.flavor:
-#             flavor_name = api.nova.flavor_get(request, group.flavor)
-#             group.flavor = flavor_name or group.flavor
+    try:
+        images, more, prev = api.glance.image_list_detailed(request)
+    except Exception:
+        images = []
+        exceptions.handle(request, ignore=True)
 
-#         if group.image:
-#             image_name = api.glance.image_get(request, group.image)
+    try:
+        instances, has_more = api.nova.server_list(request)
+    except Exception:
+        instances = []
+        exceptions.handle(request, ignore=True)
 
-#         # inst_names = []
-#         # if group.instances:
-#         #     for inst_id in group.instances:
-#         #         name = api.nova.server_get(request, inst_id)
-#         #         inst_names.append(name or inst_id)
+    result = []
+    for group in groups:
+        group = group.clone()
 
-#         # group.instances = '\n'.join(inst_names)
+        if group.flavor and flavors:
+            flavor_name = next((f.name for f in flavors if f.id == group.flavor), None)
+            group.flavor = flavor_name or group.flavor
 
-#     return groups
+        if group.image and images:
+            image_name = next((img.name for img in images if img.id == group.image), None)
+            group.image = image_name or group.image
+
+        if group.instances and instances:
+            inst_names = []
+            for inst_id in group.instances:
+                name = next((inst.name for inst in instances if inst.id == inst_id), None)
+                inst_names.append(name or inst_id)
+
+            group.instances = inst_names
+
+    result.append(group)
+
+    return result
+
+
 class InstanceTmpl:
     name = None
     id = None
@@ -73,6 +95,31 @@ class UpdateView(workflows.WorkflowView):
     template_name = 'admin/flavors/create.html'
     page_title = _("Update Group")
 
+    def get_initial(self):
+        group_id = self.kwargs['id']
+
+        try:
+            # Get initial group information
+            group = client(self.request).get_group(group_id)
+        except Exception:
+            group = None
+            exceptions.handle(self.request,
+                              _('Unable to retrieve flavor details.'),
+                              redirect=reverse_lazy(INDEX_URL))
+        if group is not None:
+            group = get_group_view_data(self.request, [group, ])[0]
+            return group.to_dict()
+        else:
+            return GroupData().to_dict()
+        # return {'flavor_id': flavor.id,
+        #         'name': flavor.name,
+        #         'vcpus': flavor.vcpus,
+        #         'memory_mb': flavor.ram,
+        #         'disk_gb': flavor.disk,
+        #         'swap_mb': flavor.swap or 0,
+        #         'rxtx_factor': flavor.rxtx_factor or 1,
+        #         'eph_gb': getattr(flavor, 'OS-FLV-EXT-DATA:ephemeral', None)}
+
 
 class IndexView(RedirectView):
     permanent = False
@@ -89,6 +136,12 @@ class Step1View(tables.DataTableView):
     def get_data(self):
         try:
             groups = client(self.request).get_groups()
+            if not groups:
+                return []
+            groups = get_group_view_data(self.request, groups)
+            for group in groups:
+                if group.instances is not None:
+                    group.instances = '\n'.join(group.instances)
             return groups
         except Exception:
             err_msg = _('Can\'t retrieve group list')
@@ -109,6 +162,7 @@ def get_group_context(view, request, context, *args, **kwargs):
 
     try:
         group = client(request).get_group(id)
+        group = get_group_view_data(request, [group, ])[0]
         if group is None:
             raise
     except:
@@ -116,8 +170,9 @@ def get_group_context(view, request, context, *args, **kwargs):
         exceptions.handle(request, err_msg)
         return context
 
-    instances = group.instances
-    context['instances'] = [InstanceTmpl(inst, inst) for inst in instances]
+    # instances = group.instances
+    insts = zip(group.instances, group.instances_id)
+    context['instances'] = [InstanceTmpl(inst[0], inst[1]) for inst in insts]
     context['group'] = group
     return context
 
@@ -146,10 +201,10 @@ class Step3View(views.APIView):
         context = super(Step3View, self).get_context_data(**kwargs)
         return get_group_context(self, request, context, *args, **kwargs)
 
-    # class IndexView(views.APIView):
-    #     # A very simple class-based view...
-    #     template_name = 'predictionscale/scalesettings/index.html'
+        # class IndexView(views.APIView):
+        #     # A very simple class-based view...
+        #     template_name = 'predictionscale/scalesettings/index.html'
 
-    #     def get_data(self, request, context, *args, **kwargs):
-    #         # Add data to the context here...
-    #         return context
+        #     def get_data(self, request, context, *args, **kwargs):
+        #         # Add data to the context here...
+        #         return context

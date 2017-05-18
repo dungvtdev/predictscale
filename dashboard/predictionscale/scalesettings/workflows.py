@@ -4,9 +4,11 @@ from horizon import forms
 from openstack_dashboard import api
 from horizon import exceptions
 
-from .utils import create_group
+from .utils import create_group, update_group
 from openstack_dashboard.dashboards.predictionscale.backend.models \
     import GroupData
+from openstack_dashboard.dashboards.predictionscale.backend \
+    import client
 
 
 class AddGroupInfoAction(workflows.Action):
@@ -48,7 +50,7 @@ class AddGroupInfoAction(workflows.Action):
     def populate_flavor_choices(self, request, context):
         try:
             flavors, _, _ = api.nova.flavor_list_paged(request)
-            print(flavors)
+            # print(flavors)
         except Exception:
             flavors = []
             exceptions.handle(request,
@@ -58,9 +60,6 @@ class AddGroupInfoAction(workflows.Action):
     def populate_selfservice_choices(self, request, context):
         try:
             networks = api.neutron.network_list(request)
-            for n in networks:
-                print('*************************   network   ******')
-                print(n)
             return [(n.id, n.name) for n in networks
                     if not n.router__external and n.status == 'ACTIVE']
         except Exception:
@@ -78,10 +77,6 @@ class AddGroupInfoAction(workflows.Action):
             exceptions.handle(self.request, msg)
             return []
 
-    class Meta(object):
-        name = _("Group Information")
-        help_text = _("Group define name, description, image, flavor")
-
     def clean_name(self):
         name = self.cleaned_data.get('name').strip()
         if not name:
@@ -90,7 +85,35 @@ class AddGroupInfoAction(workflows.Action):
         return name
 
     def clean(self):
-        pass
+        cleaned_data = super(AddGroupInfoAction, self).clean()
+        name = cleaned_data.get('name')
+        group_id = cleaned_data.get('group_id')
+
+        try:
+            groups = client(self.request).get_groups()
+        except Exception:
+            groups = []
+            msg = _('Unable to get groups list')
+            exceptions.check_message(["Connection", "refused"], msg)
+            raise
+
+        if groups is not None and name is not None:
+            for group in groups:
+                if group.name.lower() == name.lower():
+                    raise forms.ValidationError(
+                        _('The name "%s" is already used by another group.')
+                        % name
+                    )
+                if group.id == group_id:
+                    raise forms.ValidationError(
+                        _('The ID "%s" is already used by another group.')
+                        % group_id
+                    )
+        return cleaned_data
+
+    class Meta(object):
+        name = _("Group Information")
+        help_text = _("Group define name, description, image, flavor")
 
 
 class AddGroupInfo(workflows.Step):
@@ -110,6 +133,7 @@ class UpdateGroupInstancesAction(workflows.MembershipAction):
         err_msg = _('Unable to retrieve instances list. '
                     'Please try again later.')
         context = args[0]
+        group_id = context.get('group_id')
 
         default_role_field_name = self.get_default_role_field_name()
         self.fields[default_role_field_name] = forms.CharField(required=False)
@@ -125,8 +149,21 @@ class UpdateGroupInstancesAction(workflows.MembershipAction):
         except Exception:
             exceptions.handle(request, err_msg)
 
+        groups = []
+        try:
+            groups = client(request).get_groups()
+        except Exception:
+            exceptions.handle(request, 'Can\'t retrieve group list. Try again')
+
+        except_inst_ids = []
+        for g in groups:
+            if g.id == group_id:
+                continue
+            except_inst_ids = except_inst_ids + [id for id in g.instances]
+
         instances_list = [(inst.id, inst.name)
-                          for inst in all_instances]
+                          for inst in all_instances \
+                          if inst.status == 'ACTIVE' and inst.id not in except_inst_ids]
 
         self.fields[field_name].choices = instances_list
 
@@ -138,24 +175,21 @@ class UpdateGroupInstancesAction(workflows.MembershipAction):
             return
 
         # Get list of flavor projects if the flavor is not public.
-        # group_id = context.get('group_id')
-        # group_instance = []
-        # try:
-        #     if group_id:
-        #         flavor = api.nova.flavor_get(request, flavor_id)
-        #         if not flavor.is_public:
-        #             flavor_access = [project.tenant_id for project in
-        #                              api.nova.flavor_access_list(request,
-        #                                                          flavor_id)]
-        # except Exception:
-        #     exceptions.handle(request, err_msg)
+        group_instances = []
 
-        # self.fields[field_name].initial = flavor_access
-        # self.fields[field_name].initial = [(1, 2)]
+        try:
+            if group_id:
+                group = client(request).get_group(group_id)
+                group_instances = group.instances
+        except Exception:
+            exceptions.handle(request, err_msg)
+
+        self.fields[field_name].initial = group_instances
 
     class Meta(object):
         name = _("Group Instances")
         slug = "update_group_instance"
+        help_text = _("Group define instance added.")
 
 
 class UpdateGroupInstances(workflows.UpdateMembersStep):
@@ -183,33 +217,96 @@ class AddGroup(workflows.Workflow):
     success_message = _('Created new group "%s".')
     failure_message = _('Unable to create group "%s".')
     success_url = "horizon:predictionscale:scalesettings:index"
-    default_steps = (AddGroupInfo, UpdateGroupInstances, )
+    default_steps = (AddGroupInfo, UpdateGroupInstances,)
 
     def format_status_message(self, message):
         return message % self.context['name']
 
     def handle(self, request, data):
-        print('****************************************')
-        print(data)
-        if '__dict__' in data:
-            print(data.__dict__)
-
         '''
         {'name': None, 'image': u'07b28db9-feae-4ea2-9ac2-024c4daae486', 
         'instances': [u'a7e600e2-6e7f-4460-a1b1-6e8dcd12baee'], 'flavor': u'1', 
         'group_id': u'auto', 'desc': u'tesst'}
         '''
-
-        group = GroupData.create(data)
         try:
+            if not data['instances']:
+                raise
+        except:
+            exceptions.handle(request, 'Instances must be assigned.')
+            return False
+
+        try:
+            group = GroupData.create(data)
             ok = create_group(request, group)
             return ok
         except:
-            # msg = _('Can\'t create group. Try again later')
-            # exceptions.handle(request, msg)
-            raise
+            msg = _('Can\'t create group. Try again later')
+            exceptions.handle(request, msg)
             return False
 
 
+class UpdateGroupInfoAction(AddGroupInfoAction):
+    group_id = forms.CharField(widget=forms.widgets.HiddenInput)
+
+    def clean(self):
+        name = self.cleaned_data.get('name')
+        group_id = int(self.cleaned_data.get('group_id'))
+        try:
+            groups = client(self.request).get_groups()
+        except Exception:
+            groups = []
+            msg = _('Unable to get groups list')
+            exceptions.check_message(["Connection", "refused"], msg)
+            raise
+
+        # Check if there is no group with the same name
+        if groups is not None and name is not None:
+            for group in groups:
+                if (group.name.lower() == name.lower() and
+                            group.id != group_id):
+                    raise forms.ValidationError(
+                        _('The name "%s" is already used by another '
+                          'group.') % name)
+        return self.cleaned_data
+
+
+class UpdateGroupInfo(workflows.Step):
+    action_class = UpdateGroupInfoAction
+    depends_on = ("group_id",)
+    contributes = ("name",
+                   "desc",
+                   "image",
+                   "flavor")
+
+
 class UpdateGroup(workflows.Workflow):
-    pass
+    slug = "update_group"
+    name = _("Edit Group")
+    finalize_button_name = _("Save")
+    success_message = _('Modified group "%s".')
+    failure_message = _('Unable to modify group "%s".')
+    success_url = "horizon:predictionscale:scalesettings:index"
+    default_steps = (UpdateGroupInfo,
+                     UpdateGroupInstances)
+
+    def format_status_message(self, message):
+        return message % self.context['name']
+
+    def handle(self, request, data):
+        try:
+            if not data['instances']:
+                raise
+
+        except:
+            exceptions.handle(request, 'Instances must be assigned.')
+            return False
+
+        try:
+            group = GroupData.create(data)
+            id = group.group_id # cai nay trick, la id chu khong phai group_id, duoc lay tu url
+            ok = update_group(request, group, id)
+            return ok
+        except:
+            msg = _('Can\'t create group. Try again later')
+            exceptions.handle(request, msg)
+            return False

@@ -87,8 +87,9 @@ class InstanceMonitorContainer(object):
         self._need_time = self._need_time - tick_minute
 
     def check_time_to_run(self):
-        return self._last_time_real >= \
-            (self._last_time_have + self._need_time * (1 - self._chunk_length_bias))
+        # return self._last_time_real >= \
+        #     (self._last_time_have + self._need_time * (1 - self._chunk_length_bias))
+        return self._need_time <= 0
 
     def check_time_to_update(self):
         update_in_time = self._instance_meta['update_in_time']
@@ -187,7 +188,6 @@ class InstanceMonitorContainer(object):
         fetch_cls = get_fetch(self.metric)
         data_meta = training.get_available_dataframes(
             meta, fetch_cls, cache_type=cache_type)
-
         mem_fetch = InMemoryFetch(data_meta.data)
         feeder = SimpleFeeder(mem_fetch)
         predictor.train(feeder)
@@ -197,7 +197,8 @@ class InstanceMonitorContainer(object):
         datacache.cache_data_forever(data_meta)
 
         from predictmodule.test_bed import cache_test
-        cache_test.cache_training(data_meta.data)
+        cache_test.cache_training(
+            self._instance_meta['instance_id'], data_meta.data)
 
         # generate series
         cat_idx = len(data_meta.data) - period
@@ -221,7 +222,7 @@ class InstanceMonitorContainer(object):
             data, last = self.fetch.get_short_data_as_list(
                 self._last_time_real)
             from predictmodule.test_bed import cache_test
-            cache_test.cache_real(data)
+            cache_test.cache_real(self._instance_meta['instance_id'], data)
         except Exception as e:
             # print(e.message)
             return None, False
@@ -254,7 +255,8 @@ class InstanceMonitorContainer(object):
         data[1] = mean_val
         data[2] = max_val
         from predictmodule.test_bed import cache_test
-        cache_test.cache((val, mean_val, max_val,))
+        cache_test.cache(
+            self._instance_meta['instance_id'], (val, mean_val, max_val,))
 
         # unormalize
         return max_val, mean_val

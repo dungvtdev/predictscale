@@ -55,7 +55,7 @@ class GroupResourceId(object):
             raise falcon.HTTP_BAD_REQUEST(
                 "Update group must have 'group' in body")
         self.db_backend.update_groups(
-            user_id, group_id, body['group'])
+            user_id, id, body['group'])
 
     def on_get(self, req, resp, user_id, id):
         group_dict = self.db_backend.get_group(user_id, id)

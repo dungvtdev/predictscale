@@ -25,6 +25,13 @@ $(document).ready(function () {
         })
     }
 
+    function fillDataState(data) {
+        console.log(data);
+        dataStates.each(function (index) {
+
+        })
+    }
+
     function getData(url) {
         form = $('form#settingForm')
         arr = form.serializeArray()
@@ -32,6 +39,9 @@ $(document).ready(function () {
         arr.forEach(function (elm) {
             data[camelCaseToDash(elm.name)] = elm.value;
         });
+
+        isGettingData = true;
+
         $.ajax({
             url: url,
             type: 'GET',
@@ -40,9 +50,10 @@ $(document).ready(function () {
             },
             dataType: 'json',
             success: function (data) {
-                dataStates.each(function (index) {
-
-                })
+                fillDataState(data)
+            },
+            error: function () {
+                isGettingData = false
             }
         })
     }

@@ -11,14 +11,12 @@ $(document).ready(function () {
         }
     ]
 
-    var next_seconds = 0;
-
     function fillData(data) {
         console.log(data)
         if (!data)
-            return
+            return 2
         if (!('process' in data))
-            return
+            return 2
         data = data['process']
         for (var i = 0; i < data.length; i++) {
             var d = data[i]
@@ -30,6 +28,7 @@ $(document).ready(function () {
             lstatus.text(d.status)
             lmsg.text(d.message)
         }
+        return data['next']
     }
 
     var url = $('#group-control').data('url')
@@ -39,15 +38,11 @@ $(document).ready(function () {
             type: 'GET',
             dataType: 'json',
             success: function (data) {
-                fillData(data)
+                next_secs = fillData(data)
+                setTimeout(pullData(url), next_secs)
             }
         })
     }
 
-    function update() {
-        pullData(url)
-        setTimeout(update, 2000)
-    }
-
-    update()
+    pullData(url)
 });

@@ -31,6 +31,10 @@ class GroupData:
         self.update_in_time = update_in_time
         self.neural_size = neural_size
 
+        self.instances_id = self.instances
+        self.image_id = self.image
+        self.flavor_id = self.flavor
+
         if self.process is None:
             self.process = 'Unknown' if self.enable else 'NotActive'
 

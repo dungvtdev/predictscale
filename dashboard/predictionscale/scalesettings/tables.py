@@ -48,7 +48,7 @@ class AddGroup(tables.LinkAction):
 
 
 class UpdateGroup(tables.LinkAction):
-    name = "update"
+    name = "update_group"
     verbose_name = _("Edit Group")
     url = "horizon:predictionscale:scalesettings:update"
     classes = ("ajax-modal",)
@@ -108,8 +108,6 @@ class DisableGroup(tables.BatchAction):
         )
 
     def allowed(self, request, group):
-        print('*************************************************')
-        print(group)
         can = (group is None) or group.enable
         return can
         # return ((instance is None)
@@ -117,8 +115,6 @@ class DisableGroup(tables.BatchAction):
         #             and not is_deleting(instance)))
 
     def action(self, request, obj_id):
-        print('************************************************* enable group action')
-        print(obj_id)
         return disable_group(request, obj_id)
 
 
@@ -128,7 +124,7 @@ class ScaleGroupTable(tables.DataTable):
     #                              verbose_name=_("Group Name"))
     name = tables.Column("name",
                          verbose_name=_("Group Name"))
-    group_id = tables.Column("group_id", verbose_name=_("ID"))
+    # group_id = tables.Column("group_id", verbose_name=_("ID"))
 
     desc = tables.Column("desc",
                          verbose_name=_("Descriptions"))
@@ -154,4 +150,4 @@ class ScaleGroupTable(tables.DataTable):
         name = 'scalegroups'
         verbose_name = _("Scale Groups")
         table_actions = (AddGroup, DeleteGroup, )
-        row_actions = (DetailGroup, EnableGroup, DisableGroup, )
+        row_actions = (EnableGroup, DetailGroup, DisableGroup, UpdateGroup, )

@@ -95,9 +95,7 @@ def get_available_dataframes(instance_meta, fetch_class, cache_type='temp'):
 
 def get_instance_metric_last_time(instance_meta):
     return influxdb.DiscoverLastTimeMinute(**instance_meta)()
-    # return 123456789
 
 
 def get_instance_metric_begin_time(instance_meta, begin):
     return influxdb.DiscoverBeginTimeMinute(**instance_meta)(begin)
-    # return 123454789

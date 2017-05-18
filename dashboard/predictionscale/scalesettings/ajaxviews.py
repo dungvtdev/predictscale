@@ -6,13 +6,13 @@ from django.core.urlresolvers import reverse
 from horizon import exceptions
 
 
-def get_data_state(request, id):
+def get_data_length(request, id):
     data_length = request.GET.get('data-length')
     try:
-        data, ok = utils.get_data_state(request, data_length)
+        data, ok = utils.get_data_length(request, data_length)
     except Exception:
         exceptions.handle(request,
-                          _('Unable to retrieve data state list.'))
+                          _('Unable to retrieve data state length.'))
     return JsonResponse(data)
 
 

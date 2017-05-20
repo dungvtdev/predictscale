@@ -2,7 +2,7 @@
     <li class="active"><a href="#common" data-toggle="tab">Common</a></li>
     <li class=""><a href="#advance" data-toggle="tab">Advances</a></li>
     <li class=""><a href="#setting" data-toggle="tab">Setting</a></li>
-    <li class=""><a href="#data" data-toggle="tab">Data</a></li>
+{#    <li class=""><a href="#data" data-toggle="tab">Data</a></li>#}
 </ul>
 
 <form id="settingForm" class="form-horizontal" action="{% url 'horizon:predictionscale:scalesettings:run_containers' id=group.id %}" method="POST">
@@ -62,14 +62,14 @@
             </div>
         </div>
 
-        <div class="tab-pane" id="data" data-url="{% url 'horizon:predictionscale:scalesettings:get_data_length' id=group.id %}">
-            {% for inst in instances %}
-            <div class="form-group">
-                <label class="col-xs-3 control-label">{{ inst.name }}</label>
-                <p class="data-train" data-id={{ inst.id }}></p>
-            </div>
-            {% endfor %}
-        </div>
+{#        <div class="tab-pane" id="data" data-url="{% url 'horizon:predictionscale:scalesettings:get_data_length' id=group.id %}">#}
+{#            {% for inst in instances %}#}
+{#            <div class="form-group">#}
+{#                <label class="col-xs-3 control-label">{{ inst.name }}</label>#}
+{#                <p class="data-train" data-id={{ inst.id }}></p>#}
+{#            </div>#}
+{#            {% endfor %}#}
+{#        </div>#}
 
     </div>
 

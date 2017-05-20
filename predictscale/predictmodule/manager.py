@@ -4,6 +4,8 @@ from predictmodule.container import InstanceMonitorContainer
 from gevent.pool import Group
 from share import log
 from predictmodule import exceptions
+from predictmodule import config as cf
+from predictmodule.cache import fscache
 
 logger = log.get_log(__name__)
 
@@ -17,13 +19,24 @@ def create_container(instance_meta):
     return container
 
 
+def cache_predict(container, mean_val, max_val):
+    tmpl = cf.cache_predict_tmpl
+    path = tmpl.format(instance_id=container.instance_id, \
+                       metric=container._instance_meta['metric'])
+    value = {
+        'mean_val': mean_val,
+        'max_val': max_val,
+    }
+    fscache.cache_data(path, value)
+
+
 def predict_container(container):
     # return container, 1
     try:
-        vals, success = container.predict()
+        val_dict, success = container.predict()
         if success:
-            max_val = vals[0]
-            mean_val = vals[1]
+            max_val = val_dict['max_val']
+            mean_val = val_dict['mean_val']
             return container, max_val, mean_val, True
         else:
             return container, None, None, False
@@ -150,9 +163,9 @@ class PredictManager(threading.Thread):
         run_list = self._run_list.get_list()
         group = Group()
         for container, max_val, mean_val, success in group.imap(predict_container, run_list):
-            pass
-            # print('predict %s val %s : %s  %s' %
-            #       (container, max_val, mean_val, success))
+            # cache predict
+            cache_predict(container, mean_val, max_val)
+            # xu ly scale
         del run_list
 
     def _check_update_model(self):
@@ -210,6 +223,7 @@ class PredictManager(threading.Thread):
 
     def stop_container(self, instance_id, metric):
         self._get_instance(instance_id, metric)
+
     def add_container(self, instance_meta):
         try:
             container = instance_meta
@@ -298,6 +312,7 @@ class PredictManager(threading.Thread):
 
         logger.info('Patch instance error %s' %
                     (upthread.get_container().instance_id))
+
     # utils func
     def _get_instance_from_list(self, instance_id, metric, flist):
         c = next((w for w in flist if w.instance_id ==

@@ -32,15 +32,15 @@ def enable_group_action(backend, user_id, id):
 
 
 def disable_group_action(backend, user_id, id):
-    group = backend.get_group(user_id, id)
-    if not group.enable:
-        raise falcon.HTTPBadRequest(
-            'Group currently is disable, can\'t disable again')
-    else:
-        group_dict = {
-            'enable': False,
-        }
-        backend.update_groups(user_id, id, group_dict)
+    # group = backend.get_group(user_id, id)
+    # if not group.enable:
+    #     raise falcon.HTTPBadRequest(
+    #         'Group currently is disable, can\'t disable again')
+    # else:
+    group_dict = {
+        'enable': False,
+    }
+    backend.update_groups(user_id, id, group_dict)
 
 
 def _get_instance_metas(user_id, group_id, params=None):
@@ -79,6 +79,7 @@ def stop_group(user_id, group_id):
     instances = backend.get_instances_in_group(user_id, group_id)
     for inst in instances:
         api.stop_instances(inst.instance_id)
+    disable_group_action(backend, user_id, group_id)
 
 
 def filter_container_success(instance_ids):
@@ -93,3 +94,6 @@ def update_group_instance(user_id, group_id, new_list, remove_list):
     for id in remove_list:
         api.stop_instances(id)
 
+
+def get_last_predict(instance_id, metric):
+    return api.get_last_predict(instance_id, metric)

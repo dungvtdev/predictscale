@@ -36,7 +36,7 @@ class GroupActionResource(object):
     db_backend = DBBackend.default()
 
     post_map = ['run_group', 'stop_group', ]
-    get_map = ['poll_process_data', 'data_length', ]
+    get_map = ['poll_process_data', 'data_length', 'get_last_predict', ]
 
     def on_post(self, req, resp, user_id, id, action):
         if action in self.post_map:
@@ -101,9 +101,27 @@ class GroupActionResource(object):
             'process': result
         }
 
-        def _data_length_action(elf, req, resp, user_id, id):
-            insts = self.db_backend.get_instances_in_group(user_id, id)
+    def _data_length_action(self, req, resp, user_id, id):
+        insts = self.db_backend.get_instances_in_group(user_id, id)
 
+    def _get_last_predict_action(self, req, resp, user_id, id):
+        group = self.db_backend.get_group(user_id, id)
+        insts = self.db_backend.get_instances_in_group(user_id, id)
+        metric = 'cpu_usage_total'
+        rl = []
+        if insts is not None:
+            for inst in insts:
+                d = action.get_last_predict(inst.instance_id, metric)
+                d = d or {}
+                rl.append({
+                    'instance_id': inst.instance_id,
+                    'length': group.get('periodic_number', None),
+                    'mean_val': d.get('mean_val', 0),
+                    'max_val': d.get('max_val', 0)
+                })
+        req.context['result'] = {
+            'predict': rl
+        }
 
 routes = [
     ('/users/{user_id}/groups/{id}/{action}', GroupActionResource())

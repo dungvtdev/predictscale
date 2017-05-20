@@ -1,6 +1,6 @@
 from .manager import PredictManager
 from . import config
-
+from predictmodule.cache import fscache
 
 metric_default = 'cpu_usage_total'
 
@@ -51,3 +51,9 @@ def filter_container_success(instance_ids):
 def is_instance_in(instance_id, metric=None):
     manager = PredictManager.default()
     return manager.is_instance_in(instance_id)
+
+def get_last_predict(instance_id, metric):
+    key = config.cache_predict_tmpl.format(instance_id=instance_id, \
+                                           metric=metric)
+    data = fscache.get_cached_data(key)
+    return data

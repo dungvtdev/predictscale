@@ -114,14 +114,14 @@ class Client(object):
         r = self.request_get(url)
         return r.text
 
-    def enable_group(self, id):
-        addr_tmpl = '/v1/users/{user_id}/groups/{id}/actions/enable'
-        url = self.get_url(addr_tmpl, id=id)
-        r, ok = self.request_post(url)
-        return ok
+    # def enable_group(self, id):
+    #     addr_tmpl = '/v1/users/{user_id}/groups/{id}/actions/enable'
+    #     url = self.get_url(addr_tmpl, id=id)
+    #     r, ok = self.request_post(url)
+    #     return ok
 
     def disable_group(self, id):
-        addr_tmpl = '/v1/users/{user_id}/groups/{id}/actions/disable'
+        addr_tmpl = '/v1/users/{user_id}/groups/{id}/stop_group'
         url = self.get_url(addr_tmpl, id=id)
         r, ok = self.request_post(url)
         return ok
@@ -146,6 +146,13 @@ class Client(object):
 
     def poll_process_data(self, id):
         addr_tmpl = '/v1/users/{user_id}/groups/{id}/poll_process_data'
+        url = self.get_url(addr_tmpl, id=id)
+        r, ok = self.request_get(url)
+        if ok:
+            return json.loads(r.text)
+
+    def get_last_predict(self, id):
+        addr_tmpl = '/v1/users/{user_id}/groups/{id}/get_last_predict'
         url = self.get_url(addr_tmpl, id=id)
         r, ok = self.request_get(url)
         if ok:

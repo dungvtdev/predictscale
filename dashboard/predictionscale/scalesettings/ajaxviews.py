@@ -42,3 +42,7 @@ def run_containers(request, id):
 def poll_process_data(request, id):
     data = utils.poll_process_data(request, id)
     return JsonResponse(data)
+
+def get_last_predict(request, id):
+    data = utils.get_last_predict(request, id)
+    return JsonResponse(data)

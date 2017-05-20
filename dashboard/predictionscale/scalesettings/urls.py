@@ -29,5 +29,7 @@ urlpatterns = [
     url(r'^ajax/groups/(?P<id>[^/]+)/run/$',
         ajaxviews.run_containers, name='run_containers'),
     url(r'^ajax/groups/(?P<id>[^/]+)/poll_process_data/$',
-        ajaxviews.poll_process_data, name='poll_process_data')
+        ajaxviews.poll_process_data, name='poll_process_data'),
+    url(r'^ajax/groups/(?P<id>[^/]+)/get_last_predict/$',
+        ajaxviews.get_last_predict, name='get_last_predict')
 ]

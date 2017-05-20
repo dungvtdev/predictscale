@@ -226,9 +226,9 @@ class InstanceMonitorContainer(object):
         # cache data
         datacache.cache_data_forever(data_meta)
 
-        from predictmodule.test_bed import cache_test
-        cache_test.cache_training(
-            self._instance_meta['instance_id'], data_meta.data)
+        # from predictmodule.test_bed import cache_test
+        # cache_test.cache_training(
+        #     self._instance_meta['instance_id'], data_meta.data)
 
         # generate series
         cat_idx = len(data_meta.data) - period
@@ -251,8 +251,8 @@ class InstanceMonitorContainer(object):
         try:
             data, last = self.fetch.get_short_data_as_list(
                 self._last_time_real)
-            from predictmodule.test_bed import cache_test
-            cache_test.cache_real(self._instance_meta['instance_id'], data)
+            # from predictmodule.test_bed import cache_test
+            # cache_test.cache_real(self._instance_meta['instance_id'], data)
         except Exception as e:
             # print(e.message)
             return None, False
@@ -268,28 +268,27 @@ class InstanceMonitorContainer(object):
     def predict_value_future(self):
         predict_length = self._instance_meta['predict_length']
         wnd = []
-        data = (0, 0, 0)
         for i in range(predict_length):
             input_data = self.feeder.generate_extend(data=self.series.data,
-                                                     extend=wnd, normalize=True)
-            val = self._predict(input_data)
+                                                     extend=wnd)
+            normalize_input = self.feeder._normalize(input_data)
+            val = self._predict(normalize_input)
             if val:
-                wnd.append(val[0][0])
-
-            data[0] = val
+                unnormalize_val = self.feeder._unnormalize(val[0][0])
+                wnd.append(unnormalize_val)
 
         mean_val = sum(wnd) / len(wnd)
-        mean_val = self.feeder._unnormalize(mean_val)
-        max_val = self.feeder._unnormalize(max(wnd))
+        max_val = max(wnd)
 
-        data[1] = mean_val
-        data[2] = max_val
         from predictmodule.test_bed import cache_test
-        cache_test.cache(
-            self._instance_meta['instance_id'], (val, mean_val, max_val,))
+        # cache_test.cache(
+        #     self._instance_meta['instance_id'], (val, mean_val, max_val,))
 
         # unormalize
-        return max_val, mean_val
+        return {
+            'mean_val': mean_val,
+            'max_val': max_val
+        }
 
     # def get_status(self):
     #     return {

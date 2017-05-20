@@ -30,3 +30,6 @@ def run_group(request, id, params):
 
 def poll_process_data(request, id):
     return client(request).poll_process_data(id)
+
+def get_last_predict(request, id):
+    return client(request).get_last_predict(id)

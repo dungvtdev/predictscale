@@ -1,5 +1,7 @@
 {% extends 'predictionscale/scalesettings/index.html' %} {% block step_content %}
-<div id="group-control" class="col-md-6 col-md-offset-3 apply-parent" data-url="{% url 'horizon:predictionscale:scalesettings:poll_process_data' id=group.id %}">
+<div id="group-control" class="col-md-6 col-md-offset-3 apply-parent"
+     data-url="{% url 'horizon:predictionscale:scalesettings:poll_process_data' id=group.id %}"
+     data-url-predict="{% url 'horizon:predictionscale:scalesettings:get_last_predict' id=group.id%}">
     {% for inst in instances %}
     <div class="instance-process" data-id={{ inst.id }}>
         <p>{{ inst.name }}</p>
@@ -9,6 +11,8 @@
         </div>
         <p>State</p>
         <p class="instance-status"></p>
+        <p>Predict CPU Usage</p>
+        <p class="instance-predict"></p>
     </div>
     {% endfor %}
 

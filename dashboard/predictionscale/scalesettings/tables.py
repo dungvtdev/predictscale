@@ -59,6 +59,7 @@ class DetailGroup(tables.LinkAction):
     name = "update"
     verbose_name = _("Group Detail")
     url = "horizon:predictionscale:scalesettings:step3"
+
     # icon = "pencil"
 
     def get_link_url(self, group):
@@ -81,6 +82,20 @@ class EnableGroup(tables.LinkAction):
 
     def allowed(self, request, group):
         can = (group is None) or not group.enable
+        return can
+
+
+class RebuildGroup(tables.LinkAction):
+    name = "rebuild"
+    verbose_name = _("Rebuild Group")
+    url = "horizon:predictionscale:scalesettings:step2"
+
+    def get_link_url(self, group):
+        url = reverse(self.url, args=[group.id])
+        return url
+
+    def allowed(self, request, group):
+        can = (group is not None) and group.enable
         return can
 
 
@@ -149,5 +164,5 @@ class ScaleGroupTable(tables.DataTable):
     class Meta(object):
         name = 'scalegroups'
         verbose_name = _("Scale Groups")
-        table_actions = (AddGroup, DeleteGroup, )
-        row_actions = (EnableGroup, DetailGroup, DisableGroup, UpdateGroup, )
+        table_actions = (AddGroup, DeleteGroup,)
+        row_actions = (EnableGroup, DetailGroup, RebuildGroup, DisableGroup, UpdateGroup,)

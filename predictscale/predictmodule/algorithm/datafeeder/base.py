@@ -75,7 +75,7 @@ class BaseFeeder():
                 data[i] = data[i] * (self._max - self._min) + self._min
             return data
 
-    def generate_extend(self, data, extend, normalize=False):
+    def generate_extend(self, data, extend):
         idxs = list(range(0, self.n_input))
         for m in range(1, self.n_periodic + 1):
             idxs.append(m * self.period)
@@ -87,8 +87,6 @@ class BaseFeeder():
                 rl.append(data[n_d - (idx - n_ex) - 1])
             else:
                 rl.append(extend[-idx - 1])
-        if normalize:
-            rl = self._normalize(rl)
         return rl
 
     def fetch_training(self, n_input=None, n_periodic=None, period=None):

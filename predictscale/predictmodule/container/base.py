@@ -58,13 +58,16 @@ class InstanceMonitorContainer(object):
         self.metric = kwargs.get('metric', None)
         self.setup(instance_meta)
 
+    def set_scalemanager(self, scalemanager):
+        self.scalemanager = scalemanager
+
     def get_last_real_val(self):
         if self.series:
             return self.series.get_last()
 
     def equal(self, other):
         return self.instance_id == other.instance_id or \
-            self.metric == other.metric
+               self.metric == other.metric
 
     def version_exceed(self, other):
         return self.equal(other) and self._version > other._version
@@ -129,7 +132,7 @@ class InstanceMonitorContainer(object):
         if self._last_train is None:
             return False
         return self._last_time_real >= \
-            update_in_time + self._last_train
+               update_in_time + self._last_train
 
     def get_data_info_string(self, data_meta=None):
         if data_meta is None:
@@ -184,8 +187,8 @@ class InstanceMonitorContainer(object):
         nc._last_time_real = self._last_time_real
         # update lai need time trong truong hop dang cho
         nc._need_time = self._need_time + \
-            (nc._instance_meta['data_length'] -
-             self._instance_meta['data_length'])
+                        (nc._instance_meta['data_length'] -
+                         self._instance_meta['data_length'])
         nc._last_train = self._last_train
 
         nc.fetch = self.fetch

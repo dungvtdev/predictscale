@@ -222,6 +222,19 @@ class DBBackend(object):
         finally:
             self._close_localsession()
 
+    def get_group_by_group_id(self, group_id):
+        group_default = self.group_pattern
+        ss = self._get_localsession()
+        try:
+            group = ss.query(models.Group) \
+                .filter(models.Group.group_id == group_id).one()
+            group = _wrap_default_group_object(group, group_default)
+            return group.to_dict()
+        except Exception:
+            print('get data error')
+        finally:
+            self._close_localsession()
+
     def get_instance(self, user_id, instance_id):
         ss = self._get_localsession()
 
@@ -230,6 +243,50 @@ class DBBackend(object):
             .filter(models.Instance.user_id == user_id).one()
         return inst.to_dict()
 
+        self._close_localsession()
+
+    def get_groupid_of_instance(self, instance_id):
+        ss = self._get_localsession()
+        inst = ss.query(models.Instance) \
+            .filter(models.Instance.instance_id == instance_id).one()
+        group_id = inst.group.group_id
+        self._close_localsession()
+        return group_id
+
+    def get_group_user_data_by_groupid(self, group_id):
+        ss = self._get_localsession()
+        group = ss.query(models.Group) \
+            .filter(models.Group.group_id == group_id).one()
+        self._close_localsession()
+        return group.script_data
+
+    def add_scaled_instance(self, instance_id, group_id):
+        ss = self._get_localsession()
+        try:
+            inst = ss.query(models.ScaledInstance) \
+                .filter(models.ScaledInstance.instance_id == instance_id).one()
+        except Exception as e:
+            inst = models.ScaledInstance(instance_id=instance_id,\
+                                         group_id=group_id)
+        ss.add(inst)
+        ss.commit()
+        self._close_localsession()
+
+    def get_scaled_instances_by_groupid(self, group_id):
+        ss = self._get_localsession()
+        try:
+            insts = ss.query(models.ScaledInstance) \
+                .filter(models.ScaledInstance.group_id == group_id).all()
+            return insts
+        except Exception as e:
+            return None
+        finally:
+            self._close_localsession()
+
+    def remove_scaled_instance(self, instance):
+        ss = self._get_localsession()
+        ss.remove(instance)
+        ss.commit()
         self._close_localsession()
 
     def get_instance_meta_from_db(self, user_id, instance_id,

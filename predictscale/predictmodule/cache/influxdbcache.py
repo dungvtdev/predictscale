@@ -32,6 +32,12 @@ class InfluxdbCache():
         data = '\n'.join([real_s, mean_s, max_s, ])
         self.write(data)
 
+    def cache_point(self, minute, instance_id, value, name):
+        t = minute * 60 * 1000000000
+        tmpl = '{name},id="{id}" value={value} {time}'
+        s = tmpl.format(name=name, id=instance_id, value=value, time=t)
+        self.write(s)
+
     def create_database(self):
         url = "http://{endpoint}:8086/query?q=CREATE DATABASE {db_name}"
         url = url.format(endpoint=self.endpoint, db_name=self.db_name)

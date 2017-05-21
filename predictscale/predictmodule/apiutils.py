@@ -55,5 +55,10 @@ def is_instance_in(instance_id, metric=None):
 def get_last_predict(instance_id, metric):
     key = config.cache_predict_tmpl.format(instance_id=instance_id, \
                                            metric=metric)
-    data = fscache.get_cached_data(key)
-    return data
+    manager = PredictManager.default()
+    container, state = manager._get_instance(instance_id, metric)
+    if container is not None and state == 'running':
+        data = fscache.get_cached_data(key)
+        return data
+    else:
+        return None

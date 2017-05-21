@@ -10,16 +10,32 @@ from predictmodule.cache import fscache, influxdbcache
 logger = log.get_log(__name__)
 
 
+def check_scale(container, mean_val, max_val):
+    scale = container.scalemanager.check_scale(mean_val, max_val)
+    metric = None
+    if scale == 'up':
+        metric = 'up'
+    elif scale == 'down':
+        metric = 'down'
+    if metric is not None:
+        time = container._last_time_real
+        influxdbcache.InfluxdbCache.default().cache_point(time, \
+                                                          container.instance_id, mean_val, "scale_%s" % metric)
+
+
 def create_container(instance_meta):
     instance_id = instance_meta['instance_id']
     metric = instance_meta['metric']
     container = InstanceMonitorContainer(instance_meta,
                                          instance_id=instance_id,
                                          metric=metric)
+    from openstackclient import scalemanager
+    scale_manager = scalemanager.ScaleManager(container)
+    container.set_scalemanager(scale_manager)
     return container
 
 
-def cache_state(container, max_val, mean_val):
+def cache_state(container, mean_val, max_val):
     predict_length = container._instance_meta['predict_length']
     time = container._last_time_real
     instance_id = container.instance_id
@@ -176,7 +192,8 @@ class PredictManager(threading.Thread):
         for container, max_val, mean_val, success in group.imap(predict_container, run_list):
             # cache predict
             cache_predict(container, mean_val, max_val)
-            cache_state(container, max_val, mean_val)
+            cache_state(container, mean_val, max_val)
+            check_scale(container, mean_val, max_val)
             # xu ly scale
         del run_list
 

@@ -116,7 +116,7 @@ class Instance(Base):
     endpoint = Column(String(20))
     monitor = Column(Boolean)
     db_name = Column(String(20))
-    
+
     group_id = Column(Integer, ForeignKey('group.group_id'))
 
     def __repr__(self):
@@ -132,3 +132,15 @@ class Instance(Base):
             'db_name': self.db_name,
             'group_id': self.group_id,
         }
+
+
+class ScaledInstance(Base):
+    __tablename__ = 'scaledInstance'
+
+    id = Column(Integer, primary_key=True)
+    instance_id = Column(String(250), nullable=False, unique=True)
+    group_id = Column(Integer, ForeignKey('group.group_id'))
+
+    def __repr__(self):
+        return "<Instance(instance_id='%s', group_id='%s')>" \
+               % (self.instance_id, self.group_id)

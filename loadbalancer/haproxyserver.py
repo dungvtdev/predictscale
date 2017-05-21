@@ -77,6 +77,7 @@ def test():
 
 def HandleResource():
     def on_post(self, req, resp):
+        print(req.host)
         body = req.stream.read()
         data = json.loads(body['servers'])
 

@@ -116,8 +116,8 @@ class GroupActionResource(object):
                 rl.append({
                     'instance_id': inst.instance_id,
                     'length': group.get('periodic_number', None),
-                    'mean_val': d.get('mean_val', 0),
-                    'max_val': d.get('max_val', 0)
+                    'mean_val': d.get('mean_val', None),
+                    'max_val': d.get('max_val', None)
                 })
         req.context['result'] = {
             'predict': rl

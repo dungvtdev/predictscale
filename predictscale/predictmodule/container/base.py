@@ -58,6 +58,10 @@ class InstanceMonitorContainer(object):
         self.metric = kwargs.get('metric', None)
         self.setup(instance_meta)
 
+    def get_last_real_val(self):
+        if self.series:
+            return self.series.get_last()
+
     def equal(self, other):
         return self.instance_id == other.instance_id or \
             self.metric == other.metric

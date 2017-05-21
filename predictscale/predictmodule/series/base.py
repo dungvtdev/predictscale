@@ -52,8 +52,12 @@ class Series(object):
         self.data = new
         return pop
 
-    def get_values(self, indices):
-        rl = [self.data.iloc(i) for i in indices]
+    # def get_values(self, indices):
+    #     rl = [self.data.iloc[i] for i in indices]
+    #     return rl
+
+    def get_last(self):
+        rl = self.data.iloc[-1]
         return rl
 
 

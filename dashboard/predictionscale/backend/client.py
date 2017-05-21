@@ -157,3 +157,10 @@ class Client(object):
         r, ok = self.request_get(url)
         if ok:
             return json.loads(r.text)
+
+    def get_report_data(self, instance_id):
+        addr_tmpl = '/v1/users/{user_id}/instances/{id}/get_report_data'
+        url = self.get_url(addr_tmpl, id=instance_id)
+        r, ok = self.request_get(url)
+        if ok:
+            return json.loads(r.text)

@@ -5,7 +5,7 @@ from gevent.pool import Group
 from share import log
 from predictmodule import exceptions
 from predictmodule import config as cf
-from predictmodule.cache import fscache
+from predictmodule.cache import fscache, influxdbcache
 
 logger = log.get_log(__name__)
 
@@ -17,6 +17,17 @@ def create_container(instance_meta):
                                          instance_id=instance_id,
                                          metric=metric)
     return container
+
+
+def cache_state(container, max_val, mean_val):
+    predict_length = container._instance_meta['predict_length']
+    time = container._last_time_real
+    instance_id = container.instance_id
+    metric = container.metric
+    real_val = container.get_last_real_val()
+    influxdbcache.InfluxdbCache.default().cache(time, predict_length, \
+                                                instance_id, metric,
+                                                mean_val, max_val, real_val)
 
 
 def cache_predict(container, mean_val, max_val):
@@ -165,6 +176,7 @@ class PredictManager(threading.Thread):
         for container, max_val, mean_val, success in group.imap(predict_container, run_list):
             # cache predict
             cache_predict(container, mean_val, max_val)
+            cache_state(container, max_val, mean_val)
             # xu ly scale
         del run_list
 

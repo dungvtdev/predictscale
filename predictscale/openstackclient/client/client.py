@@ -56,12 +56,13 @@ class OSClient(object):
         return server
 
     def create(self, image_id, flavor_id,
-               network_id, name=None, number=1, **kargs):
+               network_id, name=None, user_data=None, **kargs):
         server = self.client.servers.create(
             name=name,
             image=image_id,
             flavor=flavor_id,
-            nics=[{'net-id': network_id}]
+            nics=[{'net-id': network_id},],
+            user_data=user_data
         )
         return server
 
@@ -84,13 +85,14 @@ class OSClient(object):
         return True
 
     def create_new_instance(self, name, image_id, flavor_id, net_selfservice_id,
-                            provider_name, time_out=None):
+                            provider_name, user_data=None, time_out=None):
         try:
             # create new instance
             server = self.create(image_id=image_id,
                                  flavor_id=flavor_id,
                                  network_id=net_selfservice_id,
-                                 name=name)
+                                 name=name,
+                                 user_data=user_data)
             timeout = time_out or 20
             while(timeout >= 0):
                 time.sleep(1)

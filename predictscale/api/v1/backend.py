@@ -66,12 +66,14 @@ class DBBackend(object):
         flavor = group_dict.get('flavor', None)
         selfservice = group_dict.get('selfservice', None)
         provider = group_dict.get('provider', None)
+        script_data = group_dict.get('script_data', None)
 
         group.desc = desc or group.desc
         group.image = image or group.image
         group.flavor = flavor or group.flavor
         group.selfservice = selfservice or group.selfservice
         group.provider = provider or group.provider
+        group.script_data = script_data or group.script_data
 
     def _update_group_instance(self, user_id, group, group_dict, session):
         instances = group_dict.get('instances', None)

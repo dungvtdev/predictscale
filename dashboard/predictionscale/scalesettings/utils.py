@@ -33,3 +33,6 @@ def poll_process_data(request, id):
 
 def get_last_predict(request, id):
     return client(request).get_last_predict(id)
+
+def get_report_data(request, instance_id):
+    return client(request).get_report_data(instance_id)

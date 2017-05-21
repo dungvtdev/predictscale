@@ -38,7 +38,7 @@ $(document).ready(function () {
                     data = data['predict']
                     for (var i = 0; i < data.length; i++) {
                         var d = data[i];
-                        t = 'Mean: ' + toFixed(d.mean_val, 2) + '%, Max: ' + toFixed(d.max_val, 2) + '% in ' + d.length + ' minute';
+                        t = 'Mean: ' + toFixed(d.mean_val*100, 2) + '%, Max: ' + toFixed(d.max_val*100, 2) + '% in ' + d.length + ' minute';
                         var textPredict = $('.instance-process[data-id=' + d.instance_id + '] .instance-predict');
                         textPredict.text(t);
                     }

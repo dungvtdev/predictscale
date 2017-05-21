@@ -3,6 +3,7 @@ from horizon import workflows
 from horizon import forms
 from openstack_dashboard import api
 from horizon import exceptions
+from django.utils.text import normalize_newlines
 
 from .utils import create_group, update_group
 from openstack_dashboard.dashboards.predictionscale.backend.models \
@@ -38,9 +39,15 @@ class AddGroupInfoAction(workflows.Action):
     selfservice = forms.ChoiceField(label='Network')
     provider = forms.ChoiceField(label='Network Provider')
 
+    script_data = forms.CharField(
+        label=_('Script Data'),
+        help_text="",
+        widget=forms.widgets.Textarea(),
+        required=False)
+
     def populate_image_choices(self, request, context):
         try:
-            images, _, _ = \
+            images, m, m = \
                 api.glance.image_list_detailed(self.request)
         except Exception:
             images = []
@@ -109,7 +116,35 @@ class AddGroupInfoAction(workflows.Action):
                         _('The ID "%s" is already used by another group.')
                         % group_id
                     )
+
+        cleaned_data['script_data'] = normalize_newlines(cleaned_data['script_data'])
+        # files = self.request.FILES
+        # script = self.clean_uploaded_files('script', files)
+        #
+        # if script is not None:
+        #     cleaned_data['script_data'] = script
+
         return cleaned_data
+
+    # def clean_uploaded_files(self, prefix, files):
+    #     upload_str = prefix + "_upload"
+    #
+    #     has_upload = upload_str in files
+    #     if has_upload:
+    #         upload_file = files[upload_str]
+    #         script = upload_file.read()
+    #         if script != "":
+    #             try:
+    #                 normalize_newlines(script)
+    #             except Exception as e:
+    #                 msg = _('There was a problem parsing the'
+    #                         ' %(prefix)s: %(error)s')
+    #                 msg = msg % {'prefix': prefix,
+    #                              'error': str(e)}
+    #                 raise forms.ValidationError(msg)
+    #             return script
+    #
+    #     return None
 
     class Meta(object):
         name = _("Group Information")
@@ -122,7 +157,10 @@ class AddGroupInfo(workflows.Step):
                    "name",
                    "desc",
                    "image",
-                   "flavor")
+                   "flavor",
+                   "selfservice",
+                   "provider",
+                   "script_data")
 
 
 class UpdateGroupInstancesAction(workflows.MembershipAction):
@@ -267,6 +305,16 @@ class UpdateGroupInfoAction(AddGroupInfoAction):
                     raise forms.ValidationError(
                         _('The name "%s" is already used by another '
                           'group.') % name)
+
+        self.cleaned_data['script_data'] = \
+            normalize_newlines(self.cleaned_data['script_data'])
+
+        # files = self.request.FILES
+        # script = self.clean_uploaded_files('script', files)
+        #
+        # if script is not None:
+        #     self.cleaned_data['script_data'] = script
+
         return self.cleaned_data
 
 
@@ -276,7 +324,10 @@ class UpdateGroupInfo(workflows.Step):
     contributes = ("name",
                    "desc",
                    "image",
-                   "flavor")
+                   "flavor",
+                   "selfservice",
+                   "provider",
+                   "script_data")
 
 
 class UpdateGroup(workflows.Workflow):
@@ -303,7 +354,7 @@ class UpdateGroup(workflows.Workflow):
 
         try:
             group = GroupData.create(data)
-            id = group.group_id # cai nay trick, la id chu khong phai group_id, duoc lay tu url
+            id = group.group_id  # cai nay trick, la id chu khong phai group_id, duoc lay tu url
             ok = update_group(request, group, id)
             return ok
         except:

@@ -24,3 +24,18 @@ cache_temp_expire = 3600
 chunk_series_length_bias = 20
 
 cache_predict_tmpl = 'inst:{instance_id}:{metric}:predict'
+
+user_data_init = (
+    '#!/bin/bash',
+    'SERVER_IP={server_ip}'
+)
+user_data_init = '\n'.join(user_data_init)
+
+influx_cache_config = {
+    'endpoint':'localhost',
+    'db_name': 'predict_result'
+}
+
+scale_settings = {
+    'minute_duration': 15,
+}

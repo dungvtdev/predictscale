@@ -11,3 +11,7 @@ DB = {
     'engine': 'sqlite:///db.sqlite',
     'debug': True,
 }
+
+LOADBALANCER = {
+    'load'
+}

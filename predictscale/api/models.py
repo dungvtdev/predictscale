@@ -1,6 +1,6 @@
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, ForeignKey, String, \
-    Integer, Boolean, DateTime
+    Integer, Boolean, DateTime, Text
 from sqlalchemy.orm import relationship
 import datetime
 
@@ -48,6 +48,7 @@ class Group(Base):
     flavor = Column(String(250))
     selfservice = Column(String(250))
     provider = Column(String(250))
+    script_data = Column(Text)
     enable = Column(Boolean, default=False)
     created = Column(DateTime, default=datetime.datetime.utcnow)
 
@@ -115,7 +116,7 @@ class Instance(Base):
     endpoint = Column(String(20))
     monitor = Column(Boolean)
     db_name = Column(String(20))
-
+    
     group_id = Column(Integer, ForeignKey('group.group_id'))
 
     def __repr__(self):

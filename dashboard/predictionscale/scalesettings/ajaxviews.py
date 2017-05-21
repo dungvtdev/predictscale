@@ -46,3 +46,7 @@ def poll_process_data(request, id):
 def get_last_predict(request, id):
     data = utils.get_last_predict(request, id)
     return JsonResponse(data)
+
+def get_report_data(request, id):
+    data = utils.get_report_data(request, id)
+    return JsonResponse(data)

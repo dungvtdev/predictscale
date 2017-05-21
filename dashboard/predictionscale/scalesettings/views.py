@@ -208,3 +208,17 @@ class Step3View(views.APIView):
         #     def get_data(self, request, context, *args, **kwargs):
         #         # Add data to the context here...
         #         return context
+
+
+class ReportView(views.APIView):
+    template_name = 'predictionscale/scalesettings/report.html'
+
+    def get_data(self, request, context, *args, **kwargs):
+        context = super(ReportView, self).get_context_data(**kwargs)
+        id = kwargs['id']
+        name = 'test'
+        context['inst'] = {
+            'id': id,
+            'name': name,
+        }
+        return context

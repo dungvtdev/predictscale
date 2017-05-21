@@ -13,6 +13,9 @@
         <p class="instance-status"></p>
         <p>Predict CPU Usage</p>
         <p class="instance-predict"></p>
+        <div class="btn-group">
+            <a class="btn btn-primary" href="{% url 'horizon:predictionscale:scalesettings:report_data' id=inst.id %}">Report</a>
+        </div>
     </div>
     {% endfor %}
 

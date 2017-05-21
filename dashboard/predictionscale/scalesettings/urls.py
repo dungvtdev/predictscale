@@ -31,5 +31,7 @@ urlpatterns = [
     url(r'^ajax/groups/(?P<id>[^/]+)/poll_process_data/$',
         ajaxviews.poll_process_data, name='poll_process_data'),
     url(r'^ajax/groups/(?P<id>[^/]+)/get_last_predict/$',
-        ajaxviews.get_last_predict, name='get_last_predict')
+        ajaxviews.get_last_predict, name='get_last_predict'),
+    url(r'^instances/(?P<id>[^/]+)/report_data/$', views.ReportView.as_view(), name='report_data'),
+    url(r'^ajax/instances/(?P<id>[^/]+)/get_report_data/$', ajaxviews.get_report_data, name='get_report_data')
 ]

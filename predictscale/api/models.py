@@ -104,7 +104,8 @@ class Group(Base):
             'periodic_number': self.periodic_number,
             'predict_length': self.predict_length,
             'update_in_time': self.update_in_time,
-            'neural_size': self.neural_size}
+            'neural_size': self.neural_size,
+            'script_data':self.script_data}
 
 
 class Instance(Base):

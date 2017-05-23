@@ -68,12 +68,13 @@ $(document).ready(function () {
         data = data['process']
         next_secs = 30;
         for (var i = 0; i < data.length; i++) {
-            var d = data[i]
+            var d = data[i] 
             pbar = $('.instance-process[data-id=' + d.instance_id + '] .progress-bar')
             lstatus = $('.instance-process[data-id=' + d.instance_id + '] .instance-status')
             lmsg = $('.instance-process[data-id=' + d.instance_id + '] .instance-message')
 
             pbar.css('width', d.process + '%')
+            pbar.text(d.process + " %")
             lstatus.text(d.status)
             lmsg.text(d.message)
 

@@ -317,6 +317,11 @@ class UpdateGroupInfoAction(AddGroupInfoAction):
 
         return self.cleaned_data
 
+    class Meta(object):
+        name = _("Group Information")
+        help_text = _("Group define name, description, image, flavor")
+
+
 
 class UpdateGroupInfo(workflows.Step):
     action_class = UpdateGroupInfoAction

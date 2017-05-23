@@ -60,6 +60,21 @@ class DBBackend(object):
     #             if attr in self.default_vals and getattr(g, attr) is None:
     #                 setattr(g, attr, self.default_vals[attr])
 
+    def update_group_params(self, id, group_dict):
+        ss = self._get_localsession()
+        try:
+            group = ss.query(models.Group) \
+                .filter(models.Group.id == id).one()
+            mmap = ['period', 'data_length', 'recent_point', 'periodic_number', \
+                    'predict_length', 'update_in_time', 'neural_size']
+            for k in mmap:
+                setattr(group, k, group_dict.get(k, getattr(group, k)))
+            ss.commit()
+        except Exception as e:
+            print('update group error, id = %s' % id)
+        finally:
+            self._close_localsession()
+
     def _update_group_object(self, group, group_dict, session):
         desc = group_dict.get('desc', None)
         image = group_dict.get('image', None)
@@ -266,7 +281,7 @@ class DBBackend(object):
             inst = ss.query(models.ScaledInstance) \
                 .filter(models.ScaledInstance.instance_id == instance_id).one()
         except Exception as e:
-            inst = models.ScaledInstance(instance_id=instance_id,\
+            inst = models.ScaledInstance(instance_id=instance_id, \
                                          group_id=group_id)
         ss.add(inst)
         ss.commit()

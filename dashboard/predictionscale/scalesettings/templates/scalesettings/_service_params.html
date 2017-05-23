@@ -2,84 +2,85 @@
     <li class="active"><a href="#common" data-toggle="tab">Common</a></li>
     <li class=""><a href="#advance" data-toggle="tab">Advances</a></li>
     <li class=""><a href="#setting" data-toggle="tab">Setting</a></li>
-{#    <li class=""><a href="#data" data-toggle="tab">Data</a></li>#}
+    {#    <li class=""><a href="#data" data-toggle="tab">Data</a></li>#}
 </ul>
 
-<form id="settingForm" class="form-horizontal" action="{% url 'horizon:predictionscale:scalesettings:run_containers' id=group.id %}" method="POST">
+<form id="settingForm" class="form-horizontal"
+      action="{% url 'horizon:predictionscale:scalesettings:run_containers' id=group.id %}" method="POST">
     {% csrf_token %}
     <div class="tab-content">
         <div class="tab-pane active" id="common">
             <div class="form-group">
-                <label class="col-xs-3 control-label">Period</label>
-                <div class="col-xs-5">
-                    <input type="number" class="form-control" name="period" />
+                <label class="col-xs-6 control-label">Period (minute)</label>
+                <div class="col-xs-6">
+                    <input type="number" class="form-control" name="period"/>
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="col-xs-3 control-label">Data Length</label>
-                <div class="col-xs-5">
-                    <input type="number" class="form-control" name="dataLength" />
+                <label class="col-xs-6 control-label">Data Length (minute)</label>
+                <div class="col-xs-6">
+                    <input type="number" class="form-control" name="dataLength"/>
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="col-xs-3 control-label">Recent Point</label>
-                <div class="col-xs-5">
-                    <input type="number" class="form-control" name="recentPoint" />
+                <label class="col-xs-6 control-label">Recent Point</label>
+                <div class="col-xs-6">
+                    <input type="number" class="form-control" name="recentPoint"/>
                 </div>
             </div>
 
             <div class="form-group">
-                <label class="col-xs-3 control-label">Periodic Number</label>
-                <div class="col-xs-5">
-                    <input type="number" class="form-control" name="periodicNumber" />
+                <label class="col-xs-6 control-label">Periodic Number</label>
+                <div class="col-xs-6">
+                    <input type="number" class="form-control" name="periodicNumber"/>
                 </div>
             </div>
         </div>
 
         <div class="tab-pane" id="advance">
             <div class="form-group">
-                <label class="col-xs-3 control-label">Neural Size</label>
-                <div class="col-xs-5">
-                    <input type="number" class="form-control" name="neuralSize" />
+                <label class="col-xs-6 control-label">Neural Size</label>
+                <div class="col-xs-6">
+                    <input type="number" class="form-control" name="neuralSize"/>
                 </div>
             </div>
         </div>
 
         <div class="tab-pane" id="setting">
             <div class="form-group">
-                <label class="col-xs-3 control-label">Predic length</label>
-                <div class="col-xs-5">
-                    <input type="number" class="form-control" name="predictLength" />
+                <label class="col-xs-6 control-label">Predic length (minute)</label>
+                <div class="col-xs-6">
+                    <input type="number" class="form-control" name="predictLength"/>
                 </div>
             </div>
             <div class="form-group">
-                <label class="col-xs-3 control-label">Update In Period</label>
-                <div class="col-xs-5">
-                    <input type="number" class="form-control" name="updateInTime" />
+                <label class="col-xs-6 control-label">Update In Time (minute)</label>
+                <div class="col-xs-6">
+                    <input type="number" class="form-control" name="updateInTime"/>
                 </div>
             </div>
         </div>
 
-{#        <div class="tab-pane" id="data" data-url="{% url 'horizon:predictionscale:scalesettings:get_data_length' id=group.id %}">#}
-{#            {% for inst in instances %}#}
-{#            <div class="form-group">#}
-{#                <label class="col-xs-3 control-label">{{ inst.name }}</label>#}
-{#                <p class="data-train" data-id={{ inst.id }}></p>#}
-{#            </div>#}
-{#            {% endfor %}#}
-{#        </div>#}
+        {#        <div class="tab-pane" id="data" data-url="{% url 'horizon:predictionscale:scalesettings:get_data_length' id=group.id %}">#}
+        {#            {% for inst in instances %}#}
+        {#            <div class="form-group">#}
+        {#                <label class="col-xs-3 control-label">{{ inst.name }}</label>#}
+        {#                <p class="data-train" data-id={{ inst.id }}></p>#}
+        {#            </div>#}
+        {#            {% endfor %}#}
+        {#        </div>#}
 
     </div>
 
 
-    <div class="form-group" style="margin-top: 15px;">
-        <div class="col-xs-5">
+    <div class="form-group" style="margin-top: 25px;">
+        <div class="col-md-6">
             <button type="button" class="btn btn-default" id="refresh">Refesh</button>
         </div>
-        <div class="col-xs-5 col-xs-offset-3">
-            <button type="submit" class="btn btn-default">Apply</button>
+        <div class="col-md-6">
+            <button type="submit" class="btn btn-default pull-right">Apply</button>
         </div>
     </div>
 </form>

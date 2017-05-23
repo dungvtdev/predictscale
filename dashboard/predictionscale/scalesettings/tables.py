@@ -55,9 +55,9 @@ class UpdateGroup(tables.LinkAction):
     icon = "pencil"
 
 
-class DetailGroup(tables.LinkAction):
-    name = "update"
-    verbose_name = _("Group Detail")
+class GroupControl(tables.LinkAction):
+    name = "control"
+    verbose_name = _("Group Control")
     url = "horizon:predictionscale:scalesettings:step3"
 
     # icon = "pencil"
@@ -67,7 +67,7 @@ class DetailGroup(tables.LinkAction):
         return url
 
     def allowed(self, request, group):
-        can = (group is not None)
+        can = (group is not None and group.enable)
         return can
 
 
@@ -165,4 +165,4 @@ class ScaleGroupTable(tables.DataTable):
         name = 'scalegroups'
         verbose_name = _("Scale Groups")
         table_actions = (AddGroup, DeleteGroup,)
-        row_actions = (EnableGroup, DetailGroup, RebuildGroup, DisableGroup, UpdateGroup,)
+        row_actions = (EnableGroup, GroupControl, RebuildGroup, DisableGroup, UpdateGroup,)

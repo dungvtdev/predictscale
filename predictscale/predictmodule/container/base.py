@@ -79,6 +79,9 @@ class InstanceMonitorContainer(object):
         data_length = self._instance_meta['data_length']
         data_meta = self.get_data()
 
+        # lam dung thoi gian train vs thoi gian loop cua manager
+        self._last_time_stamp = 0
+
         self._last_time_have = data_meta.last_time
         self._last_time_real = self._last_time_have
         self._need_time = data_length - len(data_meta.data)
@@ -119,8 +122,11 @@ class InstanceMonitorContainer(object):
                 raise exceptions.InstanceFailError()
 
     def tick_time(self, tick_minute=0):
-        self._last_time_real = self._last_time_real + tick_minute
-        self._need_time = self._need_time - tick_minute
+        if time.time() - self._last_time_stamp >= tick_minute*60:
+            self._last_time_real = self._last_time_real + tick_minute
+            self._need_time = self._need_time - tick_minute
+
+        self._last_time_stamp = time.time()
 
     def check_time_to_run(self):
         # return self._last_time_real >= \
@@ -225,6 +231,7 @@ class InstanceMonitorContainer(object):
         # data_meta = training.get_available_dataframes(
         #     meta, fetch_cls, cache_type=cache_type)
         data_meta = self.get_data()
+        print('Data length to train %s ' % len(data_meta.data))
         mem_fetch = InMemoryFetch(data_meta.data)
         feeder = SimpleFeeder(mem_fetch)
         predictor.train(feeder)
@@ -246,6 +253,7 @@ class InstanceMonitorContainer(object):
         # data = [0.2, 0.3, 0.5, 0.4, 0.7]
         # print(predictor.predict(data))
         self._last_train = data_meta.last_time
+        self._last_time_stamp = time.time()
 
     def __repr__(self):
         tmpl = 'container._{version} {name}:{metric}'
@@ -284,18 +292,19 @@ class InstanceMonitorContainer(object):
                 unnormalize_val = self.feeder._unnormalize(val[0][0])
                 wnd.append(unnormalize_val)
 
-        mean_val = sum(wnd) / len(wnd)
-        max_val = max(wnd)
+        # mean_val = sum(wnd) / len(wnd)
+        # max_val = max(wnd)
 
         from predictmodule.test_bed import cache_test
         # cache_test.cache(
         #     self._instance_meta['instance_id'], (val, mean_val, max_val,))
 
         # unormalize
-        return {
-            'mean_val': mean_val,
-            'max_val': max_val
-        }
+        return wnd
+        # return {
+        #     'mean_val': mean_val,
+        #     'max_val': max_val
+        # }
 
     # def get_status(self):
     #     return {

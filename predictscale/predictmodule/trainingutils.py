@@ -60,24 +60,25 @@ def get_available_dataframes(instance_meta, fetch_class, cache_type='temp'):
     cached = get_cached_fn(data_meta)
     if cached:
         cached_last = cached.last_time
-        if cached_last == last_time:
-            data_meta.data = cached.data
-            data_meta.last_time = last_time
-        elif cached_last > begin and begin > cached_last - len(cached.data):
-            temp_begin = cached_last
-            # print('%s %s' % (temp_begin, last_time))
-            data = fetch.get_data(temp_begin, last_time, filter=filter)
-            real_begin = last_time - len(data)
-            if temp_begin < real_begin:
-                # giua cache va real series co khoang trong
-                data_meta.data = data
+        if cached_last > begin and begin > cached_last - len(cached.data):
+            if cached_last == last_time:
+                data_meta.data = cached.data[len(cached.data)-data_length:]
                 data_meta.last_time = last_time
             else:
-                # print('from cache')
-                cat_from = len(cached.data) - (cached_last - begin)
-                data_meta.data = utils.concat_pandas_series(
-                    cached.data, data, cat_from)
-                data_meta.last_time = last_time
+                temp_begin = cached_last
+                # print('%s %s' % (temp_begin, last_time))
+                data = fetch.get_data(temp_begin, last_time, filter=filter)
+                real_begin = last_time - len(data)
+                if temp_begin < real_begin:
+                    # giua cache va real series co khoang trong
+                    data_meta.data = data
+                    data_meta.last_time = last_time
+                else:
+                    # print('from cache')
+                    cat_from = len(cached.data) - (cached_last - begin)
+                    data_meta.data = utils.concat_pandas_series(
+                        cached.data, data, cat_from)
+                    data_meta.last_time = last_time
 
     if data_meta.data is None:
         data = fetch.get_data(begin, last_time, filter=filter)

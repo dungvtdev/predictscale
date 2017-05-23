@@ -18,6 +18,8 @@ def check_scale(container, mean_val, max_val):
     elif scale == 'down':
         metric = 'down'
     if metric is not None:
+        logger.info('scale node %s' % metric)
+        print('scale node %s' % metric)
         time = container._last_time_real
         influxdbcache.InfluxdbCache.default().cache_point(time, \
                                                           container.instance_id, mean_val, "scale_%s" % metric)
@@ -35,7 +37,11 @@ def create_container(instance_meta):
     return container
 
 
-def cache_state(container, mean_val, max_val):
+def cache_state(container, predict_list):
+    if predict_list is None:
+        print('predict_list null')
+        return
+
     predict_length = container._instance_meta['predict_length']
     time = container._last_time_real
     instance_id = container.instance_id
@@ -43,13 +49,18 @@ def cache_state(container, mean_val, max_val):
     real_val = container.get_last_real_val()
     influxdbcache.InfluxdbCache.default().cache(time, predict_length, \
                                                 instance_id, metric,
-                                                mean_val, max_val, real_val)
+                                                predict_list, real_val)
 
 
-def cache_predict(container, mean_val, max_val):
+def cache_predict(container, predic_list):
+    if predic_list is None:
+        return
+
     tmpl = cf.cache_predict_tmpl
     path = tmpl.format(instance_id=container.instance_id, \
                        metric=container._instance_meta['metric'])
+    max_val = max(predic_list)
+    mean_val = sum(predic_list)/len(predic_list)
     value = {
         'mean_val': mean_val,
         'max_val': max_val,
@@ -60,16 +71,16 @@ def cache_predict(container, mean_val, max_val):
 def predict_container(container):
     # return container, 1
     try:
-        val_dict, success = container.predict()
+        predict_list, success = container.predict()
         if success:
-            max_val = val_dict['max_val']
-            mean_val = val_dict['mean_val']
-            return container, max_val, mean_val, True
+            # max_val = val_dict['max_val']
+            # mean_val = val_dict['mean_val']
+            return container, predict_list, True
         else:
-            return container, None, None, False
+            return container, None, False
     except Exception as e:
         # print(e.message)
-        return container, None, None, False
+        return container, None, False
 
 
 def log_list(manager):
@@ -189,11 +200,11 @@ class PredictManager(threading.Thread):
     def _predict(self):
         run_list = self._run_list.get_list()
         group = Group()
-        for container, max_val, mean_val, success in group.imap(predict_container, run_list):
+        for container, predict_list, success in group.imap(predict_container, run_list):
             # cache predict
-            cache_predict(container, mean_val, max_val)
-            cache_state(container, mean_val, max_val)
-            check_scale(container, mean_val, max_val)
+            cache_predict(container, predict_list)
+            cache_state(container, predict_list)
+            # check_scale(container, mean_val, max_val)
             # xu ly scale
         del run_list
 

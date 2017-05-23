@@ -62,6 +62,7 @@ class GroupActionResource(object):
 
         # print(params)
         try:
+            self.db_backend.update_group_params(id, params)
             action.run_group(user_id, id, params)
             action.enable_group_action(self.db_backend, user_id, id)
         except:

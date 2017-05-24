@@ -7,6 +7,8 @@ import time
 
 class ScaleManager(threading.Thread):
     def __init__(self, container):
+        super(ScaleManager, self).__init__()
+
         self._backend = backend.DBBackend.default()
         instance_id = container.instance_id
         self._group_id = self._backend.get_groupid_of_instance(instance_id)
@@ -14,25 +16,53 @@ class ScaleManager(threading.Thread):
 
         self._namecount = 0
 
-        self.mean_accum = 0
-        self.n_point = 0
+        # self.mean_accum = 0
+        # self.n_point = 0
 
-    def check_scale(self, mean_val, max_val):
-        if max_val >= 0.95:
-            return self.scale_up()
+        self.high_accum_count = 0
+        self.predict_accum_count = 0
 
-        if max_val < 0.3 and self.n_point > 10:
-            tile = abs(mean_val - self.mean_accum) / (self.n_point / 2)
-            if tile < 0.00025:
-                return self.scale_down()
-
-        # accum
-        if self.n_point > 0:
-            self.mean_accum = (self.mean_accum * self.n_point + mean_val) / (self.n_point + 1)
-            self.n_point = self.n_point + 1
+    def check_scale(self, predict_list):
+        high_count = 0
+        for m in predict_list:
+            if m >= 0.93:
+                high_count = high_count + 1
+        if high_count > 0:
+            self.high_accum_count = self.high_accum_count + high_count
         else:
-            self.mean_accum = mean_val
-            self.n_point = 1
+            self.high_accum_count = 0
+
+        if self.high_accum_count >= 10:
+            succ = self.scale_up()
+            if succ:
+                self.high_accum_count = 0
+            return succ
+
+        if predict_list:
+            if predict_list[0] < 0.25:
+                self.predict_accum_count = self.predict_accum_count + 1
+            else:
+                self.predict_accum_count = 0
+
+            if self.predict_accum_count > 30:
+                succ = self.scale_down()
+                if succ:
+                    self.predict_accum_count = 0
+                return succ
+
+
+        # if max_val < 0.3 and self.n_point > 10:
+        #     tile = abs(mean_val - self.mean_accum) / (self.n_point / 2)
+        #     if tile < 0.00025:
+        #         return self.scale_down()
+        #
+        # # accum
+        # if self.n_point > 0:
+        #     self.mean_accum = (self.mean_accum * self.n_point + mean_val) / (self.n_point + 1)
+        #     self.n_point = self.n_point + 1
+        # else:
+        #     self.mean_accum = mean_val
+        #     self.n_point = 1
 
     def scale_down(self):
         if (self.is_alive()):

@@ -75,19 +75,24 @@ def test():
     # lb.add_servers([('192.168.122.188','8888')])
 
 
-def HandleResource():
+class HandleResource():
     def on_post(self, req, resp):
         print(req.host)
         body = req.stream.read()
-        data = json.loads(body['servers'])
+        data = json.loads(body)['servers']
 
+        ip = req.remote_addr
+        for d in data:
+            d[0] = ip
         lb = LoadBalancer.default()
         lb.add_servers(data)
 
 def server_up():
     app = falcon.API()
     app.add_route('/add_servers', HandleResource())
-    httpd = simple_server.make_server('0.0.0.0', 8000, app)
+    port = 8080
+    httpd = simple_server.make_server('0.0.0.0', port, app)
+    print('Server serve at 0.0.0.0:%s' % port)
     httpd.serve_forever()
 
 if __name__ == '__main__':

@@ -1,7 +1,6 @@
 import falcon
 from .backend import DBBackend
-from .action import enable_group_action, disable_group_action, \
-    update_group_instance
+from .action import update_group_instance, stop_group
 from predictmodule import apiutils
 from api import models
 
@@ -49,6 +48,7 @@ class GroupResourceId(object):
     db_backend = DBBackend.default()
 
     def on_delete(self, req, resp, user_id, id):
+        stop_group(user_id, id)
         self.db_backend.drop_group(user_id, id)
 
     def on_put(self, req, resp, user_id, id):
@@ -82,20 +82,20 @@ class GroupResourceId(object):
         }
 
 
-class GroupAction(object):
-    db_backend = DBBackend.default()
-
-    def action_enable(self, user_id, id):
-        return enable_group_action(self.db_backend, user_id, id)
-
-    def action_disable(self, user_id, id):
-        return disable_group_action(self.db_backend, user_id, id)
-
-    def on_post(self, req, resp, user_id, id, action):
-        fn = getattr(self, 'action_%s' % action, None)
-        if not fn:
-            raise falcon.HTTPBadRequest('Can\'t handle action %s' % action)
-        return fn(user_id, id)
+# class GroupAction(object):
+#     db_backend = DBBackend.default()
+#
+#     def action_enable(self, user_id, id):
+#         return enable_group_action(self.db_backend, user_id, id)
+#
+#     def action_disable(self, user_id, id):
+#         return disable_group_action(self.db_backend, user_id, id)
+#
+#     def on_post(self, req, resp, user_id, id, action):
+#         fn = getattr(self, 'action_%s' % action, None)
+#         if not fn:
+#             raise falcon.HTTPBadRequest('Can\'t handle action %s' % action)
+#         return fn(user_id, id)
 
 
 routes = [

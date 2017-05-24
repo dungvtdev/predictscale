@@ -10,19 +10,23 @@ from predictmodule.cache import fscache, influxdbcache
 logger = log.get_log(__name__)
 
 
-def check_scale(container, mean_val, max_val):
-    scale = container.scalemanager.check_scale(mean_val, max_val)
+def check_scale(container, predict_list):
+    # if not hasattr(container, 'scalemanager'):
+    #     return
+    # if not container.scalemanager.is_alive():
+    #     container.scalemanager.scale_up()
+    scale = container.scalemanager.check_scale(predict_list)
     metric = None
     if scale == 'up':
         metric = 'up'
     elif scale == 'down':
         metric = 'down'
     if metric is not None:
-        logger.info('scale node %s' % metric)
-        print('scale node %s' % metric)
+        logger.info('******************************** scale node %s' % metric)
+        print('************************************** scale node %s' % metric)
         time = container._last_time_real
-        influxdbcache.InfluxdbCache.default().cache_point(time, \
-                                                          container.instance_id, mean_val, "scale_%s" % metric)
+        influxdbcache.InfluxdbCache.default().cache_point(time, container.instance_id,\
+                                                          predict_list[0], "scale_%s" % metric)
 
 
 def create_container(instance_meta):
@@ -173,6 +177,8 @@ class PredictManager(threading.Thread):
             self._predict()
             self._check_update_model()
 
+
+
             sleep_time = self._loop_minute * 60 - (time.time() - time_stm)
             if sleep_time < 0:
                 sleep_time = 0
@@ -204,7 +210,7 @@ class PredictManager(threading.Thread):
             # cache predict
             cache_predict(container, predict_list)
             cache_state(container, predict_list)
-            # check_scale(container, mean_val, max_val)
+            check_scale(container, predict_list)
             # xu ly scale
         del run_list
 
@@ -402,7 +408,7 @@ class PredictManager(threading.Thread):
         process = 0
         next_secs = 0
         if container is None:
-            status = 'not use'
+            status = 'not use or error'
         else:
             status = state
             msg = container.get_info_string(state)
@@ -415,6 +421,8 @@ class PredictManager(threading.Thread):
             next_secs = 3
         else:
             next_secs = 30
+
+        msg = msg or 'Error. Check params and Try again.'
 
         return {
             'process': process,
@@ -452,7 +460,8 @@ class UpThread(threading.Thread):
         try:
             self._container.push(self._cache_type)
             self._success(self)
-        except exceptions.InstanceFailError:
+        # except exceptions.InstanceFailError:
+        except Exception as e:
             self._error(self)
 
     def get_container(self):

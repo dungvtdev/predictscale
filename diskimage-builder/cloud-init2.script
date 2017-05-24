@@ -1,0 +1,15 @@
+#!/bin/bash
+
+echo "hello" > /tmp/hello
+
+apt install curl
+apt install python-pip
+
+pip install falcon
+wget https://gist.githubusercontent.com/dungvtdev/e3cc837864eb89d695a6884541d8b1e7/raw/4922befcc318066193ed771fa2732fb8c83d480d/testapp2.py
+
+python testapp2.py
+
+curl -X POST -d '{"servers":[["",8000]]}' 192.168.122.1:8080/add_servers
+
+echo "success init"

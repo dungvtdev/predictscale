@@ -39,3 +39,4 @@ influx_cache_config = {
 scale_settings = {
     'minute_duration': 15,
 }
+

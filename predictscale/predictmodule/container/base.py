@@ -135,6 +135,9 @@ class InstanceMonitorContainer(object):
 
     def check_time_to_update(self):
         update_in_time = self._instance_meta['update_in_time']
+        if not update_in_time:
+            return False
+
         if self._last_train is None:
             return False
         return self._last_time_real >= \

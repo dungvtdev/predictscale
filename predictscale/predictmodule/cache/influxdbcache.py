@@ -31,7 +31,7 @@ class InfluxdbCache():
             predict_val = predict_list[0]
             predict_s = tmpl.format(metric=metric, id=instance_id, value=predict_val, type='predict', time=t)
 
-            t = t + predict_length / 2 * 60 * 1000000000
+            t = t + predict_length * 60 * 1000000000
             mean_val = sum(predict_list)/len(predict_list)
             max_val = max(predict_list)
             mean_s = tmpl.format(metric=metric, id=instance_id, value=mean_val, type='mean', time=t)

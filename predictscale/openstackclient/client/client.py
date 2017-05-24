@@ -58,11 +58,11 @@ class OSClient(object):
     def create(self, image_id, flavor_id,
                network_id, name=None, user_data=None, **kargs):
         server = self.client.servers.create(
-            name=name,
-            image=image_id,
-            flavor=flavor_id,
+            name,
+            image_id,
+            flavor_id,
             nics=[{'net-id': network_id},],
-            user_data=user_data
+            userdata=user_data
         )
         return server
 

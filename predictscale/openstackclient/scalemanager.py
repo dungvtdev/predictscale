@@ -44,7 +44,7 @@ class ScaleManager(threading.Thread):
             else:
                 self.predict_accum_count = 0
 
-            if self.predict_accum_count > 30:
+            if self.predict_accum_count > 20:
                 succ = self.scale_down()
                 if succ:
                     self.predict_accum_count = 0

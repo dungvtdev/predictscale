@@ -128,8 +128,8 @@
         <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
           <collectionProp name="Arguments.arguments"/>
         </elementProp>
-        <stringProp name="HTTPSampler.domain">${ip}</stringProp>
-        <stringProp name="HTTPSampler.port">8000</stringProp>
+        <stringProp name="HTTPSampler.domain">192.168.1.94</stringProp>
+        <stringProp name="HTTPSampler.port">8888</stringProp>
         <stringProp name="HTTPSampler.protocol"></stringProp>
         <stringProp name="HTTPSampler.contentEncoding"></stringProp>
         <stringProp name="HTTPSampler.path"></stringProp>
@@ -178,7 +178,7 @@
         <collectionProp name="Arguments.arguments">
           <elementProp name="ip" elementType="Argument">
             <stringProp name="Argument.name">ip</stringProp>
-            <stringProp name="Argument.value">192.168.122.188</stringProp>
+            <stringProp name="Argument.value">192.168.1.94</stringProp>
             <stringProp name="Argument.metadata">=</stringProp>
           </elementProp>
           <elementProp name="t1" elementType="Argument">
@@ -236,11 +236,11 @@
       <hashTree/>
       <kg.apc.jmeter.threads.UltimateThreadGroup guiclass="kg.apc.jmeter.threads.UltimateThreadGroupGui" testclass="kg.apc.jmeter.threads.UltimateThreadGroup" testname="utg1" enabled="true">
         <collectionProp name="ultimatethreadgroupdata">
-          <collectionProp name="813286772">
+          <collectionProp name="-1376123516">
             <stringProp name="1727">65</stringProp>
             <stringProp name="48">0</stringProp>
-            <stringProp name="1537214">2000</stringProp>
-            <stringProp name="1656378">6000</stringProp>
+            <stringProp name="51508">400</stringProp>
+            <stringProp name="1688091">7200</stringProp>
             <stringProp name="1596796">4000</stringProp>
           </collectionProp>
           <collectionProp name="-927907157">
@@ -354,6 +354,13 @@
             <stringProp name="1507423">1000</stringProp>
             <stringProp name="1722">60</stringProp>
             <stringProp name="1596796">4000</stringProp>
+          </collectionProp>
+          <collectionProp name="1738342935">
+            <stringProp name="1629">30</stringProp>
+            <stringProp name="48">0</stringProp>
+            <stringProp name="48625">100</stringProp>
+            <stringProp name="48625">100</stringProp>
+            <stringProp name="10">10</stringProp>
           </collectionProp>
         </collectionProp>
         <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">

@@ -24,8 +24,8 @@ def check_scale(container, predict_list):
     if metric is not None:
         logger.info('******************************** scale node %s' % metric)
         print('************************************** scale node %s' % metric)
-        time = container._last_time_real
-        influxdbcache.InfluxdbCache.default().cache_point(time, container.instance_id,\
+        t = container._last_time_real
+        influxdbcache.InfluxdbCache.default().cache_point(t, container.instance_id,\
                                                           predict_list[0], "scale_%s" % metric)
 
 

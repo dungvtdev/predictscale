@@ -18,10 +18,10 @@ if __name__ == '__main__':
     pop_size = 50
 
     dataFeeder = TrafficFeeder()
-    X_train, y_train = dataFeeder.fetch_traffic_training(n_input, 1, (40, 46))
+    X_train, y_train = dataFeeder.fetch_traffic_training(n_input, 1, (48, 52))
     print(len(X_train))
     print(len(y_train))
-    X_test, y_test = dataFeeder.fetch_traffic_test(n_input, 1, (46, 48))
+    X_test, y_test = dataFeeder.fetch_traffic_test(n_input, 1, (52, 54))
     # retrieve = [n_input+1,(X_train,y_train,X_test,y_test)]
     gaEstimator = GAEstimator(cross_rate=cross_rate,
                               mutation_rate=mutation_rate, pop_size=pop_size)

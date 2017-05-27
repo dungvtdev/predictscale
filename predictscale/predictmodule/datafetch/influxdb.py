@@ -99,8 +99,8 @@ class CpuFetch(CpuRootMixin, BaseMetricFetch):
 
     def extract_data(self, data):
         d, begin, last = BaseMetricFetch.extract_data(self, data)
-        return clamp_01(d), begin, last
-
+        # return clamp_01(d), begin, last
+        return d, begin, last
 
 class DiscoverLastTimeMinute():
     def __init__(self, **kwargs):

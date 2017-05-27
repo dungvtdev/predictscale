@@ -26,8 +26,8 @@ def get_data(begin, end):
 
 
 if __name__ == '__main__':
-    begin = '2017-05-26 3:54:00'
-    end = '2017-05-26 05:44:00'
+    begin = '2017-05-26 07:57:00'
+    end = '2017-05-26 12:42:00'
 
     ax = plt.subplot()
     ax.set_color_cycle(['blue', 'red', 'green'])

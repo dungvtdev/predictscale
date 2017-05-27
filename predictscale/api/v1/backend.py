@@ -300,7 +300,7 @@ class DBBackend(object):
 
     def remove_scaled_instance(self, instance):
         ss = self._get_localsession()
-        ss.remove(instance)
+        ss.delete(instance)
         ss.commit()
         self._close_localsession()
 

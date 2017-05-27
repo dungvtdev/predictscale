@@ -122,7 +122,7 @@ class InstanceMonitorContainer(object):
                 raise exceptions.InstanceFailError()
 
     def tick_time(self, tick_minute=0):
-        if time.time() - self._last_time_stamp >= tick_minute*60:
+        if time.time() - self._last_time_stamp >= tick_minute * 60:
             self._last_time_real = self._last_time_real + tick_minute
             self._need_time = self._need_time - tick_minute
 
@@ -258,6 +258,8 @@ class InstanceMonitorContainer(object):
         self._last_train = data_meta.last_time
         self._last_time_stamp = time.time()
 
+        self._last_time_real = data_meta.last_time
+
     def __repr__(self):
         tmpl = 'container._{version} {name}:{metric}'
         return tmpl.format(name=self._instance_meta['instance_id'],
@@ -276,6 +278,7 @@ class InstanceMonitorContainer(object):
             return None, False
         # if data is not None:
         self.series.append(data, last)
+
         return self.predict_value_future(), True
         # else:
         #     return None, False

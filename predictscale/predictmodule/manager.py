@@ -11,10 +11,8 @@ logger = log.get_log(__name__)
 
 
 def check_scale(container, predict_list):
-    # if not hasattr(container, 'scalemanager'):
-    #     return
-    # if not container.scalemanager.is_alive():
-    #     container.scalemanager.scale_up()
+    # container.scalemanager.scale_up()
+
     scale = container.scalemanager.check_scale(predict_list)
     metric = None
     if scale == 'up':
@@ -25,7 +23,7 @@ def check_scale(container, predict_list):
         logger.info('******************************** scale node %s' % metric)
         print('************************************** scale node %s' % metric)
         t = container._last_time_real
-        influxdbcache.InfluxdbCache.default().cache_point(t, container.instance_id,\
+        influxdbcache.InfluxdbCache.default().cache_point(t, container.instance_id, \
                                                           predict_list[0], "scale_%s" % metric)
 
 
@@ -64,7 +62,7 @@ def cache_predict(container, predic_list):
     path = tmpl.format(instance_id=container.instance_id, \
                        metric=container._instance_meta['metric'])
     max_val = max(predic_list)
-    mean_val = sum(predic_list)/len(predic_list)
+    mean_val = sum(predic_list) / len(predic_list)
     value = {
         'mean_val': mean_val,
         'max_val': max_val,
@@ -177,8 +175,6 @@ class PredictManager(threading.Thread):
             self._predict()
             self._check_update_model()
 
-
-
             sleep_time = self._loop_minute * 60 - (time.time() - time_stm)
             if sleep_time < 0:
                 sleep_time = 0
@@ -236,6 +232,11 @@ class PredictManager(threading.Thread):
 
     def _update_container(self, container, instance_meta=None):
         nc = container.new_version(instance_meta)
+
+        from openstackclient import scalemanager
+        scale_manager = scalemanager.ScaleManager(nc)
+        nc.set_scalemanager(scale_manager)
+
         self.add_pushing_update(nc)
 
     def update_container(self, instance_meta):

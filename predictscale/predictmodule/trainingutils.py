@@ -58,6 +58,7 @@ def get_available_dataframes(instance_meta, fetch_class, cache_type='temp'):
     #     datacache.cache_data_forever
 
     cached = get_cached_fn(data_meta)
+    cached = None
     if cached:
         cached_last = cached.last_time
         if cached_last > begin and begin > cached_last - len(cached.data):

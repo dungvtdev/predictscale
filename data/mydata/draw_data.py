@@ -20,9 +20,13 @@ data = data.round(1)
 data = data.set_index(data.index/10)
 data = data.groupby(data.index).mean()
 data = data.set_index(pd.Series(range(data.shape[0]))*60) * 40
-print(data.shape[0])
+# print(data.shape[0])
 
 # data = data.apply(shift_fun)
 
+# plt.plot(data.index, data)
+# plt.show()
+
+# data = data = pd.read_csv('10min_workload.csv', header=None)[48 * 142:55*142]
 plt.plot(data.index, data)
 plt.show()

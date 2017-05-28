@@ -112,7 +112,7 @@ class DiscoverLastTimeMinute():
     def get_query(self):
         epoch = self._epoch if self._epoch != 's' else 'm'
         q_tmpl = 'select * from {metric} where time > now() - 2{epoch} group by * order by desc limit 1'
-        q = q_tmpl.format(metric=self._metric, epoch=self._epoch)
+        q = q_tmpl.format(metric=self._metric, epoch=epoch)
         return q
 
     def filter(self, serie):

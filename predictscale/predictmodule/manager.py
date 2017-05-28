@@ -233,9 +233,9 @@ class PredictManager(threading.Thread):
     def _update_container(self, container, instance_meta=None):
         nc = container.new_version(instance_meta)
 
-        from openstackclient import scalemanager
-        scale_manager = scalemanager.ScaleManager(nc)
-        nc.set_scalemanager(scale_manager)
+        # from openstackclient import scalemanager
+        # scale_manager = scalemanager.ScaleManager(nc)
+        # nc.set_scalemanager(scale_manager)
 
         self.add_pushing_update(nc)
 

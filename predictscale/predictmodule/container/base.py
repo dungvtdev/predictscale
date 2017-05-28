@@ -203,6 +203,7 @@ class InstanceMonitorContainer(object):
         nc.fetch = self.fetch
         nc.feeder = self.feeder
         nc.predictor = self.predictor
+        nc.scalemanager = self.scalemanager
 
         return nc
 
@@ -258,7 +259,7 @@ class InstanceMonitorContainer(object):
         self._last_train = data_meta.last_time
         self._last_time_stamp = time.time()
 
-        self._last_time_real = data_meta.last_time
+        # self._last_time_real = data_meta.last_time
 
     def __repr__(self):
         tmpl = 'container._{version} {name}:{metric}'
@@ -271,6 +272,8 @@ class InstanceMonitorContainer(object):
         try:
             data, last = self.fetch.get_short_data_as_list(
                 self._last_time_real)
+
+            self._last_time_real = last
             # from predictmodule.test_bed import cache_test
             # cache_test.cache_real(self._instance_meta['instance_id'], data)
         except Exception as e:

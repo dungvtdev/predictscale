@@ -174,6 +174,245 @@
         <stringProp name="filename"></stringProp>
       </ResultCollector>
       <hashTree/>
+      <kg.apc.jmeter.threads.UltimateThreadGroup guiclass="kg.apc.jmeter.threads.UltimateThreadGroupGui" testclass="kg.apc.jmeter.threads.UltimateThreadGroup" testname="1000m" enabled="true">
+        <collectionProp name="ultimatethreadgroupdata">
+          <collectionProp name="1783021170">
+            <stringProp name="27">27</stringProp>
+            <stringProp name="0">0</stringProp>
+            <stringProp name="2350">2350</stringProp>
+            <stringProp name="99">99</stringProp>
+            <stringProp name="3966">3966</stringProp>
+          </collectionProp>
+          <collectionProp name="-1817432558">
+            <stringProp name="10">10</stringProp>
+            <stringProp name="3074">3074</stringProp>
+            <stringProp name="991">991</stringProp>
+            <stringProp name="198">198</stringProp>
+            <stringProp name="6942">6942</stringProp>
+          </collectionProp>
+          <collectionProp name="553893226">
+            <stringProp name="5">5</stringProp>
+            <stringProp name="6446">6446</stringProp>
+            <stringProp name="297">297</stringProp>
+            <stringProp name="5950">5950</stringProp>
+            <stringProp name="2975">2975</stringProp>
+          </collectionProp>
+          <collectionProp name="424451544">
+            <stringProp name="24">24</stringProp>
+            <stringProp name="7140">7140</stringProp>
+            <stringProp name="2181">2181</stringProp>
+            <stringProp name="595">595</stringProp>
+            <stringProp name="2975">2975</stringProp>
+          </collectionProp>
+          <collectionProp name="-966070104">
+            <stringProp name="10">10</stringProp>
+            <stringProp name="10909">10909</stringProp>
+            <stringProp name="793">793</stringProp>
+            <stringProp name="99">99</stringProp>
+            <stringProp name="1983">1983</stringProp>
+          </collectionProp>
+          <collectionProp name="818712120">
+            <stringProp name="8">8</stringProp>
+            <stringProp name="13884">13884</stringProp>
+            <stringProp name="297">297</stringProp>
+            <stringProp name="5950">5950</stringProp>
+            <stringProp name="991">991</stringProp>
+          </collectionProp>
+          <collectionProp name="1753420772">
+            <stringProp name="20">20</stringProp>
+            <stringProp name="14380">14380</stringProp>
+            <stringProp name="1983">1983</stringProp>
+            <stringProp name="198">198</stringProp>
+            <stringProp name="991">991</stringProp>
+          </collectionProp>
+          <collectionProp name="1452835702">
+            <stringProp name="18">18</stringProp>
+            <stringProp name="15867">15867</stringProp>
+            <stringProp name="1983">1983</stringProp>
+            <stringProp name="198">198</stringProp>
+            <stringProp name="4958">4958</stringProp>
+          </collectionProp>
+          <collectionProp name="-91207468">
+            <stringProp name="15">15</stringProp>
+            <stringProp name="23801">23801</stringProp>
+            <stringProp name="1983">1983</stringProp>
+            <stringProp name="595">595</stringProp>
+            <stringProp name="2479">2479</stringProp>
+          </collectionProp>
+          <collectionProp name="303086582">
+            <stringProp name="8">8</stringProp>
+            <stringProp name="27272">27272</stringProp>
+            <stringProp name="297">297</stringProp>
+            <stringProp name="595">595</stringProp>
+            <stringProp name="5157">5157</stringProp>
+          </collectionProp>
+          <collectionProp name="-1240700">
+            <stringProp name="5">5</stringProp>
+            <stringProp name="29752">29752</stringProp>
+            <stringProp name="297">297</stringProp>
+            <stringProp name="595">595</stringProp>
+            <stringProp name="1983">1983</stringProp>
+          </collectionProp>
+          <collectionProp name="-1327899314">
+            <stringProp name="12">12</stringProp>
+            <stringProp name="32727">32727</stringProp>
+            <stringProp name="1983">1983</stringProp>
+            <stringProp name="3966">3966</stringProp>
+            <stringProp name="495">495</stringProp>
+          </collectionProp>
+          <collectionProp name="-1570117072">
+            <stringProp name="12">12</stringProp>
+            <stringProp name="38876">38876</stringProp>
+            <stringProp name="297">297</stringProp>
+            <stringProp name="2975">2975</stringProp>
+            <stringProp name="1487">1487</stringProp>
+          </collectionProp>
+          <collectionProp name="-1879675426">
+            <stringProp name="25">25</stringProp>
+            <stringProp name="40661">40661</stringProp>
+            <stringProp name="3966">3966</stringProp>
+            <stringProp name="297">297</stringProp>
+            <stringProp name="2975">2975</stringProp>
+          </collectionProp>
+          <collectionProp name="-585483438">
+            <stringProp name="15">15</stringProp>
+            <stringProp name="46115">46115</stringProp>
+            <stringProp name="2975">2975</stringProp>
+            <stringProp name="595">595</stringProp>
+            <stringProp name="1487">1487</stringProp>
+          </collectionProp>
+          <collectionProp name="-115292526">
+            <stringProp name="32">32</stringProp>
+            <stringProp name="49586">49586</stringProp>
+            <stringProp name="2975">2975</stringProp>
+            <stringProp name="595">595</stringProp>
+            <stringProp name="1487">1487</stringProp>
+          </collectionProp>
+          <collectionProp name="-1153678700">
+            <stringProp name="25">25</stringProp>
+            <stringProp name="53553">53553</stringProp>
+            <stringProp name="1487">1487</stringProp>
+            <stringProp name="595">595</stringProp>
+            <stringProp name="1983">1983</stringProp>
+          </collectionProp>
+          <collectionProp name="-2069037358">
+            <stringProp name="10">10</stringProp>
+            <stringProp name="56528">56528</stringProp>
+            <stringProp name="105">105</stringProp>
+            <stringProp name="210">210</stringProp>
+            <stringProp name="52">52</stringProp>
+          </collectionProp>
+        </collectionProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <intProp name="LoopController.loops">-1</intProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+      </kg.apc.jmeter.threads.UltimateThreadGroup>
+      <hashTree>
+        <RandomController guiclass="RandomControlGui" testclass="RandomController" testname="tmpl" enabled="true">
+          <intProp name="InterleaveControl.style">1</intProp>
+        </RandomController>
+        <hashTree>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="sum10000" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="number" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">10000</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                  <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                  <stringProp name="Argument.name">number</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/calc/sum</stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree/>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="sum40000" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="number" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">40000</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                  <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                  <stringProp name="Argument.name">number</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/calc/sum</stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree/>
+          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="zero" enabled="true">
+            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
+              <collectionProp name="Arguments.arguments">
+                <elementProp name="number" elementType="HTTPArgument">
+                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
+                  <stringProp name="Argument.value">10</stringProp>
+                  <stringProp name="Argument.metadata">=</stringProp>
+                  <boolProp name="HTTPArgument.use_equals">true</boolProp>
+                  <stringProp name="Argument.name">number</stringProp>
+                </elementProp>
+              </collectionProp>
+            </elementProp>
+            <stringProp name="HTTPSampler.domain"></stringProp>
+            <stringProp name="HTTPSampler.port"></stringProp>
+            <stringProp name="HTTPSampler.protocol"></stringProp>
+            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
+            <stringProp name="HTTPSampler.path">/calc/sum</stringProp>
+            <stringProp name="HTTPSampler.method">GET</stringProp>
+            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
+            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
+            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
+            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
+            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
+            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
+            <stringProp name="HTTPSampler.response_timeout"></stringProp>
+          </HTTPSamplerProxy>
+          <hashTree>
+            <GaussianRandomTimer guiclass="GaussianRandomTimerGui" testclass="GaussianRandomTimer" testname="Gaussian Random Timer" enabled="true">
+              <stringProp name="ConstantTimer.delay">1000</stringProp>
+              <stringProp name="RandomTimer.range">400</stringProp>
+            </GaussianRandomTimer>
+            <hashTree/>
+          </hashTree>
+          <GaussianRandomTimer guiclass="GaussianRandomTimerGui" testclass="GaussianRandomTimer" testname="Gaussian Random Timer" enabled="true">
+            <stringProp name="ConstantTimer.delay">2000</stringProp>
+            <stringProp name="RandomTimer.range">1000</stringProp>
+          </GaussianRandomTimer>
+          <hashTree/>
+        </hashTree>
+      </hashTree>
+    </hashTree>
+    <WorkBench guiclass="WorkBenchGui" testclass="WorkBench" testname="WorkBench" enabled="true">
+      <boolProp name="WorkBench.save">true</boolProp>
+    </WorkBench>
+    <hashTree>
       <kg.apc.jmeter.threads.UltimateThreadGroup guiclass="kg.apc.jmeter.threads.UltimateThreadGroupGui" testclass="kg.apc.jmeter.threads.UltimateThreadGroup" testname="Test thread group" enabled="true">
         <collectionProp name="ultimatethreadgroupdata">
           <collectionProp name="-861109274">
@@ -309,109 +548,7 @@
         </elementProp>
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
       </kg.apc.jmeter.threads.UltimateThreadGroup>
-      <hashTree>
-        <RandomController guiclass="RandomControlGui" testclass="RandomController" testname="tmpl" enabled="true">
-          <intProp name="InterleaveControl.style">1</intProp>
-        </RandomController>
-        <hashTree>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="sum10000" enabled="true">
-            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-              <collectionProp name="Arguments.arguments">
-                <elementProp name="number" elementType="HTTPArgument">
-                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">10000</stringProp>
-                  <stringProp name="Argument.metadata">=</stringProp>
-                  <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                  <stringProp name="Argument.name">number</stringProp>
-                </elementProp>
-              </collectionProp>
-            </elementProp>
-            <stringProp name="HTTPSampler.domain"></stringProp>
-            <stringProp name="HTTPSampler.port"></stringProp>
-            <stringProp name="HTTPSampler.protocol"></stringProp>
-            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-            <stringProp name="HTTPSampler.path">/calc/sum</stringProp>
-            <stringProp name="HTTPSampler.method">GET</stringProp>
-            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
-            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-            <stringProp name="HTTPSampler.response_timeout"></stringProp>
-          </HTTPSamplerProxy>
-          <hashTree/>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="sum40000" enabled="true">
-            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-              <collectionProp name="Arguments.arguments">
-                <elementProp name="number" elementType="HTTPArgument">
-                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">40000</stringProp>
-                  <stringProp name="Argument.metadata">=</stringProp>
-                  <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                  <stringProp name="Argument.name">number</stringProp>
-                </elementProp>
-              </collectionProp>
-            </elementProp>
-            <stringProp name="HTTPSampler.domain"></stringProp>
-            <stringProp name="HTTPSampler.port"></stringProp>
-            <stringProp name="HTTPSampler.protocol"></stringProp>
-            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-            <stringProp name="HTTPSampler.path">/calc/sum</stringProp>
-            <stringProp name="HTTPSampler.method">GET</stringProp>
-            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
-            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-            <stringProp name="HTTPSampler.response_timeout"></stringProp>
-          </HTTPSamplerProxy>
-          <hashTree/>
-          <HTTPSamplerProxy guiclass="HttpTestSampleGui" testclass="HTTPSamplerProxy" testname="zero" enabled="true">
-            <elementProp name="HTTPsampler.Arguments" elementType="Arguments" guiclass="HTTPArgumentsPanel" testclass="Arguments" testname="User Defined Variables" enabled="true">
-              <collectionProp name="Arguments.arguments">
-                <elementProp name="number" elementType="HTTPArgument">
-                  <boolProp name="HTTPArgument.always_encode">false</boolProp>
-                  <stringProp name="Argument.value">10</stringProp>
-                  <stringProp name="Argument.metadata">=</stringProp>
-                  <boolProp name="HTTPArgument.use_equals">true</boolProp>
-                  <stringProp name="Argument.name">number</stringProp>
-                </elementProp>
-              </collectionProp>
-            </elementProp>
-            <stringProp name="HTTPSampler.domain"></stringProp>
-            <stringProp name="HTTPSampler.port"></stringProp>
-            <stringProp name="HTTPSampler.protocol"></stringProp>
-            <stringProp name="HTTPSampler.contentEncoding"></stringProp>
-            <stringProp name="HTTPSampler.path">/calc/sum</stringProp>
-            <stringProp name="HTTPSampler.method">GET</stringProp>
-            <boolProp name="HTTPSampler.follow_redirects">true</boolProp>
-            <boolProp name="HTTPSampler.auto_redirects">false</boolProp>
-            <boolProp name="HTTPSampler.use_keepalive">true</boolProp>
-            <boolProp name="HTTPSampler.DO_MULTIPART_POST">false</boolProp>
-            <stringProp name="HTTPSampler.embedded_url_re"></stringProp>
-            <stringProp name="HTTPSampler.connect_timeout"></stringProp>
-            <stringProp name="HTTPSampler.response_timeout"></stringProp>
-          </HTTPSamplerProxy>
-          <hashTree>
-            <GaussianRandomTimer guiclass="GaussianRandomTimerGui" testclass="GaussianRandomTimer" testname="Gaussian Random Timer" enabled="true">
-              <stringProp name="ConstantTimer.delay">1000</stringProp>
-              <stringProp name="RandomTimer.range">400</stringProp>
-            </GaussianRandomTimer>
-            <hashTree/>
-          </hashTree>
-          <GaussianRandomTimer guiclass="GaussianRandomTimerGui" testclass="GaussianRandomTimer" testname="Gaussian Random Timer" enabled="true">
-            <stringProp name="ConstantTimer.delay">2000</stringProp>
-            <stringProp name="RandomTimer.range">1000</stringProp>
-          </GaussianRandomTimer>
-          <hashTree/>
-        </hashTree>
-      </hashTree>
+      <hashTree/>
     </hashTree>
-    <WorkBench guiclass="WorkBenchGui" testclass="WorkBench" testname="WorkBench" enabled="true">
-      <boolProp name="WorkBench.save">true</boolProp>
-    </WorkBench>
-    <hashTree/>
   </hashTree>
 </jmeterTestPlan>

@@ -76,12 +76,14 @@ class BaseFeeder():
             return data
 
     def generate_extend(self, data, extend):
-        idxs = list(range(0, self.n_input))
+        # idxs = list(range(0, self.n_input))
+        idxs = []
         for m in range(1, self.n_periodic + 1):
             idxs.append(m * self.period)
-        rl = []
-        n_ex = len(extend)
+
         n_d = len(data)
+        rl = [data[n_d - i - 1] for i in range(0, self.n_input)]
+        n_ex = len(extend)
         for idx in idxs:
             if idx >= n_ex:
                 rl.append(data[n_d - (idx - n_ex) - 1])

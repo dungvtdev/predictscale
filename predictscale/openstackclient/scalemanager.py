@@ -29,10 +29,11 @@ class ScaleManager():
         if not predict_list:
             return
 
-        high_count = 0
-        for m in predict_list:
-            if m >= 0.37:
-                high_count = high_count + 1
+        high_count = len([m for m in predict_list if m >= 0.39])
+        # for m in predict_list:
+        #     if m >= 0.39:
+        #         high_count = high_count + 1
+
         # if high_count > len(predict_list) / 4:
         #     self.high_accum_count = self.high_accum_count + high_count
         # else:
@@ -43,35 +44,36 @@ class ScaleManager():
         #     if succ:
         #         self.high_accum_count = 0
         #     return succ
-        if high_count > len(predict_list)/4:
+        # if high_count >= len(predict_list)/4:
+        if high_count >= 1:
             succ = self.scale_up()
             return succ
 
-        if predict_list:
-            if predict_list[0] < 0.25:
-                self.predict_accum_count = self.predict_accum_count + 1
-            else:
+        if predict_list[0] < 0.2:
+            self.predict_accum_count = self.predict_accum_count + 1
+        else:
+            self.predict_accum_count = 0
+
+        high_low_count = len([m for m in predict_list if m >= 0.22])
+        if self.predict_accum_count >= 25 and high_low_count == 0:
+            succ = self.scale_down()
+            if succ:
                 self.predict_accum_count = 0
-
-            if self.predict_accum_count > 15 and high_count == 0:
-                succ = self.scale_down()
-                if succ:
-                    self.predict_accum_count = 0
-                return succ
+            return succ
 
 
-                # if max_val < 0.3 and self.n_point > 10:
-                #     tile = abs(mean_val - self.mean_accum) / (self.n_point / 2)
-                #     if tile < 0.00025:
-                #         return self.scale_down()
-                #
-                # # accum
-                # if self.n_point > 0:
-                #     self.mean_accum = (self.mean_accum * self.n_point + mean_val) / (self.n_point + 1)
-                #     self.n_point = self.n_point + 1
-                # else:
-                #     self.mean_accum = mean_val
-                #     self.n_point = 1
+            # if max_val < 0.3 and self.n_point > 10:
+            #     tile = abs(mean_val - self.mean_accum) / (self.n_point / 2)
+            #     if tile < 0.00025:
+            #         return self.scale_down()
+            #
+            # # accum
+            # if self.n_point > 0:
+            #     self.mean_accum = (self.mean_accum * self.n_point + mean_val) / (self.n_point + 1)
+            #     self.n_point = self.n_point + 1
+            # else:
+            #     self.mean_accum = mean_val
+            #     self.n_point = 1
 
     def scale_down(self):
         if self._is_running:

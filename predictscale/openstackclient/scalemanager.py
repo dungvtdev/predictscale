@@ -55,7 +55,7 @@ class ScaleManager():
             self.predict_accum_count = 0
 
         high_low_count = len([m for m in predict_list if m >= 0.23])
-        if self.predict_accum_count >= 25 and high_low_count == 0:
+        if self.predict_accum_count >= 12 and high_low_count == 0:
             succ = self.scale_down()
             if succ:
                 self.predict_accum_count = 0

@@ -27,13 +27,13 @@ class InfluxdbCache():
         real_s = tmpl.format(metric=metric, id=instance_id, value=real_val, type='real', time=t)
 
         if predict_list:
-            t = t + 60 * 1000000000
-            predict_val = predict_list[0]
-            predict_s = tmpl.format(metric=metric, id=instance_id, value=predict_val, type='predict', time=t)
+            # t = t + 60 * 1000000000
+            # predict_val = predict_list[0]
+            # predict_s = tmpl.format(metric=metric, id=instance_id, value=predict_val, type='predict', time=t)
 
             predict_future_s = [
                 tmpl.format(metric=metric, id=instance_id, value=predict_list[i],
-                            type='predict_future_%s' % i, time=t + 60 * 1000000000 * i)
+                            type='predict_future_%s' % i, time=t + 60 * 1000000000 * (i+1) * config.minute_per_one)
                 for i in range(len(predict_list))]
             # mean_val = sum(predict_list)/len(predict_list)
             # max_val = max(predict_list)
@@ -42,7 +42,7 @@ class InfluxdbCache():
             threshold = 0.4
             n_exceed = len([it for it in predict_list if it >= threshold])
             exceed_s = tmpl.format(metric=metric, id=instance_id, value=n_exceed, type='exceed', time=t)
-            data = '\n'.join([real_s, exceed_s, predict_s] + predict_future_s)
+            data = '\n'.join([real_s, exceed_s] + predict_future_s)
             self.write(data)
         else:
             data = real_s

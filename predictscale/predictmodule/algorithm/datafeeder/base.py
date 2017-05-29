@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 
+from predictmodule import config
 
 # def normalize(data):
 #     norm = (data - data.min()) / (data.max() - data.min())
@@ -32,18 +33,26 @@ class BaseFeeder():
             else self.n_periodic
         self.period = period or self.period
 
+        if self.period:
+            self.period = self.period / config.minute_per_one
+
     def preprocess_data(self, data):
         raise NotImplementedError('Feeder need implement preprocess_data')
 
     def generate(self, data, range_data):
         data = self.preprocess_data(data)
 
+        minute_per_one = config.minute_per_one
+
+        data = pd.DataFrame(data).set_index(data.index/minute_per_one)
+        data = data.groupby(data.index).mean()[0]
+
         self._max = data.max()
         self._min = data.min()
         data = (data - self._min) / (self._max - self._min)
 
-        period = self.period
-        output_train = data[range_data[0]:range_data[1]]
+        # period = self.period
+        output_train = data[range_data[0]/minute_per_one:range_data[1]/minute_per_one]
         input_train = self.get_train_data(output_train, data)
         return np.asarray(input_train), np.asarray(output_train)
 

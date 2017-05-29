@@ -50,6 +50,8 @@ class InstanceMonitorContainer(object):
         self.feeder = None
         self.predictor = None
 
+        self.loop_time = None
+
         period = instance_meta['period']
         self.series = ChunkSeries(max_length=period + 1,
                                   bias_length=conf.chunk_series_length_bias)
@@ -122,11 +124,13 @@ class InstanceMonitorContainer(object):
                 raise exceptions.InstanceFailError()
 
     def tick_time(self, tick_minute=0):
-        if time.time() - self._last_time_stamp >= tick_minute * 60:
-            self._last_time_real = self._last_time_real + tick_minute
-            self._need_time = self._need_time - tick_minute
+        self.loop_time = tick_minute
 
-        self._last_time_stamp = time.time()
+        # if time.time() - self._last_time_stamp >= tick_minute * 60:
+        self._last_time_real = self._last_time_real + tick_minute
+        self._need_time = self._need_time - tick_minute
+
+        # self._last_time_stamp = time.time()
 
     def check_time_to_run(self):
         # return self._last_time_real >= \
@@ -271,7 +275,7 @@ class InstanceMonitorContainer(object):
         # self._last_time_real = self._last_time_real + 1
         try:
             # phong khong lay duoc du lieu, thi lay 2 diem du lieu 1 lan
-            last_in = self._last_time_real - 1
+            last_in = self._last_time_real - self.loop_time
             data, last = self.fetch.get_short_data_as_list(last_in)
 
             self._last_time_real = last
@@ -294,7 +298,7 @@ class InstanceMonitorContainer(object):
         predict_length = self._instance_meta['predict_length']
         wnd = []
         for i in range(predict_length):
-            input_data = self.feeder.generate_extend(data=self.series.data,
+            input_data = self.feeder.generate_extend(data=self.series.get_data_resample(),
                                                      extend=wnd)
             normalize_input = self.feeder._normalize(input_data)
             val = self._predict(normalize_input)

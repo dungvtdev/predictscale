@@ -1,4 +1,5 @@
 import pandas as pd
+from predictmodule import config
 
 
 class Series(object):
@@ -10,12 +11,13 @@ class Series(object):
         super(Series, self).__init__()
         self.name = kwargs.get('name', None)
 
-    def get_pandas_resample_char(self):
-        raise NotImplementedError('get_pandas_resample_char must be implement')
+    # def get_pandas_resample_char(self):
+    #     raise NotImplementedError('get_pandas_resample_char must be implement')
 
     def append(self, points, last):
         if self.data is None:
             self.data = pd.Series(data=points)
+
             self.last = last
         else:
             self._append(points, last)
@@ -29,7 +31,9 @@ class Series(object):
             bu.extend(points)
             new = bu
         if new:
-            self.data = self.data.append(pd.Series(new), ignore_index=True)
+            df = pd.DataFrame(new)
+            s = df.groupby(df.index/config.minute_per_one).mean()[0]
+            self.data = self.data.append(s, ignore_index=True)
             self.last = last
 
     # def append_secs(self, secs_tuple):
@@ -57,13 +61,17 @@ class Series(object):
     #     return rl
 
     def get_last(self):
+        minute_per_one = config.minute_per_one
         rl = self.data.iloc[-1]
         return rl
 
+    def get_data_resample(self):
+        return self.data
 
 class SeriesMinute(Series):
-    def get_last_max_seconds(self):
-        return self.last_secs + 59
+    pass
+    # def get_last_max_seconds(self):
+    #     return self.last_secs + 59
 
-    def get_pandas_resample_char(self):
-        return 'T'
+    # def get_pandas_resample_char(self):
+    #     return 'T'

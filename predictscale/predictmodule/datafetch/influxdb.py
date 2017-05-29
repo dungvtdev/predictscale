@@ -1,7 +1,6 @@
 import json
 from . import influxdbdriver as driver
 from . import base
-import time
 from predictmodule import utils
 import numpy as np
 from share import log

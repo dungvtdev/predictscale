@@ -141,7 +141,7 @@ manager = None
 class PredictManager(threading.Thread):
     _default = None
 
-    _loop_minute = 1
+    _loop_minute = cf.minute_per_one
 
     # _wait_list = None
     # _pushing_list = None

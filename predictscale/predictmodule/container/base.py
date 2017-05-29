@@ -270,8 +270,9 @@ class InstanceMonitorContainer(object):
     def predict(self):
         # self._last_time_real = self._last_time_real + 1
         try:
-            data, last = self.fetch.get_short_data_as_list(
-                self._last_time_real)
+            # phong khong lay duoc du lieu, thi lay 2 diem du lieu 1 lan
+            last_in = self._last_time_real - 1
+            data, last = self.fetch.get_short_data_as_list(last_in)
 
             self._last_time_real = last
             # from predictmodule.test_bed import cache_test

@@ -29,7 +29,7 @@ class ScaleManager():
         if not predict_list:
             return
 
-        high_count = len([m for m in predict_list if m >= 0.39])
+        high_count = len([m for m in predict_list if m >= 0.37])
         # for m in predict_list:
         #     if m >= 0.39:
         #         high_count = high_count + 1
@@ -49,12 +49,12 @@ class ScaleManager():
             succ = self.scale_up()
             return succ
 
-        if predict_list[0] < 0.2:
+        if predict_list[0] <= 0.18:
             self.predict_accum_count = self.predict_accum_count + 1
         else:
             self.predict_accum_count = 0
 
-        high_low_count = len([m for m in predict_list if m >= 0.22])
+        high_low_count = len([m for m in predict_list if m >= 0.23])
         if self.predict_accum_count >= 25 and high_low_count == 0:
             succ = self.scale_down()
             if succ:

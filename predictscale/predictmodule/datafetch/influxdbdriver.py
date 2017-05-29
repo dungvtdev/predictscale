@@ -70,13 +70,10 @@ class DataBatchGet(DataGetBase):
         # print('Get data from %s to %s' % (begin, end))
 
         _begin = end
-        _end = end
         result = None
         batch_size = batch_size_by_time_dv(self.batch_size, self._epoch)
         count = 0
 
-        finish = False
-        has_more = False
         while _begin > begin:
             _end = _begin
             _begin = _end - batch_size

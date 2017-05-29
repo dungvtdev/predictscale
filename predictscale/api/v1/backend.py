@@ -30,7 +30,6 @@ class DBBackend(object):
     def __init__(self):
         config = configtool.get_config('DB')
         engine_path = config['engine']
-        is_debug = config['debug']
 
         self._engine = create_engine(engine_path, echo=False)
         self._session = scoped_session(sessionmaker(bind=self._engine))

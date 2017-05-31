@@ -22,7 +22,7 @@ class AuthAgent(object):
 
     def encode_token(self, token):
         parts = token.split('.')
-        if len(part) != 3:
+        if len(parts) != 3:
             raise InvalidToken('Invalid Token parts, need 3 parts')
 
         b64header = parts[0]
@@ -61,7 +61,7 @@ class UserTokenAuth(AuthAgent):
         return self.check_token()
 
     def is_own(self, token, user_id):
-        if not is_authen:
+        if not self.is_authen:
             return False
         payload = self.encode_token(token)
         return payload.get('user_id', None) == user_id

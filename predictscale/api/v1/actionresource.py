@@ -3,6 +3,7 @@ from .backend import DBBackend
 from . import action
 import re
 from predictmodule import apiutils
+from predictmodule import config
 
 
 def camelcase_to_underscore(key):
@@ -114,15 +115,20 @@ class GroupActionResource(object):
             for inst in insts:
                 d = action.get_last_predict(inst.instance_id, metric)
                 d = d or {}
+                unit = getattr(config,'minute_per_one', None)
+                periodic_number = group.get('periodic_number', None)
+                length = unit * periodic_number \
+                    if unit is not None and periodic_number is not None else None
                 rl.append({
                     'instance_id': inst.instance_id,
-                    'length': group.get('periodic_number', None),
+                    'length': length,
                     'mean_val': d.get('mean_val', None),
                     'max_val': d.get('max_val', None)
                 })
         req.context['result'] = {
             'predict': rl
         }
+
 
 routes = [
     ('/users/{user_id}/groups/{id}/{action}', GroupActionResource())

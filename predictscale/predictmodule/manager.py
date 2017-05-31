@@ -423,7 +423,7 @@ class PredictManager(threading.Thread):
         else:
             next_secs = 30
 
-        msg = msg or 'Error. Check params and Try again.'
+        msg = msg or 'Container is not enable. Please wait.'
 
         return {
             'process': process,

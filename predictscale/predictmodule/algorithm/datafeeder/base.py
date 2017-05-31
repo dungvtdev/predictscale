@@ -3,6 +3,7 @@ import numpy as np
 
 from predictmodule import config
 
+
 # def normalize(data):
 #     norm = (data - data.min()) / (data.max() - data.min())
 #     return norm
@@ -15,7 +16,6 @@ from predictmodule import config
 
 
 class BaseFeeder():
-
     def __init__(self, data_fetch=None, **kwargs):
         self.data_fetch = data_fetch
 
@@ -39,12 +39,12 @@ class BaseFeeder():
     def preprocess_data(self, data):
         raise NotImplementedError('Feeder need implement preprocess_data')
 
-    def generate(self, data, range_data):
+    def generate(self, data, range_data, k=None):
         data = self.preprocess_data(data)
 
         minute_per_one = config.minute_per_one
 
-        data = pd.DataFrame(data).set_index(data.index/minute_per_one)
+        data = pd.DataFrame(data).set_index(data.index / minute_per_one)
         data = data.groupby(data.index).mean()[0]
 
         self._max = data.max()
@@ -52,18 +52,20 @@ class BaseFeeder():
         data = (data - self._min) / (self._max - self._min)
 
         # period = self.period
-        output_train = data[range_data[0]/minute_per_one:range_data[1]/minute_per_one]
-        input_train = self.get_train_data(output_train, data)
+        output_train = data[range_data[0] / minute_per_one:range_data[1] / minute_per_one]
+        input_train = self.get_train_data(output_train, data, k)
         return np.asarray(input_train), np.asarray(output_train)
 
-    def get_train_data(self, output_train, raw_data):
+    def get_train_data(self, output_train, raw_data, k=None):
         training = []
+        k = k or 1
+
         for r in range(output_train.index[0], output_train.index[-1] + 1):
             temp = []
             for p in range(0, self.n_input):
                 temp.append(raw_data[r - p - 1])
             for m in range(1, self.n_periodic + 1):
-                pval = raw_data[r - m * self.period]
+                pval = raw_data[r - m * self.period + k - 1]
                 temp.append(pval)
             training.append(temp)
         return training

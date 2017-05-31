@@ -107,6 +107,7 @@ class DataBatchGet(DataGetBase):
                 break
 
         # print('Get Success %s' % count)
-        logger.debug(
-            'Get traning data info begin %s, last %s, count %s' % (begin, end, count))
+        if logger:
+            logger.debug(
+                'Get traning data info begin %s, last %s, count %s' % (begin, end, count))
         return result

@@ -50,8 +50,8 @@ def convert_to_dataframe(values):
     return convert
 
 if __name__ == '__main__':
-    begin = '2017-05-27 7:27:00'
-    end = '2017-05-27 11:04:00'
+    begin = '2017-05-30 14:20:32'
+    end = '2017-05-30 21:18:16'
 
     ax = plt.subplot()
     ax.set_color_cycle(['blue', 'red', 'green'])
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     # real_convert = real_convert.resample('T').mean()
     ax.plot(real_convert.index, real_convert[0], label='Real', zorder=1)
 
-    predict = next((it for it in data_d if it['tags']['type'] == 'predict'), None)
+    predict = next((it for it in data_d if it['tags']['type'] == 'predict_future_0'), None)
     predict = predict['values']
     predict_convert = convert_to_dataframe(predict)
     ax.plot(predict_convert.index, predict_convert[0], '--', label='Predict', zorder=2)
@@ -76,9 +76,9 @@ if __name__ == '__main__':
     # predict_convert = predict_convert.resample('T').mean()
     ax.scatter(scale_up_convert.index, scale_up_convert[0], marker='^', s=100,c='black', label='Node Up', zorder=3)
 
-    scale_down_data = get_data_scale(begin, end, "scale_down")
-    scale_down_d = json.loads(scale_down_data)['results'][0]['series'][0]["values"]
-    scale_down_convert = convert_to_dataframe(scale_down_d)
-    ax.scatter(scale_down_convert.index, scale_down_convert[0], marker='s', s=100,c='black', label='Node Down', zorder=4)
+    # scale_down_data = get_data_scale(begin, end, "scale_down")
+    # scale_down_d = json.loads(scale_down_data)['results'][0]['series'][0]["values"]
+    # scale_down_convert = convert_to_dataframe(scale_down_d)
+    # ax.scatter(scale_down_convert.index, scale_down_convert[0], marker='s', s=100,c='black', label='Node Down', zorder=4)
 
     plt.show()

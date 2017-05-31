@@ -40,5 +40,5 @@ scale_settings = {
     'minute_duration': 15,
 }
 
-minute_per_one = 4
+minute_per_one = 1
 

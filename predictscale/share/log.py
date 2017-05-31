@@ -11,8 +11,12 @@ def init(config_module):
 
 
 def get_params(config):
-    file = config.get('file', None)
-    level_s = config.get('level', None)
+    try:
+        file = config.get('file', None)
+        level_s = config.get('level', None)
+    except:
+        file = 'test.log'
+        level_s = 'INFO'
 
     if not file or not level_s:
         raise ValueError('file, level of log must be defined \

@@ -1,10 +1,10 @@
 import startup
-from prediction.core.algorithm.predict import base
-from prediction.data.datafetch import datacsv
-from prediction.core.algorithm.datafeeder import experiment_feeder as ef
+from predictmodule.algorithm.predict import base
+from predictmodule.datafetch import datacsv
+from predictmodule.algorithm.datafeeder import experiment_feeder as ef
 
 from sklearn.metrics import mean_squared_error
-from prediction.core.algorithm.utils.GraphUtil import *
+from predictmodule.algorithm.utils.GraphUtil import *
 from math import sqrt
 
 
@@ -20,9 +20,9 @@ pop_size = 50
 
 def experiment_1():
     csv_reader = datacsv.CSVReader('10min_workload.csv')
-    predictor = base.Predictor(n_input=n_input,
-                               n_periodic=n_periodic,
-                               n_neural_hidden=n_hidden,
+    predictor = base.Predictor(recent_point=n_input,
+                               periodic_number=n_periodic,
+                               neural_size=n_hidden,
                                period=142)
     feeder = ef.ExperimentFeeder(csv_reader)
     predictor.train(feeder)
@@ -38,9 +38,9 @@ def experiment_1():
 
 def experiment_2():
     csv_reader = datacsv.CSVReader('1m.data.csv')
-    predictor = base.Predictor(n_input=n_input,
-                               n_periodic=n_periodic,
-                               n_neural_hidden=n_hidden,
+    predictor = base.Predictor(recent_point=n_input,
+                               periodic_number=n_periodic,
+                               neural_size=n_hidden,
                                period=480)
     feeder = ef.ExperimentFeeder2(csv_reader)
     predictor.train(feeder)

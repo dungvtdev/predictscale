@@ -61,7 +61,7 @@ class Series(object):
     #     return rl
 
     def get_last(self):
-        minute_per_one = config.minute_per_one
+        # minute_per_one = config.minute_per_one
         rl = self.data.iloc[-1]
         return rl
 
